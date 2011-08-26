@@ -176,8 +176,6 @@ public class SimpleCameraControls extends Sprite
 
 	private function enableOrbitCameraController():void
 	{
-		cameraController = new OrbitCameraController(view.camera, _sphere);
-
 		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
 		keyboardContext.map(Keyboard.Z, new InputEvent(InputEvent.MOVE_Z, -100));
 		keyboardContext.map(Keyboard.X, new InputEvent(InputEvent.MOVE_Z, 100));
@@ -200,13 +198,12 @@ public class SimpleCameraControls extends Sprite
 		compositeContext.addContext(keyboardContext);
 		compositeContext.addContext(mouseContext);
 
+		cameraController = new OrbitCameraController(view.camera, _sphere);
 		cameraController.inputContext = compositeContext;
 	}
 
 	private function enableFlyCameraController():void
 	{
-		cameraController = new FreeFlyCameraController(view.camera);
-
 		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
 		keyboardContext.map(Keyboard.W, new InputEvent(InputEvent.MOVE_Z, 100));
 		keyboardContext.map(Keyboard.S, new InputEvent(InputEvent.MOVE_Z, -100));
@@ -228,6 +225,7 @@ public class SimpleCameraControls extends Sprite
 		compositeContext.addContext(keyboardContext);
 		compositeContext.addContext(mouseContext);
 
+		cameraController = new FreeFlyCameraController(view.camera);
 		cameraController.inputContext = compositeContext;
 	}
 

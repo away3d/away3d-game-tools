@@ -19,9 +19,9 @@ public class FreeFlyCameraController extends CameraControllerBase
 	override public function set inputContext(context:InputContext):void
 	{
 		super.inputContext = context;
-		registerEvent(InputEvent.MOVE_Z, moveZ);
-		registerEvent(InputEvent.MOVE_Y, moveY);
 		registerEvent(InputEvent.MOVE_X, moveX);
+		registerEvent(InputEvent.MOVE_Y, moveY);
+		registerEvent(InputEvent.MOVE_Z, moveZ);
 		registerEvent(InputEvent.ROTATE_X, rotateX);
 		registerEvent(InputEvent.ROTATE_Y, rotateY);
 	}
