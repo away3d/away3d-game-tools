@@ -1,8 +1,8 @@
 package age.camera.controllers
 {
 
-import age.camera.events.CameraControllerEvent;
 import age.input.InputContext;
+import age.input.events.InputEvent;
 
 import away3d.containers.ObjectContainer3D;
 
@@ -16,14 +16,14 @@ public class FreeFlyCameraController extends CameraControllerBase
 		super(camera);
 	}
 
-	override public function addInputContext(context:InputContext):void
+	override public function set inputContext(context:InputContext):void
 	{
-		super.addInputContext(context);
-		registerEvent(CameraControllerEvent.MOVE_Z, moveZ);
-		registerEvent(CameraControllerEvent.MOVE_Y, moveY);
-		registerEvent(CameraControllerEvent.MOVE_X, moveX);
-		registerEvent(CameraControllerEvent.ROTATE_X, rotateX);
-		registerEvent(CameraControllerEvent.ROTATE_Y, rotateY);
+		super.inputContext = context;
+		registerEvent(InputEvent.MOVE_Z, moveZ);
+		registerEvent(InputEvent.MOVE_Y, moveY);
+		registerEvent(InputEvent.MOVE_X, moveX);
+		registerEvent(InputEvent.ROTATE_X, rotateX);
+		registerEvent(InputEvent.ROTATE_Y, rotateY);
 	}
 
 	override public function update():void

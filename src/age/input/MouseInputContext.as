@@ -1,8 +1,8 @@
 package age.input
 {
 
-import age.input.data.MouseInput;
-import age.input.events.InputContextEvent;
+import age.input.data.MouseActions;
+import age.input.events.InputEvent;
 
 import flash.display.Sprite;
 import flash.events.MouseEvent;
@@ -37,18 +37,18 @@ public class MouseInputContext extends InputContext
 		for(var i:uint; i < _mappedCodes.length; i++)
 		{
 			var code:uint = _mappedCodes[i];
-			var evt:InputContextEvent = _eventMappings[code];
+			var evt:InputEvent = _eventMappings[code];
 
 			if(_mouseIsDown)
 			{
 				switch(code)
 				{
-					case MouseInput.DRAG_X:
+					case MouseActions.DRAG_X:
 						var dx:Number = _mousePositionCurrent.x - _mousePositionLast.x;
 						_mousePositionLast.x = _mousePositionCurrent.x;
 						evt.amount = dx * mouseInputFactorX;
 						break;
-					case MouseInput.DRAG_Y:
+					case MouseActions.DRAG_Y:
 						var dy:Number = _mousePositionCurrent.y - _mousePositionLast.y;
 						_mousePositionLast.y = _mousePositionCurrent.y;
 						evt.amount = dy * mouseInputFactorY;

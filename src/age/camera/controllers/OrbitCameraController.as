@@ -1,8 +1,8 @@
 package age.camera.controllers
 {
 
-import age.camera.events.CameraControllerEvent;
 import age.input.InputContext;
+import age.input.events.InputEvent;
 
 import away3d.containers.ObjectContainer3D;
 
@@ -23,12 +23,12 @@ public class OrbitCameraController extends CameraControllerBase
 		super(camera);
 	}
 
-	override public function addInputContext(context:InputContext):void
+	override public function set inputContext(context:InputContext):void
 	{
-		super.addInputContext(context);
-		registerEvent(CameraControllerEvent.MOVE_Z, moveRadius);
-		registerEvent(CameraControllerEvent.ROTATE_Y, moveAzimuth);
-		registerEvent(CameraControllerEvent.ROTATE_X, moveElevation);
+		super.inputContext = context;
+		registerEvent(InputEvent.MOVE_Z, moveRadius);
+		registerEvent(InputEvent.ROTATE_Y, moveAzimuth);
+		registerEvent(InputEvent.ROTATE_X, moveElevation);
 	}
 
 	override public function update():void

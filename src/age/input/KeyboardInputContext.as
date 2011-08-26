@@ -1,7 +1,7 @@
 package age.input
 {
 
-import age.input.events.InputContextEvent;
+import age.input.events.InputEvent;
 
 import flash.display.Stage;
 import flash.events.Event;
@@ -31,7 +31,7 @@ public class KeyboardInputContext extends InputContext
 			var keyCode:uint = _mappedCodes[i];
 			if(keyIsDown(keyCode))
 			{
-				var evt:InputContextEvent = _eventMappings[keyCode];
+				var evt:InputEvent = _eventMappings[keyCode];
 				dispatchEvent(evt);
 			}
 		}

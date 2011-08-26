@@ -3,11 +3,12 @@ package
 
 import age.camera.controllers.CameraControllerBase;
 import age.camera.controllers.OrbitCameraController;
-import age.camera.events.CameraControllerEvent;
 import age.camera.controllers.FreeFlyCameraController;
+import age.input.CompositeInputContext;
 import age.input.KeyboardInputContext;
-import age.input.data.MouseInput;
+import age.input.data.MouseActions;
 import age.input.MouseInputContext;
+import age.input.events.InputEvent;
 
 import away3d.containers.View3D;
 import away3d.debug.AwayStats;
@@ -31,9 +32,8 @@ import uk.co.soulwire.gui.SimpleGUI;
 
 /*
 	TODO:
-	- gui add sphere movement on/off button
-	- abstract mouse and keyboard management out of the controllers
-	- fly controller's mouse gets inverted after combining with orbit
+ 	- extend contexts instead of configuring them?
+ 	- give input contexts continuous = true/false option
  */
 public class SimpleCameraControls extends Sprite
 {
@@ -179,24 +179,28 @@ public class SimpleCameraControls extends Sprite
 		cameraController = new OrbitCameraController(view.camera, _sphere);
 
 		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
-		keyboardContext.map(Keyboard.Z, new CameraControllerEvent(CameraControllerEvent.MOVE_Z, -100));
-		keyboardContext.map(Keyboard.X, new CameraControllerEvent(CameraControllerEvent.MOVE_Z, 100));
-		keyboardContext.map(Keyboard.W, new CameraControllerEvent(CameraControllerEvent.ROTATE_X, -0.1));
-		keyboardContext.map(Keyboard.S, new CameraControllerEvent(CameraControllerEvent.ROTATE_X, 0.1));
-		keyboardContext.map(Keyboard.A, new CameraControllerEvent(CameraControllerEvent.ROTATE_Y, 0.1));
-		keyboardContext.map(Keyboard.D, new CameraControllerEvent(CameraControllerEvent.ROTATE_Y, -0.1));
-		keyboardContext.map(Keyboard.UP, new CameraControllerEvent(CameraControllerEvent.ROTATE_X, -0.1));
-		keyboardContext.map(Keyboard.DOWN, new CameraControllerEvent(CameraControllerEvent.ROTATE_X, 0.1));
-		keyboardContext.map(Keyboard.LEFT, new CameraControllerEvent(CameraControllerEvent.ROTATE_Y, 0.1));
-		keyboardContext.map(Keyboard.RIGHT, new CameraControllerEvent(CameraControllerEvent.ROTATE_Y, -0.1));
-		cameraController.addInputContext(keyboardContext);
+		keyboardContext.map(Keyboard.Z, new InputEvent(InputEvent.MOVE_Z, -100));
+		keyboardContext.map(Keyboard.X, new InputEvent(InputEvent.MOVE_Z, 100));
+		keyboardContext.map(Keyboard.W, new InputEvent(InputEvent.ROTATE_X, -0.1));
+		keyboardContext.map(Keyboard.S, new InputEvent(InputEvent.ROTATE_X, 0.1));
+		keyboardContext.map(Keyboard.A, new InputEvent(InputEvent.ROTATE_Y, 0.1));
+		keyboardContext.map(Keyboard.D, new InputEvent(InputEvent.ROTATE_Y, -0.1));
+		keyboardContext.map(Keyboard.UP, new InputEvent(InputEvent.ROTATE_X, -0.1));
+		keyboardContext.map(Keyboard.DOWN, new InputEvent(InputEvent.ROTATE_X, 0.1));
+		keyboardContext.map(Keyboard.LEFT, new InputEvent(InputEvent.ROTATE_Y, 0.1));
+		keyboardContext.map(Keyboard.RIGHT, new InputEvent(InputEvent.ROTATE_Y, -0.1));
 
 		var mouseContext:MouseInputContext = new MouseInputContext(view);
-		mouseContext.map(MouseInput.DRAG_X, new CameraControllerEvent(CameraControllerEvent.ROTATE_Y));
-		mouseContext.map(MouseInput.DRAG_Y, new CameraControllerEvent(CameraControllerEvent.ROTATE_X));
+		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
+		mouseContext.map(MouseActions.DRAG_Y, new InputEvent(InputEvent.ROTATE_X));
 		mouseContext.mouseInputFactorX = 0.005;
 		mouseContext.mouseInputFactorY = -0.005;
-		cameraController.addInputContext(mouseContext);
+
+		var compositeContext:CompositeInputContext = new CompositeInputContext();
+		compositeContext.addContext(keyboardContext);
+		compositeContext.addContext(mouseContext);
+
+		cameraController.inputContext = compositeContext;
 	}
 
 	private function enableFlyCameraController():void
@@ -204,23 +208,27 @@ public class SimpleCameraControls extends Sprite
 		cameraController = new FreeFlyCameraController(view.camera);
 
 		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
-		keyboardContext.map(Keyboard.W, new CameraControllerEvent(CameraControllerEvent.MOVE_Z, 100));
-		keyboardContext.map(Keyboard.S, new CameraControllerEvent(CameraControllerEvent.MOVE_Z, -100));
-		keyboardContext.map(Keyboard.A, new CameraControllerEvent(CameraControllerEvent.MOVE_X, -100));
-		keyboardContext.map(Keyboard.D, new CameraControllerEvent(CameraControllerEvent.MOVE_X, 100));
-		keyboardContext.map(Keyboard.UP, new CameraControllerEvent(CameraControllerEvent.MOVE_Z, 100));
-		keyboardContext.map(Keyboard.DOWN, new CameraControllerEvent(CameraControllerEvent.MOVE_Z, -100));
-		keyboardContext.map(Keyboard.LEFT, new CameraControllerEvent(CameraControllerEvent.MOVE_X, -100));
-		keyboardContext.map(Keyboard.RIGHT, new CameraControllerEvent(CameraControllerEvent.MOVE_X, 100));
-		keyboardContext.map(Keyboard.Z, new CameraControllerEvent(CameraControllerEvent.MOVE_Y, -100));
-		keyboardContext.map(Keyboard.X, new CameraControllerEvent(CameraControllerEvent.MOVE_Y, 100));
-		cameraController.addInputContext(keyboardContext);
+		keyboardContext.map(Keyboard.W, new InputEvent(InputEvent.MOVE_Z, 100));
+		keyboardContext.map(Keyboard.S, new InputEvent(InputEvent.MOVE_Z, -100));
+		keyboardContext.map(Keyboard.A, new InputEvent(InputEvent.MOVE_X, -100));
+		keyboardContext.map(Keyboard.D, new InputEvent(InputEvent.MOVE_X, 100));
+		keyboardContext.map(Keyboard.UP, new InputEvent(InputEvent.MOVE_Z, 100));
+		keyboardContext.map(Keyboard.DOWN, new InputEvent(InputEvent.MOVE_Z, -100));
+		keyboardContext.map(Keyboard.LEFT, new InputEvent(InputEvent.MOVE_X, -100));
+		keyboardContext.map(Keyboard.RIGHT, new InputEvent(InputEvent.MOVE_X, 100));
+		keyboardContext.map(Keyboard.Z, new InputEvent(InputEvent.MOVE_Y, -100));
+		keyboardContext.map(Keyboard.X, new InputEvent(InputEvent.MOVE_Y, 100));
 
 		var mouseContext:MouseInputContext = new MouseInputContext(view);
-		mouseContext.map(MouseInput.DRAG_X, new CameraControllerEvent(CameraControllerEvent.ROTATE_Y));
-		mouseContext.map(MouseInput.DRAG_Y, new CameraControllerEvent(CameraControllerEvent.ROTATE_X));
+		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
+		mouseContext.map(MouseActions.DRAG_Y, new InputEvent(InputEvent.ROTATE_X));
 		mouseContext.mouseInputFactorX = mouseContext.mouseInputFactorY = 0.25;
-		cameraController.addInputContext(mouseContext);
+
+		var compositeContext:CompositeInputContext = new CompositeInputContext();
+		compositeContext.addContext(keyboardContext);
+		compositeContext.addContext(mouseContext);
+
+		cameraController.inputContext = compositeContext;
 	}
 
 	// ---------------------------------------------------------------------

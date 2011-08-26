@@ -1,7 +1,7 @@
 package age.input
 {
 
-import age.input.events.InputContextEvent;
+import age.input.events.InputEvent;
 
 import flash.events.Event;
 import flash.events.EventDispatcher;
@@ -29,7 +29,7 @@ public class InputContext extends EventDispatcher
 		processInput();
 	}
 
-	public function map(inputCode:uint, event:InputContextEvent):void
+	public function map(inputCode:uint, event:InputEvent):void
 	{
 		_mappedCodes.push(inputCode);
 		_eventMappings[inputCode] = event;
