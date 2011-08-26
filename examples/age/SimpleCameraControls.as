@@ -132,7 +132,7 @@ public class SimpleCameraControls extends Sprite
         addChild(stats);
 
 		// start camera control
-		cameraMode = "orbit";
+		cameraMode = "fly";
 	}
 
 	private function enterframeHandler(evt:Event):void
