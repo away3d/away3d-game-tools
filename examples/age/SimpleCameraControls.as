@@ -41,6 +41,9 @@ public class SimpleCameraControls extends Sprite
 	public var light:PointLight;
 	public var gui:SimpleGUI;
 	public var cameraController:CameraControllerBase;
+	public var keyboardContext:KeyboardInputContext;
+	public var mouseContext:MouseInputContext;
+	public var compositeContext:CompositeInputContext;
 
 	private var _sphere:Sphere;
 
@@ -108,7 +111,7 @@ public class SimpleCameraControls extends Sprite
 					var z:Number = offset + delta*k;
 
 					var dis:Number = Math.sqrt( x*x + y*y + z*z);
-					if(dis > 2600)
+					if(dis > 2400)
 					{
 						var cube:Mesh = Mesh(referenceCube.clone());
 						cube.x = x;
@@ -140,9 +143,9 @@ public class SimpleCameraControls extends Sprite
 		// sphere position
 		if(_moveSphere)
 		{
-			_sphere.x = 1500*Math.sin(0.001*getTimer());
-			_sphere.y = 1500*Math.sin(0.001*getTimer());
-			_sphere.z = 1500*Math.cos(0.001*getTimer());
+			_sphere.x = 1000*Math.sin(0.001*getTimer());
+			_sphere.y = 1000*Math.sin(0.002*getTimer());
+			_sphere.z = 1000*Math.cos(0.003*getTimer());
 		}
 		else
 		 	_sphere.position = new Vector3D();
@@ -176,7 +179,7 @@ public class SimpleCameraControls extends Sprite
 
 	private function enableOrbitCameraController():void
 	{
-		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
+		keyboardContext = new KeyboardInputContext(stage);
 		keyboardContext.map(Keyboard.Z, new InputEvent(InputEvent.MOVE_Z, -100));
 		keyboardContext.map(Keyboard.X, new InputEvent(InputEvent.MOVE_Z, 100));
 		keyboardContext.map(Keyboard.W, new InputEvent(InputEvent.ROTATE_X, -0.1));
@@ -188,13 +191,13 @@ public class SimpleCameraControls extends Sprite
 		keyboardContext.map(Keyboard.LEFT, new InputEvent(InputEvent.ROTATE_Y, 0.1));
 		keyboardContext.map(Keyboard.RIGHT, new InputEvent(InputEvent.ROTATE_Y, -0.1));
 
-		var mouseContext:MouseInputContext = new MouseInputContext(view);
+		mouseContext = new MouseInputContext(view);
 		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
 		mouseContext.map(MouseActions.DRAG_Y, new InputEvent(InputEvent.ROTATE_X));
 		mouseContext.mouseInputFactorX = 0.005;
 		mouseContext.mouseInputFactorY = -0.005;
 
-		var compositeContext:CompositeInputContext = new CompositeInputContext();
+		compositeContext = new CompositeInputContext();
 		compositeContext.addContext(keyboardContext);
 		compositeContext.addContext(mouseContext);
 
@@ -204,7 +207,7 @@ public class SimpleCameraControls extends Sprite
 
 	private function enableFlyCameraController():void
 	{
-		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
+		keyboardContext = new KeyboardInputContext(stage);
 		keyboardContext.map(Keyboard.W, new InputEvent(InputEvent.MOVE_Z, 100));
 		keyboardContext.map(Keyboard.S, new InputEvent(InputEvent.MOVE_Z, -100));
 		keyboardContext.map(Keyboard.A, new InputEvent(InputEvent.MOVE_X, -100));
@@ -216,13 +219,13 @@ public class SimpleCameraControls extends Sprite
 		keyboardContext.map(Keyboard.Z, new InputEvent(InputEvent.MOVE_Y, -100));
 		keyboardContext.map(Keyboard.X, new InputEvent(InputEvent.MOVE_Y, 100));
 
-		var mouseContext:MouseInputContext = new MouseInputContext(view);
+		mouseContext = new MouseInputContext(view);
 		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
 		mouseContext.map(MouseActions.DRAG_Y, new InputEvent(InputEvent.ROTATE_X));
 		mouseContext.mouseInputFactorX = 0.25;
 		mouseContext.mouseInputFactorY = 0.25;
 
-		var compositeContext:CompositeInputContext = new CompositeInputContext();
+		compositeContext = new CompositeInputContext();
 		compositeContext.addContext(keyboardContext);
 		compositeContext.addContext(mouseContext);
 
@@ -247,6 +250,9 @@ public class SimpleCameraControls extends Sprite
         gui.addComboBox("cameraMode", cameraModes, {width:100, label:"camera mode", numVisibleItems:cameraModes.length});
 		gui.addSlider("cameraController.linearEase", 0.01, 1, {label:"linear ease"});
 		gui.addSlider("cameraController.angularEase", 0.01, 1, {label:"angular ease"});
+		gui.addToggle("keyboardContext.enabled");
+		gui.addToggle("mouseContext.enabled");
+		gui.addToggle("compositeContext.enabled");
 
 		// info
 		gui.addGroup("camera info");
@@ -259,9 +265,9 @@ public class SimpleCameraControls extends Sprite
 
 		// instructions
 		gui.addGroup("instructions");
-		gui.addLabel("- try different camera modes");
-		gui.addLabel("- use keyboard arrows and keys WASDZX to move");
-		gui.addLabel("- drag the mouse on stage to move");
+		gui.addLabel("- try different camera modes \n" +
+					 "- use keyboard arrows and keys WASDZX to move \n" +
+					 "- drag the mouse on stage to move");
 
 		gui.show();
 	}
@@ -286,7 +292,7 @@ public class SimpleCameraControls extends Sprite
 		}
 	}
 
-	private var _moveSphere:Boolean;
+	private var _moveSphere:Boolean = true;
 	public function get moveSphere():Boolean
 	{
 		return _moveSphere;
