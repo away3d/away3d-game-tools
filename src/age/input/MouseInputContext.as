@@ -44,20 +44,44 @@ public class MouseInputContext extends InputContext
 				switch(code)
 				{
 					case MouseActions.DRAG_X:
-						var dx:Number = _mousePositionCurrent.x - _mousePositionLast.x;
-						_mousePositionLast.x = _mousePositionCurrent.x;
-						evt.amount = dx * mouseInputFactorX;
+						evt.amount = deltaX();
+						dispatchEvent(evt);
 						break;
 					case MouseActions.DRAG_Y:
-						var dy:Number = _mousePositionCurrent.y - _mousePositionLast.y;
-						_mousePositionLast.y = _mousePositionCurrent.y;
-						evt.amount = dy * mouseInputFactorY;
+						evt.amount = deltaY();
+						dispatchEvent(evt);
 						break;
 				}
-
-				dispatchEvent(evt);
+			}
+			else
+			{
+				switch(code)
+				{
+					case MouseActions.MOVE_X:
+						evt.amount = deltaX();
+						dispatchEvent(evt);
+						break;
+					case MouseActions.MOVE_Y:
+						evt.amount = deltaY();
+						dispatchEvent(evt);
+						break;
+				}
 			}
 		}
+	}
+
+	private function deltaX():Number
+	{
+		var dx:Number = (_mousePositionCurrent.x - _mousePositionLast.x) * mouseInputFactorX;
+		_mousePositionLast.x = _mousePositionCurrent.x;
+		return dx;
+	}
+
+	private function deltaY():Number
+	{
+		var dy:Number = (_mousePositionCurrent.y - _mousePositionLast.y) * mouseInputFactorY;
+		_mousePositionLast.y = _mousePositionCurrent.y;
+		return dy;
 	}
 
 	private function mouseDownHandler(evt:MouseEvent):void

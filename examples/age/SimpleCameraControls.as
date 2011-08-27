@@ -171,7 +171,7 @@ public class SimpleCameraControls extends Sprite
 	}
 
 	// ---------------------------------------------------------------------
-	// camera controllers
+	// camera controller setup
 	// ---------------------------------------------------------------------
 
 	private function enableOrbitCameraController():void
@@ -219,7 +219,8 @@ public class SimpleCameraControls extends Sprite
 		var mouseContext:MouseInputContext = new MouseInputContext(view);
 		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
 		mouseContext.map(MouseActions.DRAG_Y, new InputEvent(InputEvent.ROTATE_X));
-		mouseContext.mouseInputFactorX = mouseContext.mouseInputFactorY = 0.25;
+		mouseContext.mouseInputFactorX = 0.25;
+		mouseContext.mouseInputFactorY = 0.25;
 
 		var compositeContext:CompositeInputContext = new CompositeInputContext();
 		compositeContext.addContext(keyboardContext);
