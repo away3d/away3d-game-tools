@@ -16,7 +16,6 @@ public class KeyboardInputContext extends InputContext
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 		stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
 
-
 		_keysDown = new Dictionary();
 
 		super();
@@ -24,21 +23,22 @@ public class KeyboardInputContext extends InputContext
 
 	override protected function processInput():void
 	{
-		// dispatch events from key mappings
+		// dispatch events from any pressed key mappings
 		for(var i:uint; i < _mappedCodes.length; i++)
 		{
 			var keyCode:uint = _mappedCodes[i];
-			if(keyIsDown(keyCode))
-			{
-				var evt:InputEvent = _eventMappings[keyCode];
-				dispatchEvent(evt);
-			}
+			if(_continuity[keyCode] && keyIsDown(keyCode))
+				dispatchEvent(_eventMappings[keyCode]);
 		}
 	}
 
 	private function keyDownHandler(evt:KeyboardEvent):void
 	{
 		_keysDown[evt.keyCode] = true;
+
+		// dispatch event from key mapping?
+		if(_continuity[evt.keyCode] != null && !_continuity[evt.keyCode])
+			dispatchEvent(_eventMappings[evt.keyCode]);
 	}
 
 	private function keyUpHandler(evt:KeyboardEvent):void

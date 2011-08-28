@@ -38,6 +38,7 @@ public class OrbitCameraController extends CameraControllerBase
 
 		_targetSphericalCoordinates.y = containValue(_targetSphericalCoordinates.y, _minElevation, _maxElevation);
 
+		// ease spherical position
 		var dx:Number = _targetSphericalCoordinates.x - _currentSphericalCoordinates.x;
 		var dy:Number = _targetSphericalCoordinates.y - _currentSphericalCoordinates.y;
 		var dz:Number = _targetSphericalCoordinates.z - _currentSphericalCoordinates.z;
