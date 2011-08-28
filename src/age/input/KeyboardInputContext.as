@@ -23,12 +23,21 @@ public class KeyboardInputContext extends InputContext
 
 	override protected function processInput():void
 	{
+		// check multipliers
+		var k:Number = 1;
+		if(_multiplierCode >= 0 && keyIsDown(_multiplierCode))
+			k = _multiplierValue;
+
 		// dispatch events from any pressed key mappings
 		for(var i:uint; i < _mappedCodes.length; i++)
 		{
 			var keyCode:uint = _mappedCodes[i];
 			if(_continuity[keyCode] && keyIsDown(keyCode))
-				dispatchEvent(_eventMappings[keyCode]);
+			{
+				var evt:InputEvent = _eventMappings[keyCode];
+				evt.multiplier = k;
+				dispatchEvent(evt);
+			}
 		}
 	}
 

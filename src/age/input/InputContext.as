@@ -13,6 +13,8 @@ public class InputContext extends EventDispatcher
 	protected var _eventMappings:Dictionary;
 	protected var _continuity:Dictionary;
 	protected var _mappedCodes:Vector.<uint>;
+	protected var _multiplierCode:int = -1;
+	protected var _multiplierValue:Number = 1;
 
 	public function InputContext()
 	{
@@ -36,6 +38,12 @@ public class InputContext extends EventDispatcher
 		_mappedCodes.push(inputCode);
 		_eventMappings[inputCode] = event;
 		_continuity[inputCode] = continuous;
+	}
+
+	public function mapMultiplier(inputCode:uint, multiplier:Number):void
+	{
+		_multiplierCode = inputCode;
+		_multiplierValue = multiplier;
 	}
 
 	protected function processInput():void

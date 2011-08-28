@@ -224,6 +224,7 @@ public class SimpleCameraControls extends Sprite
 		gui.addGroup("instructions");
 		gui.addLabel("- try different camera modes \n" +
 					 "- use keyboard arrows and keys WASDZX to move \n" +
+					 "- holding SHIFT increases speed \n" +
 					 "- drag the mouse on stage to move");
 
 		gui.show();

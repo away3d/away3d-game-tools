@@ -49,7 +49,7 @@ public class CameraControllerBase extends EventDispatcher
 
 	private function processEvent(evt:InputEvent):void
 	{
-		_eventMapping[evt.type](evt.amount);
+		_eventMapping[evt.type](evt.amount * evt.multiplier);
 	}
 
 	public function get inputContext():InputContext

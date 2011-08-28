@@ -13,16 +13,18 @@ public class InputEvent extends Event
 	public static const ROTATE_Z:String = "rotate_z";
 
 	public var amount:Number;
+	public var multiplier:Number;
 
-	public function InputEvent(type:String, amount:Number = 0, bubbles:Boolean = false, cancelable:Boolean = false)
+	public function InputEvent(type:String, amount:Number = 0, multiplier:Number = 1, bubbles:Boolean = false, cancelable:Boolean = false)
 	{
 		this.amount = amount;
+		this.multiplier = multiplier;
 		super(type, bubbles, cancelable);
 	}
 
 	override public function clone():Event
 	{
-		return new InputEvent(type, amount, bubbles, cancelable);
+		return new InputEvent(type, amount, multiplier, bubbles, cancelable);
 	}
 }
 }

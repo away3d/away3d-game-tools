@@ -28,6 +28,7 @@ public class WASDAndMouseInputContext extends CompositeInputContext
 		keyboardContext.map(Keyboard.RIGHT, new InputEvent(InputEvent.MOVE_X, linearSpeed), false);
 		keyboardContext.map(Keyboard.Z, new InputEvent(InputEvent.MOVE_Y, -linearSpeed));
 		keyboardContext.map(Keyboard.X, new InputEvent(InputEvent.MOVE_Y, linearSpeed));
+		keyboardContext.mapMultiplier(Keyboard.SHIFT, 4);
 
 		mouseContext = new MouseInputContext(display);
 		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
