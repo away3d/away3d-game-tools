@@ -13,9 +13,8 @@ public class OrbitCameraController extends CameraControllerBase
 	private var _target:ObjectContainer3D;
 	private var _targetSphericalCoordinates:Vector3D;
 	private var _currentSphericalCoordinates:Vector3D;
-
-    private var _minElevation:Number = -Math.PI/2;
-    private var _maxElevation:Number = Math.PI/2; // Elevation range should stay within [-Pi/2, Pi/2].
+    private const _minElevation:Number = -Math.PI/2;
+    private const _maxElevation:Number = Math.PI/2;
 
 	public function OrbitCameraController(camera:ObjectContainer3D, target:ObjectContainer3D = null)
 	{
@@ -27,6 +26,8 @@ public class OrbitCameraController extends CameraControllerBase
 	{
 		super.inputContext = context;
 		registerEvent(InputEvent.MOVE_Z, moveRadius);
+		registerEvent(InputEvent.MOVE_X, moveAzimuth);
+		registerEvent(InputEvent.MOVE_Y, moveElevation);
 		registerEvent(InputEvent.ROTATE_Y, moveAzimuth);
 		registerEvent(InputEvent.ROTATE_X, moveElevation);
 	}
@@ -49,12 +50,12 @@ public class OrbitCameraController extends CameraControllerBase
 
 	public function moveAzimuth(amount:Number):void
 	{
-		_targetSphericalCoordinates.x += amount;
+		_targetSphericalCoordinates.x -= amount * 0.001;
 	}
 
 	public function moveElevation(amount:Number):void
 	{
-		_targetSphericalCoordinates.y += amount;
+		_targetSphericalCoordinates.y -= amount * 0.001;
 	}
 
 	public function moveRadius(amount:Number):void

@@ -4,7 +4,6 @@ package age.input
 import age.input.events.InputEvent;
 
 import flash.display.Stage;
-import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.utils.Dictionary;
 

@@ -3,13 +3,13 @@ package age.input
 
 import age.input.events.InputEvent;
 
-import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.utils.Dictionary;
 
 public class InputContext extends EventDispatcher
 {
 	public var enabled:Boolean;
+
 	protected var _eventMappings:Dictionary;
 	protected var _mappedCodes:Vector.<uint>;
 

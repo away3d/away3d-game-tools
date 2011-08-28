@@ -15,8 +15,9 @@ public class CameraControllerBase extends EventDispatcher
 	public var angularEase:Number = 0.25;
 
 	protected var _camera:ObjectContainer3D;
-	private var _inputContext:InputContext;
 	protected var _eventMapping:Dictionary;
+
+	private var _inputContext:InputContext;
 
 	public function CameraControllerBase(camera:ObjectContainer3D)
 	{
