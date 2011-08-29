@@ -191,6 +191,7 @@ public class SimplePlayerControls extends Sprite
 		playerInputContext.map(Keyboard.LEFT, new InputEvent(InputEvent.ROTATE_Y, -3));
 		playerInputContext.map(Keyboard.SPACE, new InputEvent(InputEvent.JUMP));
 		playerInputContext.mapOnKeyUp(new InputEvent(InputEvent.STOP));
+		playerInputContext.mapMultiplier(Keyboard.SHIFT, 4);
 
 		// player controller
 		playerController = new GroundEntityController(player);
