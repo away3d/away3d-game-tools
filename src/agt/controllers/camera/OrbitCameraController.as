@@ -1,8 +1,8 @@
-package age.camera.controllers
+package agt.controllers.camera
 {
 
-import age.input.InputContext;
-import age.input.events.InputEvent;
+import agt.devices.input.InputContext;
+import agt.devices.input.events.InputEvent;
 
 import away3d.containers.ObjectContainer3D;
 
@@ -61,7 +61,7 @@ public class OrbitCameraController extends CameraControllerBase
 
 	public function moveRadius(amount:Number):void
 	{
-		_targetSphericalCoordinates.z += amount;
+		_targetSphericalCoordinates.z -= amount;
 	}
 
 	private function containValue(value:Number, min:Number, max:Number):Number

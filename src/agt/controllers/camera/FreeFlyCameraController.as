@@ -1,8 +1,8 @@
-package age.camera.controllers
+package agt.controllers.camera
 {
 
-import age.input.InputContext;
-import age.input.events.InputEvent;
+import agt.devices.input.InputContext;
+import agt.devices.input.events.InputEvent;
 
 import away3d.containers.ObjectContainer3D;
 

@@ -1,4 +1,4 @@
-package age.input.events
+package agt.devices.input.events
 {
 
 import flash.events.Event;
@@ -11,6 +11,8 @@ public class InputEvent extends Event
 	public static const ROTATE_X:String = "rotate_x";
 	public static const ROTATE_Y:String = "rotate_y";
 	public static const ROTATE_Z:String = "rotate_z";
+	public static const JUMP:String = "jump";
+	public static const STOP:String = "stop";
 
 	public var amount:Number;
 	public var multiplier:Number;

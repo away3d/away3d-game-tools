@@ -1,7 +1,7 @@
-package age.input
+package agt.devices.input
 {
 
-import age.input.events.InputEvent;
+import agt.devices.input.events.InputEvent;
 
 public class CompositeInputContext extends InputContext
 {

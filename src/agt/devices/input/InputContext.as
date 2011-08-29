@@ -1,7 +1,7 @@
-package age.input
+package agt.devices.input
 {
 
-import age.input.events.InputEvent;
+import agt.devices.input.events.InputEvent;
 
 import flash.events.EventDispatcher;
 import flash.utils.Dictionary;

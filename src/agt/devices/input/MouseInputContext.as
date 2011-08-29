@@ -1,8 +1,8 @@
-package age.input
+package agt.devices.input
 {
 
-import age.input.data.MouseActions;
-import age.input.events.InputEvent;
+import agt.devices.input.data.MouseActions;
+import agt.devices.input.events.InputEvent;
 
 import flash.display.Sprite;
 import flash.events.MouseEvent;

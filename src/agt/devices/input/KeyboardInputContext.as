@@ -1,7 +1,7 @@
-package age.input
+package agt.devices.input
 {
 
-import age.input.events.InputEvent;
+import agt.devices.input.events.InputEvent;
 
 import flash.display.Stage;
 import flash.events.KeyboardEvent;
@@ -10,6 +10,7 @@ import flash.utils.Dictionary;
 public class KeyboardInputContext extends InputContext
 {
 	private var _keysDown:Dictionary;
+	private var _onKeyUpEvent:InputEvent;
 
 	public function KeyboardInputContext(stage:Stage)
 	{
@@ -41,6 +42,11 @@ public class KeyboardInputContext extends InputContext
 		}
 	}
 
+	public function mapOnKeyUp(event:InputEvent):void
+	{
+		_onKeyUpEvent = event;
+	}
+
 	private function keyDownHandler(evt:KeyboardEvent):void
 	{
 		_keysDown[evt.keyCode] = true;
@@ -53,6 +59,9 @@ public class KeyboardInputContext extends InputContext
 	private function keyUpHandler(evt:KeyboardEvent):void
 	{
 		_keysDown[evt.keyCode] = false;
+
+		if(_onKeyUpEvent)
+			dispatchEvent(_onKeyUpEvent);
 	}
 
 	private function keyIsDown(keyCode:uint):Boolean

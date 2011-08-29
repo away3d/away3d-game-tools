@@ -1,4 +1,4 @@
-package age.input.data
+package agt.devices.input.data
 {
 
 public class MouseActions

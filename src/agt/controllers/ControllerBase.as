@@ -1,27 +1,19 @@
-package age.camera.controllers
+package agt.controllers
 {
 
-import age.input.InputContext;
-import age.input.events.InputEvent;
-
-import away3d.containers.ObjectContainer3D;
+import agt.devices.input.InputContext;
+import agt.devices.input.events.InputEvent;
 
 import flash.events.EventDispatcher;
 import flash.utils.Dictionary;
 
-public class CameraControllerBase extends EventDispatcher
+public class ControllerBase extends EventDispatcher
 {
-	public var linearEase:Number = 0.25;
-	public var angularEase:Number = 0.25;
-
-	protected var _camera:ObjectContainer3D;
+	private var _inputContext:InputContext;
 	protected var _eventMapping:Dictionary;
 
-	private var _inputContext:InputContext;
-
-	public function CameraControllerBase(camera:ObjectContainer3D)
+	public function ControllerBase()
 	{
-		this.camera = camera;
 		_eventMapping = new Dictionary();
 		super();
 	}
@@ -32,15 +24,6 @@ public class CameraControllerBase extends EventDispatcher
 			_inputContext.update();
 	}
 
-	public function set camera(value:ObjectContainer3D):void
-	{
-		_camera = value;
-	}
-	public function get camera():ObjectContainer3D
-	{
-		return _camera;
-	}
-
 	protected function registerEvent(eventType:String, func:Function):void
 	{
 		_eventMapping[eventType] = func;
@@ -49,6 +32,7 @@ public class CameraControllerBase extends EventDispatcher
 
 	private function processEvent(evt:InputEvent):void
 	{
+//		trace("ControllerBase.as - processEvent, type: " + evt.type);
 		_eventMapping[evt.type](evt.amount * evt.multiplier);
 	}
 

@@ -1,15 +1,10 @@
 package
 {
 
-import age.camera.controllers.CameraControllerBase;
-import age.camera.controllers.OrbitCameraController;
-import age.camera.controllers.FreeFlyCameraController;
-import age.input.CompositeInputContext;
-import age.input.KeyboardInputContext;
-import age.input.WASDAndMouseInputContext;
-import age.input.data.MouseActions;
-import age.input.MouseInputContext;
-import age.input.events.InputEvent;
+import agt.controllers.camera.CameraControllerBase;
+import agt.controllers.camera.OrbitCameraController;
+import agt.controllers.camera.FreeFlyCameraController;
+import agt.devices.input.WASDAndMouseInputContext;
 
 import away3d.containers.View3D;
 import away3d.debug.AwayStats;
@@ -26,7 +21,6 @@ import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.geom.Vector3D;
-import flash.ui.Keyboard;
 import flash.utils.getTimer;
 
 import uk.co.soulwire.gui.SimpleGUI;
