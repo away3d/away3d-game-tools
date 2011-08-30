@@ -13,6 +13,7 @@ public class InputEvent extends Event
 	public static const ROTATE_Z:String = "rotate_z";
 	public static const JUMP:String = "jump";
 	public static const STOP:String = "stop";
+	public static const WALK:String = "walk";
 
 	public var amount:Number;
 	public var multiplier:Number;

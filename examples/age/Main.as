@@ -9,7 +9,7 @@ package {
 		
 		// Setting
 		// 0=simpleplayercontrols, 1=simpelcameracontrols
-		private var _selectedExample : int = 0;
+		private var _selectedExample : int = 1;
 
 		public function Main() {
 			this.addEventListener(Event.ENTER_FRAME, tempLoop);

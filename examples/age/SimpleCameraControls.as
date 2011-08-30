@@ -2,9 +2,9 @@ package
 {
 
 import agt.debug.SimpleGUI;
-import agt.controllers.camera.CameraControllerBase;
-import agt.controllers.camera.OrbitCameraController;
-import agt.controllers.camera.FreeFlyCameraController;
+import agt.controllers.motion.camera.CameraControllerBase;
+import agt.controllers.motion.camera.OrbitCameraController;
+import agt.controllers.motion.camera.FreeFlyCameraController;
 import agt.devices.input.WASDAndMouseInputContext;
 
 import away3d.containers.View3D;

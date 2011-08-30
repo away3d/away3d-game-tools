@@ -1,5 +1,5 @@
 package agt.physics {
-	import agt.entities.LiveEntity;
+	import agt.entities.KinematicEntity;
 
 	import away3d.containers.Scene3D;
 
@@ -35,7 +35,7 @@ package agt.physics {
 			_physicsWorld.addRigidBody(body);
 		}
 
-		public function addPlayer(player : LiveEntity) : void {
+		public function addPlayer(player : KinematicEntity) : void {
 			_physicsWorld.addCharacter(player.character);
 		}
 

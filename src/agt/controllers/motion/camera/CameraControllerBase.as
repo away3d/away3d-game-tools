@@ -1,4 +1,4 @@
-package agt.controllers.camera
+package agt.controllers.motion.camera
 {
 
 import agt.controllers.ControllerBase;
