@@ -11,8 +11,8 @@ import flash.geom.Vector3D;
 
 public class GroundEntityController extends EntityControllerBase
 {
-	private var _targetWalkSpeed:Number = 0;
-	private var _currentWalkSpeed:Number = 0;
+	private var _targetSpeed:Number = 0;
+	private var _currentSpeed:Number = 0;
 
 	public function GroundEntityController(entity:KinematicEntity)
 	{
@@ -32,42 +32,23 @@ public class GroundEntityController extends EntityControllerBase
 	{
 		super.update();
 
-//		return;
+		var delta:Number = _targetSpeed - _currentSpeed;
 
-//		trace("GroundEntityController.as - update()");
-
-		var delta:Number = _targetWalkSpeed - _currentWalkSpeed;
-
-//		trace("------------------");
-//		trace("target walk speed: " + _targetWalkSpeed);
-//		trace("current walk speed: " + _currentWalkSpeed);
-//		trace("walkDirection: " + _walkDirection);
-//		trace("delta: " + delta);
-
-		_currentWalkSpeed += delta * 0.1;
-//		_walkDirection.z = _currentWalkSpeed;
+		_currentSpeed += delta * 0.25;
 		_entity.character.ghostObject.rotation.copyRowTo(2, _walkDirection);
-		_walkDirection.scaleBy(_currentWalkSpeed);
+		_walkDirection.scaleBy(_currentSpeed);
 		updateWalkDirection();
 	}
 
 	public function moveZ(value:Number):void
 	{
-//		trace("moveZ");
-
-//		_entity.character.ghostObject.rotation.copyRowTo(2, _walkDirection);
-//		_walkDirection.scaleBy(value);
-//		updateWalkDirection();
-
-		_targetWalkSpeed = value;
+		_targetSpeed = value;
 	}
 
 	public function rotateY(value:Number):void
 	{
-//		trace("rotateY");
-
-		var rotationMatrix:Matrix3D = new Matrix3D();
 		_rotationY += value;
+		var rotationMatrix:Matrix3D = new Matrix3D();
 		rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
 		_entity.character.ghostObject.rotation = rotationMatrix;
 	}
@@ -80,12 +61,7 @@ public class GroundEntityController extends EntityControllerBase
 
 	public function stop(value:Number = 0):void
 	{
-//		trace("stop");
-
-//		_walkDirection.scaleBy(0);
-//		updateWalkDirection();
-
-		_targetWalkSpeed = 0;
+		_targetSpeed = 0;
 	}
 
 

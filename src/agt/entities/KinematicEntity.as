@@ -19,6 +19,7 @@ public class KinematicEntity extends PhysicsEntity
 	private var _character:AWPKinematicCharacterController;
 	private var _capsuleRadius:Number;
 	private var _capsuleHeight:Number;
+	private var _ghostObject:AWPGhostObject;
 
 	public var collideStrength:Number = 20;
 
@@ -50,12 +51,12 @@ public class KinematicEntity extends PhysicsEntity
 		var entityShape:AWPCapsuleShape = new AWPCapsuleShape(_capsuleRadius, _capsuleHeight);
 
 		// use shape to produce ghost object
-		var ghost:AWPGhostObject = new AWPGhostObject(entityShape, new Away3DMesh(_mesh));
-		ghost.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
-		ghost.addEventListener(AWPCollisionEvent.COLLISION_ADDED, characterCollisionAddedHandler);
+		_ghostObject = new AWPGhostObject(entityShape, new Away3DMesh(_mesh));
+		_ghostObject.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
+		_ghostObject.addEventListener(AWPCollisionEvent.COLLISION_ADDED, characterCollisionAddedHandler);
 
 		// init character
-		_character = new AWPKinematicCharacterController(ghost, entityShape, 0.1);
+		_character = new AWPKinematicCharacterController(_ghostObject, entityShape, 0.1);
 	}
 
 	private function characterCollisionAddedHandler(event:AWPCollisionEvent):void
@@ -64,7 +65,8 @@ public class KinematicEntity extends PhysicsEntity
 		{
 			var body:AWPRigidBody = AWPRigidBody(event.collisionObject);
 			var force:Vector3D = event.manifoldPoint.normalWorldOnB.clone();
-			force.scaleBy(-collideStrength);
+			force.scaleBy(-collideStrength * _character.walkDirection.v3d.length);
+//			trace("force: " + force);
 			body.applyForce(force, event.manifoldPoint.localPointB);
 		}
 	}

@@ -12,7 +12,7 @@ package agt.physics {
 	public class PhysicsScene3D extends Scene3D {
 		private var _physicsWorld : AWPDynamicsWorld;
 		// keep this at 1/60 or 1/120
-		private var _fixedTimeStep : Number = 1 / 60;
+		private var _fixedTimeStep : Number = 1 / 30;
 		// time since last timestep
 		private var _deltaTime : Number;
 		private var _maxSubStep : int = 10;

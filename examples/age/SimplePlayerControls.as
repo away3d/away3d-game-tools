@@ -34,8 +34,10 @@ import away3d.primitives.Cube;
 
 import awayphysics.collision.shapes.AWPBoxShape;
 import awayphysics.collision.shapes.AWPBvhTriangleMeshShape;
+import awayphysics.collision.shapes.AWPHeightfieldTerrainShape;
 import awayphysics.dynamics.AWPRigidBody;
 import awayphysics.plugin.away3d.Away3DMesh;
+import awayphysics.plugin.away3d.Away3DTerrain;
 
 import flash.display.BitmapData;
 import flash.display.Sprite;
@@ -71,6 +73,7 @@ public class SimplePlayerControls extends Sprite
 	public var hellKnightMesh:Mesh;
 	public var idleAnimation:SkeletonAnimationSequence;
 	public var walkAnimation:SkeletonAnimationSequence;
+	public var useCameraController:Boolean;
 
 	public function SimplePlayerControls()
 	{
@@ -151,7 +154,8 @@ public class SimplePlayerControls extends Sprite
 
 		// init elements
 		initAway3d();
-		initTerrain();
+		initTerrainMesh();
+//		initTerrainHeightMap();
 		initElements();
 		initPlayer();
 		cameraMode = "orbit";
@@ -194,7 +198,7 @@ public class SimplePlayerControls extends Sprite
 	// terrain
 	// -----------------------
 
-	private function initTerrain():void
+	private function initTerrainMesh():void
 	{
 		/*
 		 Terrain collision here uses triangle based collision, which is of course
@@ -225,6 +229,26 @@ public class SimplePlayerControls extends Sprite
 		scene.addRigidBody(sceneBody);
 	}
 
+	private function initTerrainHeightMap():void
+	{
+		// perlin noise height map
+		var heightMap:BitmapData = new BitmapData(1024, 1024, false, 0x000000);
+		heightMap.perlinNoise(250, 250, 2, Math.floor(1000*Math.random()) + 1, false, true, 7, true);
+
+		// terrain material
+		var terrainMaterial:BitmapMaterial = new BitmapMaterial(heightMap);
+		terrainMaterial.lights = [light];
+
+		// terrain mesh
+		var terrain:Away3DTerrain = new Away3DTerrain(terrainMaterial, heightMap, 15000, 2000, 15000, 50, 50, 1200, 0, false);
+		scene.addChild(terrain);
+
+		// create the terrain shape and rigidbody
+		var terrainShape:AWPHeightfieldTerrainShape = new AWPHeightfieldTerrainShape(terrain);
+		var terrainBody:AWPRigidBody = new AWPRigidBody(terrainShape, new Away3DMesh(terrain), 0);
+		scene.addRigidBody(terrainBody);
+	}
+
 	// -----------------------
 	// elements
 	// -----------------------
@@ -243,7 +267,7 @@ public class SimplePlayerControls extends Sprite
 		var mesh:Mesh;
 		var body:AWPRigidBody;
 		var numX:int = 3;
-		var numY:int = 3;
+		var numY:int = 8;
 		var numZ:int = 1;
 		for(var i:int = 0; i < numX; i++)
 		{
@@ -269,7 +293,6 @@ public class SimplePlayerControls extends Sprite
 	// player
 	// -----------------------
 
-	private var _tt:Mesh;
 	private function initPlayer():void
 	{
 		// get mesh
@@ -283,7 +306,6 @@ public class SimplePlayerControls extends Sprite
 		var playerMesh:Mesh = new Mesh(); // transform is controlled by AWP
 		playerMesh.addChild(middleMesh);
 		scene.addChild(playerMesh);
-		_tt = innerMesh;
 
 		// setup player
 		player = new KinematicEntity(playerMesh, 150, 500);
@@ -292,7 +314,7 @@ public class SimplePlayerControls extends Sprite
 
 		// player motion controller input context
 		playerInputContext = new KeyboardInputContext(stage);
-		playerInputContext.map(Keyboard.UP, new InputEvent(InputEvent.MOVE_Z, 8));
+		playerInputContext.map(Keyboard.UP, new InputEvent(InputEvent.MOVE_Z, 15));
 		playerInputContext.map(Keyboard.RIGHT, new InputEvent(InputEvent.ROTATE_Y, 3));
 		playerInputContext.map(Keyboard.LEFT, new InputEvent(InputEvent.ROTATE_Y, -3));
 		playerInputContext.map(Keyboard.SPACE, new InputEvent(InputEvent.JUMP));
@@ -305,8 +327,8 @@ public class SimplePlayerControls extends Sprite
 
 		// player animation controller
 		var cc:KeyboardInputContext = new KeyboardInputContext(stage);
-		cc.map(Keyboard.UP, new InputEvent(InputEvent.WALK));
-		cc.mapOnKeyUp(new InputEvent(InputEvent.STOP));
+		cc.map(Keyboard.UP, new InputEvent(InputEvent.WALK), false);
+		cc.mapOnKeyUp(new InputEvent(InputEvent.STOP)); // TODO: causes animation to stop when turning, need to improve keyboard context
 		playerAnimationController = new SkeletonAnimationController(innerMesh);
 		playerAnimationController.addAnimationSequence(idleAnimation);
 		playerAnimationController.addAnimationSequence(walkAnimation);
@@ -319,6 +341,7 @@ public class SimplePlayerControls extends Sprite
 
 	private function enableOrbitCameraController():void
 	{
+		useCameraController = true;
 		cameraController = new OrbitCameraController(view.camera, player.mesh);
 		cameraInputContext = new WASDAndMouseInputContext(stage, view, 100, -3, 3);
 		cameraController.inputContext = cameraInputContext;
@@ -326,9 +349,15 @@ public class SimplePlayerControls extends Sprite
 
 	private function enableFlyCameraController():void
 	{
+		useCameraController = true;
 		cameraController = new FreeFlyCameraController(view.camera);
 		cameraInputContext = new WASDAndMouseInputContext(stage, view, 100, 0.25, 0.25);
 		cameraController.inputContext = cameraInputContext;
+	}
+
+	private function enableFPSCameraController():void
+	{
+		useCameraController = false;
 	}
 
 	// ---------------------------------------------------------------------
@@ -338,7 +367,13 @@ public class SimplePlayerControls extends Sprite
 	private function enterframeHandler(evt:Event):void
 	{
 		// update camera position
-		cameraController.update();
+		if(useCameraController)
+			cameraController.update();
+		else
+		{
+			view.camera.transform = player.mesh.transform.clone();
+			view.camera.y += 100; // TODO: make an actual FPS camera controller
+		}
 
 		// light follows camera
 		light.transform = view.camera.transform.clone();
@@ -373,7 +408,8 @@ public class SimplePlayerControls extends Sprite
 		gui.addGroup("camera");
 		var cameraModes:Array = [
 			{label:"orbit", data:"orbit"},
-			{label:"free fly", data:"fly"}
+			{label:"free fly", data:"fly"},
+			{label:"first person", data:"1st"}
 		];
 		gui.addComboBox("cameraMode", cameraModes, {width:100, label:"camera mode", numVisibleItems:cameraModes.length});
 		gui.addSlider("cameraController.linearEase", 0.01, 1, {label:"linear ease"});
@@ -420,6 +456,9 @@ public class SimplePlayerControls extends Sprite
 				break;
 			case "fly":
 				enableFlyCameraController();
+				break;
+			case "1st":
+				enableFPSCameraController();
 				break;
 		}
 	}
