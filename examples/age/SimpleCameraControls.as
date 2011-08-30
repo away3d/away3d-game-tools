@@ -153,10 +153,10 @@ public class SimpleCameraControls extends Sprite
 		view.render();
 
 		// update gui stuff
-		_positionLabel.text = "position: " + roundValue(view.camera.x) + ", "
+		//_positionLabel.text = "position: " + roundValue(view.camera.x) + ", "
 										   + roundValue(view.camera.y) + ", "
 										   + roundValue(view.camera.z);
-		_orientationLabel.text = "orientation: " + roundValue(view.camera.rotationX) + ", "
+		//_orientationLabel.text = "orientation: " + roundValue(view.camera.rotationX) + ", "
 										   		 + roundValue(view.camera.rotationY) + ", "
 										   		 + roundValue(view.camera.rotationZ);
 	}
