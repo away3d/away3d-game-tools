@@ -1,6 +1,7 @@
 package
 {
 
+import agt.debug.SimpleGUI;
 import agt.controllers.camera.CameraControllerBase;
 import agt.controllers.camera.OrbitCameraController;
 import agt.controllers.camera.FreeFlyCameraController;
@@ -23,7 +24,6 @@ import flash.events.Event;
 import flash.geom.Vector3D;
 import flash.utils.getTimer;
 
-import uk.co.soulwire.gui.SimpleGUI;
 
 /*
 	TODO:
@@ -207,8 +207,8 @@ public class SimpleCameraControls extends Sprite
 
 		// info
 		gui.addGroup("camera info");
-		_positionLabel = gui.addLabel("position");
-		_orientationLabel = gui.addLabel("orientation");
+		//_positionLabel = gui.addLabel("position");
+		//_orientationLabel = gui.addLabel("orientation");
 
 		// extra
 		gui.addGroup("extra");
