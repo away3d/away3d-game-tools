@@ -273,8 +273,8 @@ package agt.debug {
 		 * 
 		 * @param text The text content of the label
 		 */
-		public function addLabel(text : String) : void {
-			addControl(Label, {text:text.toUpperCase()});
+		public function addLabel(text : String) : Label {
+			return addControl(Label, {text:text.toUpperCase()}) as Label;
 		}
 
 		/**
