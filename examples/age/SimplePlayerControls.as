@@ -163,7 +163,7 @@ public class SimplePlayerControls extends Sprite
 		// init elements
 		initAway3d();
 		initTerrainMesh();
-		// initTerrainHeightMap();
+//		initTerrainHeightMap();
 		initElements();
 		initPlayer();
 		cameraMode = "observer";
@@ -189,7 +189,7 @@ public class SimplePlayerControls extends Sprite
 		addChild(view);
 
 		// camera
-		view.camera.position = new Vector3D(0, 2000, -2000);
+		view.camera.position = new Vector3D(2000, 3000, -2000);
 		view.camera.lookAt(new Vector3D(0, 0, 0));
 
 		// lights
