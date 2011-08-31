@@ -324,6 +324,8 @@ package {
 			cameraController = new OrbitCameraController(view.camera, player.mesh);
 			cameraInputContext = new WASDAndMouseInputContext(stage, view, 100, -3, 3);
 			cameraController.inputContext = cameraInputContext;
+
+			OrbitCameraController(cameraController).minRadius = 500;
 		}
 
 		private function enableFlyCameraController() : void {
