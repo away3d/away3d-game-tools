@@ -39,6 +39,8 @@ import awayphysics.dynamics.AWPRigidBody;
 import awayphysics.plugin.away3d.Away3DMesh;
 import awayphysics.plugin.away3d.Away3DTerrain;
 
+import flash.display.Bitmap;
+
 import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.display.StageAlign;
@@ -64,7 +66,7 @@ public class SimplePlayerControls extends Sprite
 	public var light:PointLight;
 	public var cameraController:CameraControllerBase;
 	public var cameraInputContext:WASDAndMouseInputContext;
-	public var terrainMesh:Mesh;
+	public var terrainMesh:Elevation;
 	public var gui:SimpleGUI;
 	public var playerMotionController:GroundEntityController;
 	public var playerAnimationController:SkeletonAnimationController;
@@ -209,17 +211,23 @@ public class SimplePlayerControls extends Sprite
 
 		// perlin noise height map
 		var heightMap:BitmapData = new BitmapData(1024, 1024, false, 0x000000);
-		heightMap.perlinNoise(250, 250, 2, Math.floor(1000*Math.random()) + 1, false, true, 7, true);
+		heightMap.perlinNoise(500, 500, 3, Math.floor(1000*Math.random()) + 1, false, true, 7, true);
+		for(var i:uint; i < 10; ++i)
+		{
+			drawRandomCircleOnBitmapData(heightMap);
+		}
 
 		// trace 2d height map
-		// var bmp:Bitmap = new Bitmap(heightMap);
-		// bmp.scaleX = bmp.scaleY = bmp.scaleZ = 0.25;
-		// addChild(bmp);
+		var bmp:Bitmap = new Bitmap(heightMap);
+		bmp.scaleX = bmp.scaleY = bmp.scaleZ = 0.25;
+		bmp.x = stage.stageWidth - bmp.width;
+		bmp.y = stage.stageHeight - bmp.height;
+		addChild(bmp);
 
 		// use height map to produce mesh
-		var terrainMaterial:BitmapMaterial = new BitmapMaterial(heightMap);
+		var terrainMaterial:ColorMaterial = DebugMaterialLibrary.instance.whiteMaterial;
 		terrainMaterial.lights = [light];
-		terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 2000, 15000, 50, 50);
+		terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 5000, 15000, 80, 80);
 		scene.addChild(terrainMesh);
 
 		// add body
@@ -310,11 +318,12 @@ public class SimplePlayerControls extends Sprite
 		// setup player
 		player = new KinematicEntity(playerMesh, 150, 500);
 		scene.addPlayer(player);
-		player.position = new Vector3D(0, 2000, -1000);
+		var terrainPos:Number = terrainMesh.getHeightAt(0, 0);
+		player.position = new Vector3D(0, terrainPos + 1000, -1000); // TODO: review use of .x, .y, .z in AGT architecture
 
 		// player motion controller input context
 		playerInputContext = new KeyboardInputContext(stage);
-		playerInputContext.map(Keyboard.UP, new InputEvent(InputEvent.MOVE_Z, 15));
+		playerInputContext.map(Keyboard.UP, new InputEvent(InputEvent.MOVE_Z, 30));
 		playerInputContext.map(Keyboard.RIGHT, new InputEvent(InputEvent.ROTATE_Y, 3));
 		playerInputContext.map(Keyboard.LEFT, new InputEvent(InputEvent.ROTATE_Y, -3));
 		playerInputContext.map(Keyboard.SPACE, new InputEvent(InputEvent.JUMP));
@@ -394,6 +403,27 @@ public class SimplePlayerControls extends Sprite
 
 //		_tt.transform = new Matrix3D(); // TODO: hacks animator altering mesh transform!
 //		trace(_tt.position);
+	}
+
+	// -----------------------
+	// utils
+	// -----------------------
+
+	private function drawRandomCircleOnBitmapData(bmd:BitmapData):void
+	{
+		var radius:Number = (bmd.width/10) * Math.random();
+		var x:Number = rand(radius, bmd.width - radius);
+		var y:Number = rand(radius, bmd.height - radius);
+		var spr:Sprite = new Sprite();
+		var gray:Number = 127 + 127 * Math.random();
+		spr.graphics.beginFill(gray << 16 | gray << 8 | gray);
+		spr.graphics.drawCircle(x, y, radius);
+		bmd.draw(spr);
+	}
+
+	private function rand(min:Number, max:Number):Number
+	{
+	    return (max - min)*Math.random() + min;
 	}
 
 	// ---------------------------------------------------------------------

@@ -11,6 +11,7 @@ public class DebugMaterialLibrary
 	private var _redMaterial:ColorMaterial;
 	private var _greenMaterial:ColorMaterial;
 	private var _blueMaterial:ColorMaterial;
+	private var _whiteMaterial:ColorMaterial;
 
 	public function DebugMaterialLibrary()
 	{
@@ -62,6 +63,18 @@ public class DebugMaterialLibrary
 				_blueMaterial.lights = _lights;
 		}
 		return _blueMaterial;
+	}
+
+	public function get whiteMaterial():ColorMaterial
+	{
+		if(!_whiteMaterial)
+		{
+			_whiteMaterial = new ColorMaterial(0xFFFFFF);
+
+			if(_lights)
+				_whiteMaterial.lights = _lights;
+		}
+		return _whiteMaterial;
 	}
 }
 }
