@@ -4,7 +4,9 @@ package
 import agt.controllers.camera.CameraControllerBase;
 import agt.controllers.camera.FirstPersonCameraController;
 import agt.controllers.camera.FreeFlyCameraController;
+import agt.controllers.camera.ObserverCameraController;
 import agt.controllers.camera.OrbitCameraController;
+import agt.controllers.camera.ThirdPersonCameraController;
 import agt.controllers.entities.AnimatedKinematicEntityController;
 import agt.controllers.entities.KinematicEntityController;
 import agt.data.MouseActions;
@@ -72,6 +74,7 @@ public class SimplePlayerControls extends Sprite
 	public var hellKnightMesh:Mesh;
 	public var idleAnimation:SkeletonAnimationSequence;
 	public var walkAnimation:SkeletonAnimationSequence;
+	public var playerBaseMesh:Mesh;
 
 	// input contexts
 	public var playerMotionInputContext:KeyboardInputContext;
@@ -163,7 +166,7 @@ public class SimplePlayerControls extends Sprite
 		// initTerrainHeightMap();
 		initElements();
 		initPlayer();
-		cameraMode = "orbit";
+		cameraMode = "observer";
 		initGui();
 
 		// start loop
@@ -181,6 +184,7 @@ public class SimplePlayerControls extends Sprite
 		// view
 		view = new View3D(scene);
 		view.antiAlias = 4;
+		view.camera.lens.near = 150;
 		view.camera.lens.far = 20000;
 		addChild(view);
 
@@ -228,7 +232,7 @@ public class SimplePlayerControls extends Sprite
 		// use height map to produce mesh
 		var terrainMaterial:ColorMaterial = DebugMaterialLibrary.instance.whiteMaterial;
 		terrainMaterial.lights = [light];
-		terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 1000, 15000, 80, 80);
+		terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 2000, 15000, 80, 80);
 		scene.addChild(terrainMesh);
 
 		// add body
@@ -309,14 +313,14 @@ public class SimplePlayerControls extends Sprite
 		hellknightMaterial.specularMap = new HellKnightSpecularMap().bitmapData;
 
 		// get mesh
-		var innerMesh:Mesh = hellKnightMesh.clone() as Mesh;
+		playerBaseMesh = hellKnightMesh.clone() as Mesh;
 		// transform is controlled by animator
-		innerMesh.material = hellknightMaterial;
+		playerBaseMesh.material = hellknightMaterial;
 		var middleMesh:Mesh = new Mesh();
 		middleMesh.rotationY = -180;
 		middleMesh.scale(6);
 		middleMesh.moveTo(0, -400, 20);
-		middleMesh.addChild(innerMesh);
+		middleMesh.addChild(playerBaseMesh);
 		var playerMesh:Mesh = new Mesh();
 		// transform is controlled by AWP
 		playerMesh.addChild(middleMesh); // TODO: Can simplify hierarchy here?
@@ -330,6 +334,20 @@ public class SimplePlayerControls extends Sprite
 		player.position = new Vector3D(0, terrainPos + 1000, -1000);
 		// TODO: review use of .x, .y, .z in AGT architecture
 
+		// TODO: temporary - remove when strafe is available
+		initPlayerExternalControls();
+	}
+
+	// -----------------------
+	// player controls
+	// -----------------------
+
+	/*
+		2 setups for player controls because 1st person uses strafe and the others don't
+	 */
+
+	private function initPlayerExternalControls():void
+	{
 		// player controller input context
 		playerMotionInputContext = new KeyboardInputContext(stage);
 		playerMotionInputContext.map(Keyboard.W, new InputEvent(InputEvent.MOVE_Z, 30));
@@ -341,7 +359,29 @@ public class SimplePlayerControls extends Sprite
 //		playerMotionInputContext.mapMultiplier(Keyboard.SHIFT, 2);
 
 		// player controller
-		playerMotionController = new AnimatedKinematicEntityController(player, innerMesh);
+		playerMotionController = new AnimatedKinematicEntityController(player, playerBaseMesh);
+		playerMotionController.addAnimationSequence(walkAnimation); // TODO: Map animations to actions too?
+		playerMotionController.addAnimationSequence(idleAnimation);
+		playerMotionController.inputContext = playerMotionInputContext;
+		playerMotionController.stop();
+		playerMotionController.speedEase = 0.1;
+		playerMotionController.animatorTimeScaleFactor = 0.05;
+	}
+
+	private function initPlayerInternalControls():void
+	{
+		// player controller input context
+		playerMotionInputContext = new KeyboardInputContext(stage);
+		playerMotionInputContext.map(Keyboard.W, new InputEvent(InputEvent.MOVE_Z, 30));
+		playerMotionInputContext.map(Keyboard.S, new InputEvent(InputEvent.MOVE_Z, -30));
+//		playerMotionInputContext.map(Keyboard.D, new InputEvent(InputEvent.MOVE_X, 30));
+//		playerMotionInputContext.map(Keyboard.A, new InputEvent(InputEvent.MOVE_X, -30));
+		playerMotionInputContext.map(Keyboard.SPACE, new InputEvent(InputEvent.JUMP));
+		playerMotionInputContext.mapOnAllKeysUp(new InputEvent(InputEvent.STOP));
+//		playerMotionInputContext.mapMultiplier(Keyboard.SHIFT, 2);
+
+		// player controller
+		playerMotionController = new AnimatedKinematicEntityController(player, playerBaseMesh);
 		playerMotionController.addAnimationSequence(walkAnimation); // TODO: Map animations to actions too?
 		playerMotionController.addAnimationSequence(idleAnimation);
 		playerMotionController.inputContext = playerMotionInputContext;
@@ -353,8 +393,18 @@ public class SimplePlayerControls extends Sprite
 	// -----------------------
 	// camera
 	// -----------------------
+
+	private function enableObserverCameraController():void
+	{
+		cameraInputContext = new CompositeInputContext();
+		cameraController = new ObserverCameraController(view.camera, player.mesh);
+		cameraController.inputContext = cameraInputContext;
+	}
+
 	private function enableOrbitCameraController():void
 	{
+//		initPlayerExternalControls();
+
 		cameraInputContext = new CompositeInputContext();
 		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
 		keyboardContext.map(Keyboard.UP, new InputEvent(InputEvent.ROTATE_X, 25));
@@ -372,12 +422,14 @@ public class SimplePlayerControls extends Sprite
 		cameraInputContext.addContext(mouseContext);
 
 		cameraController = new OrbitCameraController(view.camera, player.mesh);
-		OrbitCameraController(cameraController).minRadius = 500;
+		OrbitCameraController(cameraController).minRadius = 1000;
 		cameraController.inputContext = cameraInputContext;
 	}
 
 	private function enableFlyCameraController():void
 	{
+//		initPlayerExternalControls();
+
 		cameraInputContext = new CompositeInputContext();
 		var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
 		keyboardContext.map(Keyboard.UP, new InputEvent(InputEvent.MOVE_Z, 100));
@@ -399,6 +451,8 @@ public class SimplePlayerControls extends Sprite
 
 	private function enableFPSCameraController():void
 	{
+//		initPlayerInternalControls();
+
 		cameraInputContext = new CompositeInputContext();
 		var mouseContext:MouseInputContext = new MouseInputContext(view);
 		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
@@ -407,8 +461,26 @@ public class SimplePlayerControls extends Sprite
 		mouseContext.mouseInputFactorY = 0.25;
 		cameraInputContext.addContext(mouseContext);
 
-		cameraController = new FirstPersonCameraController(view.camera, player.mesh);
-		FirstPersonCameraController(cameraController).cameraOffsetY = 500;
+		cameraController = new FirstPersonCameraController(view.camera, playerMotionController);
+		FirstPersonCameraController(cameraController).cameraOffset = new Vector3D(0, 170, 100);
+		cameraController.inputContext = cameraInputContext;
+	}
+
+	private function enable3rdPersonCameraController():void
+	{
+		trace("3rd person camera");
+
+//		initPlayerInternalControls();
+
+		cameraInputContext = new CompositeInputContext();
+		var mouseContext:MouseInputContext = new MouseInputContext(view);
+		mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
+		mouseContext.map(MouseActions.DRAG_Y, new InputEvent(InputEvent.ROTATE_X));
+		mouseContext.mouseInputFactorX = 0.25;
+		mouseContext.mouseInputFactorY = 0.25;
+		cameraInputContext.addContext(mouseContext);
+
+		cameraController = new ThirdPersonCameraController(view.camera, playerMotionController);
 		cameraController.inputContext = cameraInputContext;
 	}
 
@@ -417,6 +489,9 @@ public class SimplePlayerControls extends Sprite
 	// ---------------------------------------------------------------------
 	private function enterframeHandler(evt:Event):void
 	{
+
+		// update player
+		playerMotionController.update();
 
 		// update scene physics
 		scene.updatePhysics();
@@ -427,15 +502,8 @@ public class SimplePlayerControls extends Sprite
 		// light follows camera
 		light.transform = view.camera.transform.clone();
 
-		// update player
-		if(playerMotionController)
-			playerMotionController.update();
-
 		// render 3d view
 		view.render();
-
-		// _tt.transform = new Matrix3D(); // TODO: hacks animator altering mesh transform!
-		// trace(_tt.position);
 	}
 
 	// -----------------------
@@ -468,9 +536,11 @@ public class SimplePlayerControls extends Sprite
 		// camera
 		gui.addGroup("camera");
 		var cameraModes:Array = [
+			{label:"observer", data:"observer"},
 			{label:"orbit", data:"orbit"},
 			{label:"free fly", data:"fly"},
-			{label:"first person", data:"1st"} // TODO: Add FPS camera, 3rd person camera and ObserverCamera controllers
+			{label:"third person", data:"3rd"},
+			{label:"first person", data:"1st"}
 		];
 		gui.addComboBox("cameraMode", cameraModes, {width:100, label:"camera mode", numVisibleItems:cameraModes.length});
 		gui.addSlider("cameraController.linearEase", 0.01, 1, {label:"linear ease"});
@@ -490,12 +560,12 @@ public class SimplePlayerControls extends Sprite
 //		gui.addToggle("cameraInputContext.mouseContext.enabled", {label:"mouse input"});
 		gui.addToggle("cameraInputContext.enabled", {label:"overall input"});
 		// player
-		gui.addGroup("player");
-		gui.addToggle("playerMotionInputContext.enabled", {label:"keyboard input"});
+//		gui.addGroup("player");
+//		gui.addToggle("playerMotionInputContext.enabled", {label:"keyboard input"});
 		gui.addColumn("Instructions");
 		// instructions
 		// gui.addGroup("instructions & info");
-		gui.addLabel("- triangle based collision with dynamic objects and a character \n" + "- camera controllers and character are both controlled by \n" + "  input context objects \n" + "- in this case camera controls respond to mouse drag and WASDZX, \n" + "  player controls respond to keyboard arrows and SPACEBAR");
+		gui.addLabel("- triangle based collision with dynamic objects and a character \n" + "- camera controllers and character are both controlled by \n" + "  input context objects \n" + "- in this case camera controls respond to mouse drag and keyboard arrows, \n" + "  player controls respond to keyboard WASD and SPACEBAR");
 
 		gui.show();
 	}
@@ -512,6 +582,9 @@ public class SimplePlayerControls extends Sprite
 		_cameraMode = value;
 		switch(value)
 		{
+			case "observer":
+				enableObserverCameraController();
+				break;
 			case "orbit":
 				enableOrbitCameraController();
 				break;
@@ -520,6 +593,9 @@ public class SimplePlayerControls extends Sprite
 				break;
 			case "1st":
 				enableFPSCameraController();
+				break;
+			case "3rd":
+				enable3rdPersonCameraController();
 				break;
 		}
 	}

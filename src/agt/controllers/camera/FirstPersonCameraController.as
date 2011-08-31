@@ -1,21 +1,26 @@
 package agt.controllers.camera
 {
 
+import agt.controllers.entities.KinematicEntityController;
+import agt.entities.KinematicEntity;
 import agt.input.InputContext;
 import agt.input.events.InputEvent;
 
 import away3d.containers.ObjectContainer3D;
 
+import flash.geom.Vector3D;
+
 public class FirstPersonCameraController extends CameraControllerBase
 {
-	private var _target:ObjectContainer3D;
+	private var _targetController:KinematicEntityController;
 	private var _cameraDummy:ObjectContainer3D;
-	private var _cameraOffsetY:Number = 0;
+	private var _cameraOffset:Vector3D;
 
-	public function FirstPersonCameraController(camera:ObjectContainer3D, target:ObjectContainer3D = null)
+	public function FirstPersonCameraController(camera:ObjectContainer3D, targetController:KinematicEntityController = null)
 	{
 		_cameraDummy = new ObjectContainer3D();
-		this.target = target || new ObjectContainer3D();
+		this.targetController = targetController;
+		_cameraOffset = new Vector3D();
 		super(camera);
 	}
 
@@ -30,9 +35,11 @@ public class FirstPersonCameraController extends CameraControllerBase
 	{
 		super.update();
 
-		_camera.x = _target.x;
-		_camera.y = _target.y + _cameraOffsetY;
-		_camera.z = _target.z;
+		// set camera position equal to entity, with offset
+		var pos:Vector3D = KinematicEntity(_targetController.entity).mesh.transform.transformVector(_cameraOffset);
+		_camera.x = pos.x;
+		_camera.y = pos.y;
+		_camera.z = pos.z;
 
 		// ease orientation
 		var dx:Number = _cameraDummy.rotationX - _camera.rotationX;
@@ -41,6 +48,9 @@ public class FirstPersonCameraController extends CameraControllerBase
 		_camera.rotationX += dx * angularEase;
 		_camera.rotationY += dy * angularEase;
 		_camera.rotationZ += dz * angularEase;
+
+		// fix target rotation to camera rotation
+		_targetController.rotationY = _camera.rotationY;
 	}
 
 	public function rotateX(value:Number):void
@@ -53,30 +63,31 @@ public class FirstPersonCameraController extends CameraControllerBase
 		_cameraDummy.rotationY += value;
 	}
 
-	public function get target():ObjectContainer3D
+	public function get targetController():KinematicEntityController
 	{
-		return _target;
+		return _targetController;
 	}
 
-	public function set target(value:ObjectContainer3D):void
+	public function set targetController(value:KinematicEntityController):void
 	{
-		_target = value;
+		_targetController = value;
 	}
 
 	override public function set camera(value:ObjectContainer3D):void
 	{
 		super.camera = value;
+		_camera.transform = KinematicEntity(_targetController.entity).mesh.transform.clone();
 		_cameraDummy.transform = _camera.transform.clone();
 	}
 
-	public function get cameraOffsetY():Number
+	public function get cameraOffset():Vector3D
 	{
-		return _cameraOffsetY;
+		return _cameraOffset;
 	}
 
-	public function set cameraOffsetY(value:Number):void
+	public function set cameraOffset(value:Vector3D):void
 	{
-		_cameraOffsetY = value;
+		_cameraOffset = value;
 	}
 }
 }

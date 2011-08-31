@@ -10,17 +10,10 @@ import away3d.animators.data.SkeletonAnimationSequence;
 import away3d.animators.data.SkeletonAnimationState;
 import away3d.entities.Mesh;
 
-import flash.geom.Matrix3D;
-import flash.geom.Vector3D;
-
-public class AnimatedKinematicEntityController extends EntityControllerBase
+public class AnimatedKinematicEntityController extends KinematicEntityController
 {
-	private var _targetSpeed:Number = 0;
-	private var _currentSpeed:Number = 0;
-
 	private var _animator:SmoothSkeletonAnimator;
 	private var _animationCrossFadeTime:Number = 0.5;
-	private var _speedEase:Number = 0.2;
 	private var _animatorTimeScaleFactor:Number = 0.1;
 
 	public function AnimatedKinematicEntityController(entity:KinematicEntity, animatedMesh:Mesh)
@@ -48,43 +41,27 @@ public class AnimatedKinematicEntityController extends EntityControllerBase
 	{
 		super.update();
 
-		var delta:Number = _targetSpeed - _currentSpeed;
-
-		_currentSpeed += delta * _speedEase;
-		_entity.kinematics.ghostObject.rotation.copyRowTo(2, _walkDirection);
-		_walkDirection.scaleBy(_currentSpeed);
-		updateWalkDirection();
-
 		_animator.timeScale = 1 + _currentSpeed * _animatorTimeScaleFactor;
 	}
 
-	public function moveZ(value:Number):void
+	override public function moveZ(value:Number):void
 	{
-		_targetSpeed = value;
 		_animator.play("walk", _animationCrossFadeTime);
+		super.moveZ(value);
 	}
 
-	public function rotateY(value:Number):void
+	override public function jump(value:Number = 0):void
 	{
-		_rotationY += value;
-		var rotationMatrix:Matrix3D = new Matrix3D();
-		rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
-		_entity.kinematics.ghostObject.rotation = rotationMatrix;
-	}
-
-	public function jump(value:Number = 0):void
-	{
-		if(_entity.kinematics.onGround())
-		{
-			_entity.kinematics.jump();
+		if(_onGround)
 			_animator.play("idle", _animationCrossFadeTime);
-		}
+
+		super.jump(value);
 	}
 
-	public function stop(value:Number = 0):void
+	override public function stop(value:Number = 0):void
 	{
-		_targetSpeed = _currentSpeed = 0;
 		_animator.play("idle", _animationCrossFadeTime);
+		super.stop(value);
 	}
 
 	public function get animationCrossFadeTime():Number
