@@ -1,6 +1,6 @@
-package agt.controllers.motion.camera {
-	import agt.devices.input.InputContext;
-	import agt.devices.input.events.InputEvent;
+package agt.controllers.camera {
+	import agt.input.InputContext;
+	import agt.input.events.InputEvent;
 
 	import away3d.containers.ObjectContainer3D;
 
@@ -42,24 +42,24 @@ package agt.controllers.motion.camera {
 			_camera.rotationZ += dz * angularEase;
 		}
 
-		public function rotateY(amount : Number) : void {
-			_cameraDummy.rotationY += amount;
+		public function rotateY(value : Number) : void {
+			_cameraDummy.rotationY += value;
 		}
 
-		public function rotateX(amount : Number) : void {
-			_cameraDummy.rotationX += amount;
+		public function rotateX(value : Number) : void {
+			_cameraDummy.rotationX += value;
 		}
 
-		public function moveX(amount : Number) : void {
-			_cameraDummy.moveRight(amount);
+		public function moveX(value : Number) : void {
+			_cameraDummy.moveRight(value);
 		}
 
-		public function moveY(amount : Number) : void {
-			_cameraDummy.moveUp(amount);
+		public function moveY(value : Number) : void {
+			_cameraDummy.moveUp(value);
 		}
 
-		public function moveZ(amount : Number) : void {
-			_cameraDummy.moveForward(amount);
+		public function moveZ(value : Number) : void {
+			_cameraDummy.moveForward(value);
 		}
 
 		override public function set camera(value : ObjectContainer3D) : void {

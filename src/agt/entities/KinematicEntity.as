@@ -12,7 +12,7 @@ package agt.entities {
 
 	public class KinematicEntity extends PhysicsEntity {
 		private var _mesh : Mesh;
-		private var _character : AWPKinematicCharacterController;
+		private var _kinematics : AWPKinematicCharacterController;
 		private var _capsuleRadius : Number;
 		private var _capsuleHeight : Number;
 		private var _ghostObject : AWPGhostObject;
@@ -29,12 +29,12 @@ package agt.entities {
 			initEntity();
 		}
 
-		public function get character() : AWPKinematicCharacterController {
-			return _character;
+		public function get kinematics() : AWPKinematicCharacterController {
+			return _kinematics;
 		}
 
 		public function set position(value : Vector3D) : void {
-			_character.warp(value);
+			_kinematics.warp(value);
 		}
 
 		private function initEntity() : void {
@@ -47,7 +47,7 @@ package agt.entities {
 			_ghostObject.addEventListener(AWPCollisionEvent.COLLISION_ADDED, characterCollisionAddedHandler);
 
 			// init character
-			_character = new AWPKinematicCharacterController(_ghostObject, entityShape, 0.1);
+			_kinematics = new AWPKinematicCharacterController(_ghostObject, entityShape, 0.1);
 		}
 
 		private function characterCollisionAddedHandler(event : AWPCollisionEvent) : void {

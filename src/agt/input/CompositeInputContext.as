@@ -1,5 +1,5 @@
-package agt.devices.input {
-	import agt.devices.input.events.InputEvent;
+package agt.input {
+	import agt.input.events.InputEvent;
 
 	public class CompositeInputContext extends InputContext {
 		private var _inputContexts : Vector.<InputContext>;

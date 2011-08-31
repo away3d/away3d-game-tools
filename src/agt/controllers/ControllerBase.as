@@ -1,6 +1,6 @@
 package agt.controllers {
-	import agt.devices.input.InputContext;
-	import agt.devices.input.events.InputEvent;
+	import agt.input.InputContext;
+	import agt.input.events.InputEvent;
 
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;

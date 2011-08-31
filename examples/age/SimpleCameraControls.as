@@ -1,9 +1,9 @@
 package {
-	import agt.controllers.motion.camera.CameraControllerBase;
-	import agt.controllers.motion.camera.FreeFlyCameraController;
-	import agt.controllers.motion.camera.OrbitCameraController;
-	import agt.debug.SimpleGUI;
-	import agt.devices.input.WASDAndMouseInputContext;
+	import agt.controllers.camera.CameraControllerBase;
+	import agt.controllers.camera.FreeFlyCameraController;
+	import agt.controllers.camera.OrbitCameraController;
+	import agt.debug.AGTSimpleGUI;
+	import agt.input.WASDAndMouseInputContext;
 
 	import away3d.containers.View3D;
 	import away3d.debug.AwayStats;
@@ -30,7 +30,7 @@ package {
 	public class SimpleCameraControls extends Sprite {
 		public var view : View3D;
 		public var light : PointLight;
-		public var gui : SimpleGUI;
+		public var gui : AGTSimpleGUI;
 		public var cameraController : CameraControllerBase;
 		public var wasdInputContext : WASDAndMouseInputContext;
 		private var _sphere : Sphere;
@@ -164,7 +164,7 @@ package {
 		// SimpleGUI
 		// ---------------------------------------------------------------------
 		private function initGui() : void {
-			gui = new SimpleGUI(this);
+			gui = new AGTSimpleGUI(this);
 
 			// controls
 			gui.addGroup("camera controls");

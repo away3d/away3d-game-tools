@@ -1,8 +1,8 @@
-package agt.controllers.motion.camera
+package agt.controllers.camera
 {
 
-import agt.devices.input.InputContext;
-import agt.devices.input.events.InputEvent;
+import agt.input.InputContext;
+import agt.input.events.InputEvent;
 
 import away3d.containers.ObjectContainer3D;
 

@@ -44,7 +44,7 @@ package agt.debug {
 	/**
 	 * SimpleGUI
 	 */
-	public class SimpleGUI extends EventDispatcher {
+	public class AGTSimpleGUI extends EventDispatcher {
 		// ----------------------------------------------------------------
 		// CONSTANTS
 		// ----------------------------------------------------------------
@@ -84,7 +84,7 @@ package agt.debug {
 		// ----------------------------------------------------------------
 		// CONSTRUCTOR
 		// ----------------------------------------------------------------
-		public function SimpleGUI(target : DisplayObjectContainer, title : String = null, hotKey : * = null) {
+		public function AGTSimpleGUI(target : DisplayObjectContainer, title : String = null, hotKey : * = null) {
 			_target = target;
 
 			_toggle.x = MARGIN + OFFSETX;

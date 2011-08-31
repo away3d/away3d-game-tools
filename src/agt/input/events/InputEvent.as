@@ -1,4 +1,4 @@
-package agt.devices.input.events {
+package agt.input.events {
 	import flash.events.Event;
 
 	public class InputEvent extends Event {

@@ -1,4 +1,4 @@
-package agt.physics {
+package agt.core {
 	import agt.entities.KinematicEntity;
 
 	import away3d.containers.Scene3D;
@@ -12,7 +12,7 @@ package agt.physics {
 	public class PhysicsScene3D extends Scene3D {
 		private var _physicsWorld : AWPDynamicsWorld;
 		// keep this at 1/60 or 1/120
-		private var _fixedTimeStep : Number = 1 / 30;
+		private var _fixedTimeStep : Number = 1 / 30; // TODO: add option to not use adaptive time step?
 		// time since last timestep
 		private var _deltaTime : Number;
 		private var _maxSubStep : int = 10;
@@ -36,7 +36,7 @@ package agt.physics {
 		}
 
 		public function addPlayer(player : KinematicEntity) : void {
-			_physicsWorld.addCharacter(player.character);
+			_physicsWorld.addCharacter(player.kinematics);
 		}
 
 		public function updatePhysics() : void {

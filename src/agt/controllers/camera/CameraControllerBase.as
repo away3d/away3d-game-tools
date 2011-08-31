@@ -1,4 +1,4 @@
-package agt.controllers.motion.camera {
+package agt.controllers.camera {
 	import agt.controllers.ControllerBase;
 
 	import away3d.containers.ObjectContainer3D;

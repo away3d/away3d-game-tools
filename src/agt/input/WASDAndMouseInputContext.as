@@ -1,6 +1,6 @@
-package agt.devices.input {
-	import agt.devices.input.data.MouseActions;
-	import agt.devices.input.events.InputEvent;
+package agt.input {
+	import agt.data.MouseActions;
+	import agt.input.events.InputEvent;
 
 	import flash.display.Sprite;
 	import flash.display.Stage;
@@ -10,7 +10,7 @@ package agt.devices.input {
 		public var keyboardContext : KeyboardInputContext;
 		public var mouseContext : MouseInputContext;
 
-		public function WASDAndMouseInputContext(stage : Stage, display : Sprite, linearSpeed : Number, mouseInputFactorX : Number = 1, mouseInputFactorY : Number = 1, mapArrows : Boolean = false) {
+		public function WASDAndMouseInputContext(stage : Stage, display : Sprite, linearSpeed : Number, mouseInputFactorX : Number = 1, mouseInputFactorY : Number = 1, mouseInputFactorWheel : Number = 25, mapArrows : Boolean = false) {
 			super();
 
 			keyboardContext = new KeyboardInputContext(stage);
@@ -31,8 +31,10 @@ package agt.devices.input {
 			mouseContext = new MouseInputContext(display);
 			mouseContext.map(MouseActions.DRAG_X, new InputEvent(InputEvent.ROTATE_Y));
 			mouseContext.map(MouseActions.DRAG_Y, new InputEvent(InputEvent.ROTATE_X));
+			mouseContext.map(MouseActions.WHEEL, new InputEvent(InputEvent.MOVE_Z));
 			mouseContext.mouseInputFactorX = mouseInputFactorX;
 			mouseContext.mouseInputFactorY = mouseInputFactorY;
+			mouseContext.mouseInputFactorWheel = mouseInputFactorWheel;
 
 			addContext(keyboardContext);
 			addContext(mouseContext);
