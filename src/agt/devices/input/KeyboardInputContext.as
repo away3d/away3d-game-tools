@@ -1,72 +1,61 @@
-package agt.devices.input
-{
+package agt.devices.input {
+	import agt.devices.input.events.InputEvent;
 
-import agt.devices.input.events.InputEvent;
+	import flash.display.Stage;
+	import flash.events.KeyboardEvent;
+	import flash.utils.Dictionary;
 
-import flash.display.Stage;
-import flash.events.KeyboardEvent;
-import flash.utils.Dictionary;
+	public class KeyboardInputContext extends InputContext {
+		private var _keysDown : Dictionary;
+		private var _onKeyUpEvent : InputEvent;
 
-public class KeyboardInputContext extends InputContext
-{
-	private var _keysDown:Dictionary;
-	private var _onKeyUpEvent:InputEvent;
+		public function KeyboardInputContext(stage : Stage) {
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+			stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
 
-	public function KeyboardInputContext(stage:Stage)
-	{
-		stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
-		stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
+			_keysDown = new Dictionary();
 
-		_keysDown = new Dictionary();
+			super();
+		}
 
-		super();
-	}
+		override protected function processInput() : void {
+			// check multipliers
+			var k : Number = 1;
+			if (_multiplierCode >= 0 && keyIsDown(_multiplierCode))
+				k = _multiplierValue;
 
-	override protected function processInput():void
-	{
-		// check multipliers
-		var k:Number = 1;
-		if(_multiplierCode >= 0 && keyIsDown(_multiplierCode))
-			k = _multiplierValue;
-
-		// dispatch events from any pressed key mappings
-		for(var i:uint; i < _mappedCodes.length; i++)
-		{
-			var keyCode:uint = _mappedCodes[i];
-			if(_continuity[keyCode] && keyIsDown(keyCode))
-			{
-				var evt:InputEvent = _eventMappings[keyCode];
-				evt.multiplier = k;
-				dispatchEvent(evt);
+			// dispatch events from any pressed key mappings
+			for (var i : uint; i < _mappedCodes.length; i++) {
+				var keyCode : uint = _mappedCodes[i];
+				if (_continuity[keyCode] && keyIsDown(keyCode)) {
+					var evt : InputEvent = _eventMappings[keyCode];
+					evt.multiplier = k;
+					dispatchEvent(evt);
+				}
 			}
 		}
+
+		public function mapOnKeyUp(event : InputEvent) : void {
+			_onKeyUpEvent = event;
+		}
+
+		private function keyDownHandler(evt : KeyboardEvent) : void {
+			_keysDown[evt.keyCode] = true;
+
+			// dispatch event from key mapping?
+			if (_continuity[evt.keyCode] != null && !_continuity[evt.keyCode])
+				dispatchEvent(_eventMappings[evt.keyCode]);
+		}
+
+		private function keyUpHandler(evt : KeyboardEvent) : void {
+			_keysDown[evt.keyCode] = false;
+
+			if (_onKeyUpEvent)
+				dispatchEvent(_onKeyUpEvent);
+		}
+
+		private function keyIsDown(keyCode : uint) : Boolean {
+			return _keysDown[keyCode] ? _keysDown[keyCode] : false;
+		}
 	}
-
-	public function mapOnKeyUp(event:InputEvent):void
-	{
-		_onKeyUpEvent = event;
-	}
-
-	private function keyDownHandler(evt:KeyboardEvent):void
-	{
-		_keysDown[evt.keyCode] = true;
-
-		// dispatch event from key mapping?
-		if(_continuity[evt.keyCode] != null && !_continuity[evt.keyCode])
-			dispatchEvent(_eventMappings[evt.keyCode]);
-	}
-
-	private function keyUpHandler(evt:KeyboardEvent):void
-	{
-		_keysDown[evt.keyCode] = false;
-
-		if(_onKeyUpEvent)
-			dispatchEvent(_onKeyUpEvent);
-	}
-
-	private function keyIsDown(keyCode:uint):Boolean
-    {
-        return _keysDown[keyCode] ? _keysDown[keyCode] : false;
-    }
-}
 }

@@ -7,9 +7,9 @@ package {
 
 	public class Main extends Sprite {
 		
-		// Setting
-		// 0=simpleplayercontrols, 1=simpelcameracontrols
-		private var _selectedExample : int = 1;
+		// Setting, change _selectedExample to select an example
+		// 0=SimplePlayerControls, 1=SimpelCameraControls
+		private var _selectedExample : int = 0;
 
 		public function Main() {
 			this.addEventListener(Event.ENTER_FRAME, tempLoop);
@@ -19,7 +19,7 @@ package {
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.quality = StageQuality.HIGH;
-			stage.frameRate = 30;
+			stage.frameRate = 60;
 			startExample();
 		}
 

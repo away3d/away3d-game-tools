@@ -1,79 +1,69 @@
-package agt.entities
-{
+package agt.entities {
+	import away3d.entities.Mesh;
 
-import away3d.entities.Mesh;
+	import awayphysics.collision.dispatch.AWPGhostObject;
+	import awayphysics.collision.shapes.AWPCapsuleShape;
+	import awayphysics.data.AWPCollisionFlags;
+	import awayphysics.dynamics.AWPRigidBody;
+	import awayphysics.dynamics.character.AWPKinematicCharacterController;
+	import awayphysics.events.AWPCollisionEvent;
 
-import awayphysics.collision.dispatch.AWPGhostObject;
-import awayphysics.collision.shapes.AWPCapsuleShape;
-import awayphysics.data.AWPCollisionFlags;
-import awayphysics.dynamics.AWPRigidBody;
-import awayphysics.dynamics.character.AWPKinematicCharacterController;
-import awayphysics.events.AWPCollisionEvent;
-import awayphysics.plugin.away3d.Away3DMesh;
+	import flash.geom.Vector3D;
 
-import flash.geom.Vector3D;
+	public class KinematicEntity extends PhysicsEntity {
+		private var _mesh : Mesh;
+		private var _character : AWPKinematicCharacterController;
+		private var _capsuleRadius : Number;
+		private var _capsuleHeight : Number;
+		private var _ghostObject : AWPGhostObject;
+		public var collideStrength : Number = 20;
 
-public class KinematicEntity extends PhysicsEntity
-{
-	private var _mesh:Mesh;
-	private var _character:AWPKinematicCharacterController;
-	private var _capsuleRadius:Number;
-	private var _capsuleHeight:Number;
-	private var _ghostObject:AWPGhostObject;
+		// force strength exerted on dynamic objects
+		public function KinematicEntity(mesh : Mesh, capsuleRadius : Number, capsuleHeight : Number) {
+			super();
 
-	public var collideStrength:Number = 20;
+			_capsuleRadius = capsuleRadius;
+			_capsuleHeight = capsuleHeight;
+			_mesh = mesh;
 
-	// force strength exerted on dynamic objects
-	public function KinematicEntity(mesh:Mesh, capsuleRadius:Number, capsuleHeight:Number)
-	{
-		super();
+			initEntity();
+		}
 
-		_capsuleRadius = capsuleRadius;
-		_capsuleHeight = capsuleHeight;
-		_mesh = mesh;
+		public function get character() : AWPKinematicCharacterController {
+			return _character;
+		}
 
-		initEntity();
-	}
+		public function set position(value : Vector3D) : void {
+			_character.warp(value);
+		}
 
-	public function get character():AWPKinematicCharacterController
-	{
-		return _character;
-	}
+		private function initEntity() : void {
+			// build entity shape
+			var entityShape : AWPCapsuleShape = new AWPCapsuleShape(_capsuleRadius, _capsuleHeight);
 
-	public function set position(value:Vector3D):void
-	{
-		_character.warp(value);
-	}
+			// use shape to produce ghost object
+			_ghostObject = new AWPGhostObject(entityShape, _mesh);
+			_ghostObject.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
+			_ghostObject.addEventListener(AWPCollisionEvent.COLLISION_ADDED, characterCollisionAddedHandler);
 
-	private function initEntity():void
-	{
-		// build entity shape
-		var entityShape:AWPCapsuleShape = new AWPCapsuleShape(_capsuleRadius, _capsuleHeight);
+			// init character
+			_character = new AWPKinematicCharacterController(_ghostObject, entityShape, 0.1);
+		}
 
-		// use shape to produce ghost object
-		_ghostObject = new AWPGhostObject(entityShape, new Away3DMesh(_mesh));
-		_ghostObject.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
-		_ghostObject.addEventListener(AWPCollisionEvent.COLLISION_ADDED, characterCollisionAddedHandler);
+		private function characterCollisionAddedHandler(event : AWPCollisionEvent) : void {
+			if (!(event.collisionObject.collisionFlags & AWPCollisionFlags.CF_STATIC_OBJECT)) {
+				var body : AWPRigidBody = AWPRigidBody(event.collisionObject);
+				var force : Vector3D = event.manifoldPoint.normalWorldOnB.clone();
 
-		// init character
-		_character = new AWPKinematicCharacterController(_ghostObject, entityShape, 0.1);
-	}
+				// TODO: add _character.walkDirection.v3d to AWP -> force.scaleBy(-collideStrength * _character.walkDirection.v3d.length);
+				force.scaleBy(-collideStrength);
+				// trace("force: " + force);
+				body.applyForce(force, event.manifoldPoint.localPointB);
+			}
+		}
 
-	private function characterCollisionAddedHandler(event:AWPCollisionEvent):void
-	{
-		if(!(event.collisionObject.collisionFlags & AWPCollisionFlags.CF_STATIC_OBJECT))
-		{
-			var body:AWPRigidBody = AWPRigidBody(event.collisionObject);
-			var force:Vector3D = event.manifoldPoint.normalWorldOnB.clone();
-			force.scaleBy(-collideStrength * _character.walkDirection.v3d.length);
-//			trace("force: " + force);
-			body.applyForce(force, event.manifoldPoint.localPointB);
+		public function get mesh() : Mesh {
+			return _mesh;
 		}
 	}
-
-	public function get mesh():Mesh
-	{
-		return _mesh;
-	}
-}
 }
