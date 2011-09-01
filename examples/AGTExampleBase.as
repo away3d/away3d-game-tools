@@ -70,7 +70,7 @@ package
 			// init simple gui
 			gui = new AGTSimpleGUI(this, "", "C");
 			gui.addGroup("View");
-			gui.addStepper("view.antiAlias", 1, 8, {label:"AntiAlias"});
+			gui.addStepper("view.antiAlias", 0, 8, {label:"AntiAlias"});
 			gui.addSlider("view.camera.lens.near", 0, 1000, {label:"lens near"});
 			gui.addSlider("view.camera.lens.far", 0, 100000, {label:"lens far"});
 			gui.show();
