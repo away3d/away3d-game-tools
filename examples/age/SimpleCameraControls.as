@@ -10,7 +10,8 @@ package {
 	import away3d.entities.Mesh;
 	import away3d.lights.PointLight;
 	import away3d.materials.ColorMaterial;
-	import away3d.primitives.Cube;
+import away3d.primitives.Capsule;
+import away3d.primitives.Cube;
 	import away3d.primitives.Sphere;
 
 	import com.bit101.components.Label;
@@ -115,7 +116,7 @@ package {
 			addChild(stats);
 
 			// start camera control
-			cameraMode = "fly";
+			cameraMode = "orbit";
 		}
 
 		private function enterframeHandler(evt : Event) : void {

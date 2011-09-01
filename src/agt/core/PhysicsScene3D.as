@@ -1,4 +1,6 @@
-package agt.core {
+package agt.core
+{
+
 	import agt.entities.KinematicEntity;
 
 	import away3d.containers.Scene3D;
@@ -9,21 +11,32 @@ package agt.core {
 	import flash.geom.Vector3D;
 	import flash.utils.getTimer;
 
-	public class PhysicsScene3D extends Scene3D {
-		private var _physicsWorld : AWPDynamicsWorld;
+	public class PhysicsScene3D extends Scene3D
+	{
+		private var _physicsWorld:AWPDynamicsWorld;
 		// keep this at 1/60 or 1/120
-		private var _fixedTimeStep : Number = 1 / 30; // TODO: add option to not use adaptive time step?
+		private var _fixedTimeStep:Number = 1/60; // TODO: add option to not use adaptive time step?
 		// time since last timestep
-		private var _deltaTime : Number;
-		private var _maxSubStep : int = 2;
-		private var _lastTimeStep : Number = -1;
+		private var _deltaTime:Number;
+		private var _maxSubStep:int = 2;
+		private var _lastTimeStep:Number = -1;
+		private var _kinematicEntities:Vector.<KinematicEntity>;
 
-		public function PhysicsScene3D() {
+		private var _allObjectsCollisionGroup:int = -1;
+		private var _sceneObjectsCollisionGroup:int = 1;
+		private var _characterObjectsCollisionGroup:int = 2;
+		private var _ghostObjectsCollisionGroup:int = 4;
+
+		public function PhysicsScene3D()
+		{
 			super();
 			initPhysics();
+
+			_kinematicEntities = new Vector.<KinematicEntity>();
 		}
 
-		private function initPhysics() : void {
+		private function initPhysics():void
+		{
 			// init world
 			_physicsWorld = AWPDynamicsWorld.getInstance();
 			_physicsWorld.initWithDbvtBroadphase();
@@ -31,17 +44,33 @@ package agt.core {
 			_physicsWorld.gravity = new Vector3D(0, -10, 0);
 		}
 
-		public function addRigidBody(body : AWPRigidBody) : void {
-			_physicsWorld.addRigidBody(body);
+		public function addRigidBody(body:AWPRigidBody):void
+		{
+			_physicsWorld.addRigidBodyWithGroup(body, _sceneObjectsCollisionGroup, _allObjectsCollisionGroup | _characterObjectsCollisionGroup);
 		}
 
-		public function addPlayer(player : KinematicEntity) : void {
-			_physicsWorld.addCharacter(player.kinematics);
+		public function addKinematicEntity(player:KinematicEntity):void
+		{
+			// add kinematics part
+			_physicsWorld.addCharacter(player.kinematics, _ghostObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+
+			// add dynamics part
+			_physicsWorld.addRigidBodyWithGroup(player.dynamics, _characterObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+
+			// register player
+			_kinematicEntities.push(player);
 		}
 
-		public function updatePhysics() : void {
-			if (_lastTimeStep == -1) _lastTimeStep = getTimer();
-			_deltaTime = (getTimer() - _lastTimeStep) / 1000;
+		public function updatePhysics():void
+		{
+			// kinematic entities update
+			var loop:uint = _kinematicEntities.length;
+			for(var i:uint; i < loop; ++i)
+				_kinematicEntities[i].update();
+
+			// world update
+			if(_lastTimeStep == -1) _lastTimeStep = getTimer();
+			_deltaTime = (getTimer() - _lastTimeStep)/1000;
 			_lastTimeStep = getTimer();
 			_physicsWorld.step(_deltaTime, _maxSubStep, _fixedTimeStep);
 		}

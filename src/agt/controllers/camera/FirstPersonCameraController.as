@@ -36,7 +36,7 @@ public class FirstPersonCameraController extends CameraControllerBase
 		super.update();
 
 		// set camera position equal to entity, with offset
-		var pos:Vector3D = KinematicEntity(_targetController.entity).mesh.transform.transformVector(_cameraOffset);
+		var pos:Vector3D = KinematicEntity(_targetController.entity).container.transform.transformVector(_cameraOffset);
 		_camera.x = pos.x;
 		_camera.y = pos.y;
 		_camera.z = pos.z;
@@ -76,7 +76,7 @@ public class FirstPersonCameraController extends CameraControllerBase
 	override public function set camera(value:ObjectContainer3D):void
 	{
 		super.camera = value;
-		_camera.transform = KinematicEntity(_targetController.entity).mesh.transform.clone();
+		_camera.transform = KinematicEntity(_targetController.entity).container.transform.clone();
 		_cameraDummy.transform = _camera.transform.clone();
 	}
 

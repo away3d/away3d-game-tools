@@ -38,7 +38,7 @@ public class ThirdPersonCameraController extends CameraControllerBase
 	{
 		super.update();
 
-		var target:ObjectContainer3D = KinematicEntity(_targetController.entity).mesh;
+		var target:ObjectContainer3D = KinematicEntity(_targetController.entity).container;
 
 		// maintain 3rd person relation to target
         var realDelta:Vector3D = new Vector3D(); // evaluate delta between camera and target
@@ -91,7 +91,7 @@ public class ThirdPersonCameraController extends CameraControllerBase
 
 	private function rotateCamera(degreesY:Number, degreesX:Number = 0):void
     {
-		var target:ObjectContainer3D = KinematicEntity(_targetController.entity).mesh;
+		var target:ObjectContainer3D = KinematicEntity(_targetController.entity).container;
 
         var t:Matrix3D = _cameraDummy.transform.clone(); // rotate in target space
         t.appendTranslation(-target.x, -target.y, -target.z);
