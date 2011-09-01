@@ -46,7 +46,9 @@ public class AnimatedKinematicEntityController extends KinematicEntityController
 
 	override public function moveZ(value:Number):void
 	{
-		_animator.play("walk", _animationCrossFadeTime);
+		if(_onGround)
+			_animator.play("walk", _animationCrossFadeTime);
+
 		super.moveZ(value);
 	}
 
