@@ -147,6 +147,7 @@ package CameraAndCharacterControl
 			gui.addSlider("player.controller.speedEase", 0.01, 1, {label:"move ease"});
 			gui.addSlider("player.controller.animatorTimeScaleFactor", 0.01, 1, {label:"anim speed"});
 			gui.addSlider("player.controller.animationCrossFadeTime", 0.01, 2, {label:"anim fade"});
+			gui.addSlider("player.entity.collideStrength", 0.01, 25000, {label:"strength"});
 
 			// start loop
 			addEventListener(Event.ENTER_FRAME, enterframeHandler);

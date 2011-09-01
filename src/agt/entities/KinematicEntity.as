@@ -12,7 +12,6 @@ package agt.entities
 	import awayphysics.data.AWPCollisionFlags;
 	import awayphysics.dynamics.AWPRigidBody;
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
-	import awayphysics.events.AWPCollisionEvent;
 
 	import flash.geom.Vector3D;
 
@@ -28,7 +27,7 @@ package agt.entities
 		private var _capsuleHeight:Number;
 		private var _ghostObject:AWPGhostObject;
 
-		public var collideStrength:Number = 200;
+		public var collideStrength:Number = 5000;
 
 		// force strength exerted on dynamic objects
 		public function KinematicEntity(mesh:Mesh, capsuleRadius:Number, capsuleHeight:Number)
@@ -63,7 +62,7 @@ package agt.entities
 			_kinematicCapsuleMesh.visible = false;
 
 			// build entity shape
-			var dynOffset:Number = 100;
+			var dynOffset:Number = 100; // TODO: Make settable
 			var entityShape1:AWPCapsuleShape = new AWPCapsuleShape(_capsuleRadius + dynOffset, _capsuleHeight);
 
 			// dynamic

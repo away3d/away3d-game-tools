@@ -66,7 +66,7 @@ package CameraAndCharacterControl
 			inputContext.map(Keyboard.A, new InputEvent(InputEvent.ROTATE_Y, -3));
 			inputContext.map(Keyboard.SPACE, new InputEvent(InputEvent.JUMP));
 			inputContext.mapOnAllKeysUp(new InputEvent(InputEvent.STOP));
-//		playerMotionInputContext.mapMultiplier(Keyboard.SHIFT, 2);
+			inputContext.mapMultiplier(Keyboard.SHIFT, 2);
 
 			// player controller
 			controller = new AnimatedKinematicEntityController(entity, baseMesh);
