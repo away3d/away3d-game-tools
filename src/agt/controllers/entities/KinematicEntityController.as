@@ -40,7 +40,7 @@ public class KinematicEntityController extends EntityControllerBase
 
 		var delta:Number = _targetSpeed - _currentSpeed;
 
-		_currentSpeed += delta*0.25;
+		_currentSpeed += delta*_speedEase;
 
 		KinematicEntity(_entity).kinematics.ghostObject.rotation.copyRowTo(2, _walkDirection);
 		_walkDirection.scaleBy(_currentSpeed);
@@ -72,7 +72,7 @@ public class KinematicEntityController extends EntityControllerBase
 
 	public function stop(value:Number = 0):void
 	{
-		_targetSpeed = 0;
+		_targetSpeed = _currentSpeed = 0;
 	}
 
 	protected function updateWalkDirection():void
