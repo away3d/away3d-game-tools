@@ -149,6 +149,10 @@ package CameraAndCharacterControl
 			gui.addSlider("player.controller.animationCrossFadeTime", 0.01, 2, {label:"anim fade"});
 			gui.addSlider("player.entity.collideStrength", 0.01, 25000, {label:"strength"});
 
+			// level
+			gui.addGroup("level");
+			gui.addButton("reset", {callback:level.reset});
+
 			// start loop
 			addEventListener(Event.ENTER_FRAME, enterframeHandler);
 		}

@@ -25,13 +25,25 @@ package CameraAndCharacterControl
 	{
 		public var terrainMesh:Elevation;
 
+		private var _boxBodies:Vector.<AWPRigidBody>;
+		private var _boxMeshes:Vector.<Mesh>;
+		private var _scene:PhysicsScene3D;
+		private var _light:PointLight;
+
 		public function Level(scene:PhysicsScene3D, light:PointLight)
 		{
-			initTerrain(scene, light);
-			initObjects(scene, light);
+			_scene = scene;
+			_light = light;
+			initTerrain();
+			initObjects();
 		}
 
-		private function initTerrain(scene:PhysicsScene3D, light:PointLight):void
+		public function reset():void
+		{
+			initObjects();
+		}
+
+		private function initTerrain():void
 		{
 			/*
 			 NOTE: Terrain collision here uses triangle based collision, which is of course
@@ -59,24 +71,40 @@ package CameraAndCharacterControl
 
 			// use height map to produce mesh
 			var terrainMaterial:ColorMaterial = DebugMaterialLibrary.instance.whiteMaterial;
-			terrainMaterial.lights = [light];
+			terrainMaterial.lights = [_light];
 			terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 2000, 15000, 60, 60);
-			scene.addChild(terrainMesh);
+			_scene.addChild(terrainMesh);
 
 			// add body
 			var sceneShape:AWPBvhTriangleMeshShape = new AWPBvhTriangleMeshShape(terrainMesh);
 			var sceneBody:AWPRigidBody = new AWPRigidBody(sceneShape, terrainMesh, 0);
-			scene.addRigidBody(sceneBody);
+			_scene.addRigidBody(sceneBody);
 		}
 
-		private function initObjects(scene:PhysicsScene3D, light:PointLight):void
+		private function initObjects():void
 		{
+			var i:uint;
+
+			// reset?
+			if(_boxBodies)
+			{
+				for(i = 0; i < _boxBodies.length; ++i)
+				{
+					_scene.removeRigidBody(_boxBodies[i]);
+					_scene.removeChild(_boxMeshes[i]);
+				}
+			}
+
+			// reset arrays
+			_boxBodies = new Vector.<AWPRigidBody>();
+			_boxMeshes = new Vector.<Mesh>();
+
 			// box shape
 			var boxShape:AWPBoxShape = new AWPBoxShape(200, 200, 200);
 
 			// box material
 			var material:ColorMaterial = DebugMaterialLibrary.instance.redMaterial;
-			material.lights = [light];
+			material.lights = [_light];
 
 			// create box array
 			var mesh:Mesh;
@@ -84,7 +112,7 @@ package CameraAndCharacterControl
 			var numX:int = 6;
 			var numY:int = 4;
 			var numZ:int = 1;
-			for(var i:int = 0; i < numX; i++)
+			for(i = 0; i < numX; i++)
 			{
 				for(var j:int = 0; j < numZ; j++)
 				{
@@ -99,13 +127,15 @@ package CameraAndCharacterControl
 
 						// create boxes
 						mesh = new Cube(material, 200, 200, 200); // TODO: Create meshes and bodies in 1 step with AGT?
-						scene.addChild(mesh);
+						_boxMeshes.push(mesh);
+						_scene.addChild(mesh);
 						body = new AWPRigidBody(boxShape, mesh, 0.1);
 						body.friction = .9;
 						body.linearDamping = 0.05;
 						body.angularDamping = 0.05;
 						body.position = new Vector3D(x, y, z);
-						scene.addRigidBody(body);
+						_scene.addRigidBody(body);
+						_boxBodies.push(body);
 					}
 				}
 			}

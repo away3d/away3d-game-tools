@@ -49,6 +49,11 @@ package agt.core
 			_physicsWorld.addRigidBodyWithGroup(body, _sceneObjectsCollisionGroup, _allObjectsCollisionGroup | _characterObjectsCollisionGroup);
 		}
 
+		public function removeRigidBody(body:AWPRigidBody):void
+		{
+			_physicsWorld.removeRigidBody(body);
+		}
+
 		public function addKinematicEntity(player:KinematicEntity):void
 		{
 			// add kinematics part
