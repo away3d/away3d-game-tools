@@ -1,5 +1,7 @@
-package agt.input
+package agt.input.device
 {
+
+	import agt.input.*;
 
 import agt.input.events.InputEvent;
 

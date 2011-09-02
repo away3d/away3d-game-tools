@@ -11,6 +11,7 @@ package CameraAndCharacterControl
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.parsers.MD5AnimParser;
 	import away3d.loaders.parsers.MD5MeshParser;
+	import away3d.materials.BitmapMaterial;
 
 	import flash.events.Event;
 	import flash.geom.Vector3D;
@@ -34,6 +35,7 @@ package CameraAndCharacterControl
 		private var _hellKnightMesh:Mesh;
 		private var _idleAnimation:SkeletonAnimationSequence;
 		private var _walkAnimation:SkeletonAnimationSequence;
+		private var _enemies:Vector.<Enemy>;
 
 		public var level:Level;
 		public var player:Player;
@@ -79,6 +81,13 @@ package CameraAndCharacterControl
 			trace("hellknight mesh loaded");
 			_hellKnightMesh = evt.asset as Mesh;
 
+			// set hell knight material
+			var hellknightMaterial:BitmapMaterial = new BitmapMaterial(new HellKnightTexture().bitmapData);
+			hellknightMaterial.lights = [_light];
+			hellknightMaterial.normalMap = new HellKnightNormalMap().bitmapData;
+			hellknightMaterial.specularMap = new HellKnightSpecularMap().bitmapData;
+			_hellKnightMesh.material = hellknightMaterial;
+
 			// (2) retrieve hell knight idle animation sequence
 			trace("loading idle animation...");
 			var loader:Loader3D = new Loader3D();
@@ -113,13 +122,19 @@ package CameraAndCharacterControl
 			level = new Level(scene, _light);
 
 			// init player
-			player = new Player(stage, scene, _light,
-					_idleAnimation, _walkAnimation,
-					_hellKnightMesh,
-					new HellKnightTexture().bitmapData,
-					new HellKnightNormalMap().bitmapData,
-					new HellKnightSpecularMap().bitmapData,
-					level.terrainMesh);
+			player = new Player(_hellKnightMesh.clone() as Mesh, scene, _idleAnimation, _walkAnimation, stage);
+			player.entity.position = new Vector3D(0, 500 + level.terrainMesh.getHeightAt(0, -1000), -1000);
+
+			// init enemies
+			_enemies = new Vector.<Enemy>();
+			for(var i:uint; i < 2; ++i)
+			{
+				var x:Number = rand(-3000, 3000);
+				var z:Number = rand(-3000, 3000);
+				var enemy:Enemy = new Enemy(_hellKnightMesh.clone() as Mesh, scene, _idleAnimation, _walkAnimation);
+				enemy.entity.position = new Vector3D(x, 500 + level.terrainMesh.getHeightAt(x, z), z);
+				_enemies.push(enemy);
+			}
 
 			// init camera control
 			camera = new Camera(stage, view, player.entity, player.controller, player.baseMesh);
@@ -171,6 +186,10 @@ package CameraAndCharacterControl
 			// update player
 			player.update();
 
+			// update enemies
+			for(var i:uint; i < _enemies.length; ++i)
+				_enemies[i].update();
+
 			// update scene physics
 			scene.updatePhysics();
 
@@ -182,6 +201,15 @@ package CameraAndCharacterControl
 
 			// render 3d view
 			view.render();
+		}
+
+		// ---------------------------------------------------------------------
+		// utils
+		// ---------------------------------------------------------------------
+
+		private function rand(min:Number, max:Number):Number
+		{
+		    return (max - min)*Math.random() + min;
 		}
 
 		// ---------------------------------------------------------------------

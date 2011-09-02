@@ -107,8 +107,8 @@ package CameraAndCharacterControl
 			var boxMesh:Cube = new Cube(boxMaterial, 200, 200, 200);
 
 			// create box array
-			var numX:int = 6;
-			var numY:int = 4;
+			var numX:int = 4;
+			var numY:int = 3;
 			var numZ:int = 1;
 			for(i = 0; i < numX; i++)
 			{
