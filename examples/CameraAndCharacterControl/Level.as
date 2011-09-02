@@ -130,8 +130,8 @@ package CameraAndCharacterControl
 						box.body.linearDamping = 0.05;
 						box.body.angularDamping = 0.05;
 						box.body.position = new Vector3D(x, y, z);
-						_scene.addDynamicEntity(box);
 						_boxes.push(box);
+						_scene.addDynamicEntity(box);
 					}
 				}
 			}

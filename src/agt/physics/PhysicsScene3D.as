@@ -14,7 +14,7 @@ package agt.physics
 
 	public class PhysicsScene3D extends Scene3D
 	{
-		private var _physicsWorld:AWPDynamicsWorld;
+		private var _physics:AWPDynamicsWorld;
 		// keep this at 1/60 or 1/120
 		private var _fixedTimeStep:Number = 1/60; // TODO: add option to not use adaptive time step?
 		// time since last timestep
@@ -39,10 +39,10 @@ package agt.physics
 		private function initPhysics():void
 		{
 			// init world
-			_physicsWorld = AWPDynamicsWorld.getInstance();
-			_physicsWorld.initWithDbvtBroadphase();
-			_physicsWorld.collisionCallbackOn = true;
-			_physicsWorld.gravity = new Vector3D(0, -10, 0);
+			_physics = AWPDynamicsWorld.getInstance();
+			_physics.initWithDbvtBroadphase();
+			_physics.collisionCallbackOn = true;
+			_physics.gravity = new Vector3D(0, -10, 0);
 		}
 
 		public function addDynamicEntity(entity:DynamicEntity):void
@@ -51,13 +51,13 @@ package agt.physics
 			addChild(entity.container);
 
 			// add physics part
-			_physicsWorld.addRigidBodyWithGroup(entity.body, _sceneObjectsCollisionGroup, _allObjectsCollisionGroup | _characterDynamicObjectsCollisionGroup);
+			_physics.addRigidBodyWithGroup(entity.body, _sceneObjectsCollisionGroup, _allObjectsCollisionGroup | _characterDynamicObjectsCollisionGroup);
 		}
 
 		public function removeDynamicEntity(entity:DynamicEntity):void
 		{
 			// remove physics part
-			_physicsWorld.removeRigidBody(entity.body);
+			_physics.removeRigidBody(entity.body);
 
 			// remove visual part
 			removeChild(entity.container);
@@ -70,10 +70,10 @@ package agt.physics
 			addChild(entity.dynamicCapsuleMesh);
 
 			// add physics kinematics part
-			_physicsWorld.addCharacter(entity.character, _characterKinematicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+			_physics.addCharacter(entity.character, _characterKinematicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
 
 			// add physics dynamics part
-			_physicsWorld.addRigidBodyWithGroup(entity.body, _characterDynamicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+			_physics.addRigidBodyWithGroup(entity.body, _characterDynamicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
 
 			// register player
 			_characterEntities.push(entity);
@@ -90,7 +90,12 @@ package agt.physics
 			if(_lastTimeStep == -1) _lastTimeStep = getTimer();
 			_deltaTime = (getTimer() - _lastTimeStep)/1000;
 			_lastTimeStep = getTimer();
-			_physicsWorld.step(_deltaTime, _maxSubStep, _fixedTimeStep);
+			_physics.step(_deltaTime, _maxSubStep, _fixedTimeStep);
+		}
+
+		public function get physics():AWPDynamicsWorld
+		{
+			return _physics;
 		}
 	}
 }
