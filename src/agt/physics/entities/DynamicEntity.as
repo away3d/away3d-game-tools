@@ -10,10 +10,10 @@ package agt.physics.entities
 	{
 		private var _body:AWPRigidBody;
 
-		public function DynamicEntity(shape:AWPShape, container:ObjectContainer3D)
+		public function DynamicEntity(shape:AWPShape, container:ObjectContainer3D, mass:Number = 0)
 		{
 			super(shape, container);
-			_body = new AWPRigidBody(_shape, _container);
+			_body = new AWPRigidBody(_shape, _container, mass);
 		}
 
 		public function get body():AWPRigidBody

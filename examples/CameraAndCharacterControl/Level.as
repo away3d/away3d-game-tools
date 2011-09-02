@@ -72,8 +72,7 @@ package CameraAndCharacterControl
 			}
 
 			// use height map to produce mesh
-			var terrainMaterial:ColorMaterial = new ColorMaterial(0x666666);
-			terrainMaterial.lights = [_light];
+			var terrainMaterial:ColorMaterial = DebugMaterialLibrary.instance.whiteMaterial;
 			terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 2000, 15000, 60, 60);
 
 			// add body
@@ -124,11 +123,10 @@ package CameraAndCharacterControl
 						var y:Number = 100 + terrainHeightAtXZ + k*200;
 
 						// create boxes
-						var box:DynamicEntity = new DynamicEntity(boxShape, boxMesh.clone() as ObjectContainer3D);
-						box.body.mass = 0.1;
+						var box:DynamicEntity = new DynamicEntity(boxShape, boxMesh.clone() as ObjectContainer3D, 0.5);
 						box.body.friction = 0.9;
-						box.body.linearDamping = 0.05;
-						box.body.angularDamping = 0.05;
+						box.body.linearDamping = 0.03;
+						box.body.angularDamping = 0.03;
 						box.body.position = new Vector3D(x, y, z);
 						_boxes.push(box);
 						_scene.addDynamicEntity(box);
