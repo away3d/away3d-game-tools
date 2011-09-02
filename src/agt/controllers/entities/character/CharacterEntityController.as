@@ -53,7 +53,8 @@ public class CharacterEntityController extends ControllerBase
 
 	public function moveZ(value:Number):void
 	{
-		_targetSpeed = value;
+		if(_onGround)
+			_targetSpeed = value;
 	}
 
 	public function moveX(value:Number):void
@@ -69,7 +70,7 @@ public class CharacterEntityController extends ControllerBase
 	public function jump(value:Number = 0):void
 	{
 		if(_onGround)
-			CharacterEntity(_entity).character.jump();
+			_entity.character.jump();
 	}
 
 	public function stop(value:Number = 0):void

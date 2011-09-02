@@ -151,7 +151,7 @@ package CameraAndCharacterControl
 
 			// physics
 			gui.addGroup("physics");
-			_gravityY = scene.physics.gravity.y;
+			_gravityY = scene.gravity.y;
 			gui.addSlider("gravityY", -50, 50, {label:"gravity"});
 
 			// level
@@ -227,7 +227,7 @@ package CameraAndCharacterControl
 		public function set gravityY(value:Number):void
 		{
 			_gravityY = value;
-			scene.physics.gravity = new Vector3D(0, _gravityY, 0);
+			scene.gravity = new Vector3D(0, _gravityY, 0);
 		}
 	}
 }

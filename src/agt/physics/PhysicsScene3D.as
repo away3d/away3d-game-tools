@@ -71,6 +71,7 @@ package agt.physics
 
 			// add physics kinematics part
 			_physics.addCharacter(entity.character, _characterKinematicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+			entity.character.gravity = -_physics.gravity.y * _physics.scaling * 2.9;
 
 			// add physics dynamics part
 			_physics.addRigidBodyWithGroup(entity.body, _characterDynamicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
@@ -93,9 +94,15 @@ package agt.physics
 			_physics.step(_deltaTime, _maxSubStep, _fixedTimeStep);
 		}
 
-		public function get physics():AWPDynamicsWorld
+		public function set gravity(value:Vector3D):void
 		{
-			return _physics;
+			_physics.gravity = value;
+			for(var i:uint; i < _characterEntities.length; ++i)
+				_characterEntities[i].character.gravity = -_physics.gravity.y * _physics.scaling * 2.9;
+		}
+		public function get gravity():Vector3D
+		{
+			return _physics.gravity;
 		}
 	}
 }
