@@ -151,7 +151,8 @@ package CameraAndCharacterControl
 
 			// physics
 			gui.addGroup("physics");
-			gui.addSlider("scene.physics.gravity.y", 0, 100, {label:"gravity"});
+			_gravityY = scene.physics.gravity.y;
+			gui.addSlider("gravityY", -50, 50, {label:"gravity"});
 
 			// level
 			gui.addGroup("level");
@@ -215,6 +216,18 @@ package CameraAndCharacterControl
 					camera.enable3rdPersonCameraController();
 					break;
 			}
+		}
+
+		private var _gravityY:Number;
+		public function get gravityY():Number
+		{
+			return _gravityY;
+		}
+
+		public function set gravityY(value:Number):void
+		{
+			_gravityY = value;
+			scene.physics.gravity = new Vector3D(0, _gravityY, 0);
 		}
 	}
 }
