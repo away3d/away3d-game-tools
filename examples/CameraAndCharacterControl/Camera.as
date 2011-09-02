@@ -7,9 +7,9 @@ package CameraAndCharacterControl
 	import agt.controllers.camera.ObserverCameraController;
 	import agt.controllers.camera.OrbitCameraController;
 	import agt.controllers.camera.ThirdPersonCameraController;
-	import agt.controllers.entities.KinematicEntityController;
+	import agt.controllers.entities.character.CharacterEntityController;
 	import agt.data.MouseActions;
-	import agt.entities.KinematicEntity;
+	import agt.entities.CharacterEntity;
 	import agt.input.CompositeInputContext;
 	import agt.input.KeyboardInputContext;
 	import agt.input.MouseInputContext;
@@ -28,12 +28,12 @@ package CameraAndCharacterControl
 
 		private var _stage:Stage;
 		private var _view:View3D;
-		private var _player:KinematicEntity;
-		private var _playerController:KinematicEntityController;
+		private var _player:CharacterEntity;
+		private var _playerController:CharacterEntityController;
 		private var _playerBaseMesh:Mesh;
 		private var _cameraInputContext:CompositeInputContext;
 
-		public function Camera(stage:Stage, view:View3D, player:KinematicEntity, playerController:KinematicEntityController, playerBaseMesh:Mesh)
+		public function Camera(stage:Stage, view:View3D, player:CharacterEntity, playerController:CharacterEntityController, playerBaseMesh:Mesh)
 		{
 			_stage = stage;
 			_view = view;

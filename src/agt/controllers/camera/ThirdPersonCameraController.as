@@ -1,8 +1,8 @@
 package agt.controllers.camera
 {
 
-import agt.controllers.entities.KinematicEntityController;
-import agt.entities.KinematicEntity;
+import agt.controllers.entities.character.CharacterEntityController;
+import agt.entities.CharacterEntity;
 import agt.input.InputContext;
 import agt.input.events.InputEvent;
 
@@ -14,13 +14,13 @@ import flash.geom.Vector3D;
 public class ThirdPersonCameraController extends CameraControllerBase
 {
 	private var _cameraDummy:ObjectContainer3D;
-	private var _targetController:KinematicEntityController;
+	private var _targetController:CharacterEntityController;
 
 	private var _cameraOffsetY:Number = 500;
     private var _cameraOffsetXZ:Number = 1000;
     private var _directionEnforcement:Number = 10;
 
-	public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:KinematicEntityController)
+	public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:CharacterEntityController)
 	{
 		_cameraDummy = new ObjectContainer3D();
 		this.targetController = targetController;
@@ -38,7 +38,7 @@ public class ThirdPersonCameraController extends CameraControllerBase
 	{
 		super.update();
 
-		var target:ObjectContainer3D = KinematicEntity(_targetController.entity).container;
+		var target:ObjectContainer3D = _targetController.entity.container;
 
 		// maintain 3rd person relation to target
         var realDelta:Vector3D = new Vector3D(); // evaluate delta between camera and target
@@ -62,8 +62,7 @@ public class ThirdPersonCameraController extends CameraControllerBase
 			cameraRight.normalize();
 			cameraRight.y = 0;
 			var proj:Number = targetForward.dotProduct(cameraRight);
-			var speed:Number = KinematicEntity(_targetController.entity).kinematics.walkDirection.v3d.length;
-//			trace("enforce: " + proj + ", " + speed);
+			var speed:Number = _targetController.entity.character.walkDirection.v3d.length;
 			rotateCamera(-_directionEnforcement * proj * speed);
 		}
 
@@ -91,7 +90,7 @@ public class ThirdPersonCameraController extends CameraControllerBase
 
 	private function rotateCamera(degreesY:Number, degreesX:Number = 0):void
     {
-		var target:ObjectContainer3D = KinematicEntity(_targetController.entity).container;
+		var target:ObjectContainer3D = CharacterEntity(_targetController.entity).container;
 
         var t:Matrix3D = _cameraDummy.transform.clone(); // rotate in target space
         t.appendTranslation(-target.x, -target.y, -target.z);
@@ -104,12 +103,12 @@ public class ThirdPersonCameraController extends CameraControllerBase
         _cameraDummy.position = cs[0];
     }
 
-	public function get targetController():KinematicEntityController
+	public function get targetController():CharacterEntityController
 	{
 		return _targetController;
 	}
 
-	public function set targetController(value:KinematicEntityController):void
+	public function set targetController(value:CharacterEntityController):void
 	{
 		_targetController = value;
 	}

@@ -1,8 +1,8 @@
 package agt.controllers.camera
 {
 
-import agt.controllers.entities.KinematicEntityController;
-import agt.entities.KinematicEntity;
+import agt.controllers.entities.character.CharacterEntityController;
+import agt.entities.CharacterEntity;
 import agt.input.InputContext;
 import agt.input.events.InputEvent;
 
@@ -12,11 +12,11 @@ import flash.geom.Vector3D;
 
 public class FirstPersonCameraController extends CameraControllerBase
 {
-	private var _targetController:KinematicEntityController;
+	private var _targetController:CharacterEntityController;
 	private var _cameraDummy:ObjectContainer3D;
 	private var _cameraOffset:Vector3D;
 
-	public function FirstPersonCameraController(camera:ObjectContainer3D, targetController:KinematicEntityController = null)
+	public function FirstPersonCameraController(camera:ObjectContainer3D, targetController:CharacterEntityController = null)
 	{
 		_cameraDummy = new ObjectContainer3D();
 		this.targetController = targetController;
@@ -36,7 +36,7 @@ public class FirstPersonCameraController extends CameraControllerBase
 		super.update();
 
 		// set camera position equal to entity, with offset
-		var pos:Vector3D = KinematicEntity(_targetController.entity).container.transform.transformVector(_cameraOffset);
+		var pos:Vector3D = _targetController.entity.container.transform.transformVector(_cameraOffset);
 		_camera.x = pos.x;
 		_camera.y = pos.y;
 		_camera.z = pos.z;
@@ -63,12 +63,12 @@ public class FirstPersonCameraController extends CameraControllerBase
 		_cameraDummy.rotationY += value;
 	}
 
-	public function get targetController():KinematicEntityController
+	public function get targetController():CharacterEntityController
 	{
 		return _targetController;
 	}
 
-	public function set targetController(value:KinematicEntityController):void
+	public function set targetController(value:CharacterEntityController):void
 	{
 		_targetController = value;
 	}
@@ -76,7 +76,7 @@ public class FirstPersonCameraController extends CameraControllerBase
 	override public function set camera(value:ObjectContainer3D):void
 	{
 		super.camera = value;
-		_camera.transform = KinematicEntity(_targetController.entity).container.transform.clone();
+		_camera.transform = CharacterEntity(_targetController.entity).container.transform.clone();
 		_cameraDummy.transform = _camera.transform.clone();
 	}
 

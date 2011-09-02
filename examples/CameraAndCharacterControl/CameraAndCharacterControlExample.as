@@ -142,12 +142,12 @@ package CameraAndCharacterControl
 
 			// player
 			gui.addGroup("player");
-			gui.addToggle("player.entity.kinematicCapsuleVisible", {label:"debug kinematic"});
-			gui.addToggle("player.entity.dynamicCapsuleVisible", {label:"debug dynamic"});
-			gui.addSlider("player.controller.speedEase", 0.01, 1, {label:"move ease"});
-			gui.addSlider("player.controller.animatorTimeScaleFactor", 0.01, 1, {label:"anim speed"});
-			gui.addSlider("player.controller.animationCrossFadeTime", 0.01, 2, {label:"anim fade"});
+			gui.addToggle("player.entity.kinematicCapsuleMesh.visible", {label:"debug kinematic"});
+			gui.addToggle("player.entity.dynamicCapsuleMesh.visible", {label:"debug dynamic"});
 			gui.addSlider("player.entity.collideStrength", 0.01, 25000, {label:"strength"});
+//			gui.addSlider("player.controller.speedEase", 0.01, 1, {label:"move ease"});
+//			gui.addSlider("player.controller.animatorTimeScaleFactor", 0.01, 1, {label:"anim speed"});
+//			gui.addSlider("player.controller.animationCrossFadeTime", 0.01, 2, {label:"anim fade"});
 
 			// level
 			gui.addGroup("level");

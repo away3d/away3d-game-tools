@@ -5,7 +5,7 @@ import away3d.containers.ObjectContainer3D;
 
 public class ObserverCameraController extends CameraControllerBase
 {
-	// TODO: Make orbit, 1st person and 3rd person camera controllers extend this one (these are all target based).
+	// TODO: Make orbit, 1st person and 3rd person camera controllers extend this one (these are all target based)?
 
 	private var _target:ObjectContainer3D;
 

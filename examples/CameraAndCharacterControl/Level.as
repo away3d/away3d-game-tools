@@ -3,6 +3,9 @@ package CameraAndCharacterControl
 
 	import agt.core.PhysicsScene3D;
 	import agt.debug.DebugMaterialLibrary;
+	import agt.entities.DynamicEntity;
+
+	import away3d.containers.ObjectContainer3D;
 
 	import away3d.entities.Mesh;
 
@@ -25,8 +28,7 @@ package CameraAndCharacterControl
 	{
 		public var terrainMesh:Elevation;
 
-		private var _boxBodies:Vector.<AWPRigidBody>;
-		private var _boxMeshes:Vector.<Mesh>;
+		private var _boxes:Vector.<DynamicEntity>;
 		private var _scene:PhysicsScene3D;
 		private var _light:PointLight;
 
@@ -70,45 +72,42 @@ package CameraAndCharacterControl
 			}
 
 			// use height map to produce mesh
-			var terrainMaterial:ColorMaterial = DebugMaterialLibrary.instance.whiteMaterial;
+			var terrainMaterial:ColorMaterial = new ColorMaterial(0x666666);
 			terrainMaterial.lights = [_light];
 			terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 2000, 15000, 60, 60);
-			_scene.addChild(terrainMesh);
 
 			// add body
-			var sceneShape:AWPBvhTriangleMeshShape = new AWPBvhTriangleMeshShape(terrainMesh);
-			var sceneBody:AWPRigidBody = new AWPRigidBody(sceneShape, terrainMesh, 0);
-			_scene.addRigidBody(sceneBody);
+			var terrainShape:AWPBvhTriangleMeshShape = new AWPBvhTriangleMeshShape(terrainMesh);
+			var terrain:DynamicEntity = new DynamicEntity(terrainShape, terrainMesh);
+			terrain.body.mass = 0;
+			_scene.addDynamicEntity(terrain);
 		}
 
 		private function initObjects():void
 		{
 			var i:uint;
 
-			// reset?
-			if(_boxBodies)
+			// remove old objects?
+			if(_boxes)
 			{
-				for(i = 0; i < _boxBodies.length; ++i)
-				{
-					_scene.removeRigidBody(_boxBodies[i]);
-					_scene.removeChild(_boxMeshes[i]);
-				}
+				for(i = 0; i < _boxes.length; ++i)
+					_scene.removeDynamicEntity(_boxes[i]);
 			}
 
-			// reset arrays
-			_boxBodies = new Vector.<AWPRigidBody>();
-			_boxMeshes = new Vector.<Mesh>();
+			// reset array
+			_boxes = new Vector.<DynamicEntity>();
 
 			// box shape
 			var boxShape:AWPBoxShape = new AWPBoxShape(200, 200, 200);
 
 			// box material
-			var material:ColorMaterial = DebugMaterialLibrary.instance.redMaterial;
-			material.lights = [_light];
+			var boxMaterial:ColorMaterial = DebugMaterialLibrary.instance.redMaterial;
+			boxMaterial.lights = [_light];
+
+			// sample box
+			var boxMesh:Cube = new Cube(boxMaterial, 200, 200, 200);
 
 			// create box array
-			var mesh:Mesh;
-			var body:AWPRigidBody;
 			var numX:int = 6;
 			var numY:int = 4;
 			var numZ:int = 1;
@@ -122,20 +121,17 @@ package CameraAndCharacterControl
 
 					for(var k:int = 0; k < numY; k++)
 					{
-
-						var y:Number = 75 + terrainHeightAtXZ + k*200;
+						var y:Number = 100 + terrainHeightAtXZ + k*200;
 
 						// create boxes
-						mesh = new Cube(material, 200, 200, 200); // TODO: Create meshes and bodies in 1 step with AGT?
-						_boxMeshes.push(mesh);
-						_scene.addChild(mesh);
-						body = new AWPRigidBody(boxShape, mesh, 0.1);
-						body.friction = .9;
-						body.linearDamping = 0.05;
-						body.angularDamping = 0.05;
-						body.position = new Vector3D(x, y, z);
-						_scene.addRigidBody(body);
-						_boxBodies.push(body);
+						var box:DynamicEntity = new DynamicEntity(boxShape, boxMesh.clone() as ObjectContainer3D);
+						box.body.mass = 0.1;
+						box.body.friction = 0.9;
+						box.body.linearDamping = 0.05;
+						box.body.angularDamping = 0.05;
+						box.body.position = new Vector3D(x, y, z);
+						_scene.addDynamicEntity(box);
+						_boxes.push(box);
 					}
 				}
 			}

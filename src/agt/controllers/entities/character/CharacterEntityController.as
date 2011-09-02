@@ -1,27 +1,29 @@
-package agt.controllers.entities
+package agt.controllers.entities.character
 {
 
-import agt.input.InputContext;
+	import agt.controllers.ControllerBase;
+	import agt.input.InputContext;
 import agt.input.events.InputEvent;
-import agt.entities.KinematicEntity;
+import agt.entities.CharacterEntity;
 
 import flash.geom.Matrix3D;
 import flash.geom.Vector3D;
 
-public class KinematicEntityController extends EntityControllerBase
+public class CharacterEntityController extends ControllerBase
 {
 	protected var _targetSpeed:Number = 0;
 	protected var _currentSpeed:Number = 0;
 	protected var _onGround:Boolean;
 	protected var _walkDirection:Vector3D;
-	private var _rotationY:Number;
 	protected var _speedEase:Number = 0.2;
+	private var _rotationY:Number;
+	private var _entity:CharacterEntity;
 
-	public function KinematicEntityController(entity:KinematicEntity)
+	public function CharacterEntityController(entity:CharacterEntity)
 	{
-		super(entity);
 		_walkDirection = new Vector3D();
 		_rotationY = 0;
+		_entity = entity;
 	}
 
 	override public function set inputContext(context:InputContext):void
@@ -42,11 +44,11 @@ public class KinematicEntityController extends EntityControllerBase
 
 		_currentSpeed += delta*_speedEase;
 
-		KinematicEntity(_entity).kinematics.ghostObject.rotation.copyRowTo(2, _walkDirection);
+		_entity.ghost.rotation.copyRowTo(2, _walkDirection);
 		_walkDirection.scaleBy(_currentSpeed);
 		updateWalkDirection();
 
-		_onGround = KinematicEntity(_entity).kinematics.onGround();
+		_onGround = _entity.character.onGround();
 	}
 
 	public function moveZ(value:Number):void
@@ -67,7 +69,7 @@ public class KinematicEntityController extends EntityControllerBase
 	public function jump(value:Number = 0):void
 	{
 		if(_onGround)
-			KinematicEntity(_entity).kinematics.jump();
+			CharacterEntity(_entity).character.jump();
 	}
 
 	public function stop(value:Number = 0):void
@@ -77,7 +79,7 @@ public class KinematicEntityController extends EntityControllerBase
 
 	protected function updateWalkDirection():void
 	{
-		KinematicEntity(_entity).kinematics.setWalkDirection(_walkDirection);
+		_entity.character.setWalkDirection(_walkDirection);
 	}
 
 	public function get rotationY():Number
@@ -91,7 +93,12 @@ public class KinematicEntityController extends EntityControllerBase
 
 		var rotationMatrix:Matrix3D = new Matrix3D();
 		rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
-		KinematicEntity(_entity).kinematics.ghostObject.rotation = rotationMatrix;
+		_entity.ghost.rotation = rotationMatrix;
+	}
+
+	public function get entity():CharacterEntity
+	{
+		return _entity;
 	}
 }
 }

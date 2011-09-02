@@ -1,22 +1,24 @@
-package agt.controllers.entities
+package agt.controllers.entities.character
 {
+
+	import agt.controllers.entities.*;
 
 import agt.input.InputContext;
 import agt.input.events.InputEvent;
-import agt.entities.KinematicEntity;
+import agt.entities.CharacterEntity;
 
 import away3d.animators.SmoothSkeletonAnimator;
 import away3d.animators.data.SkeletonAnimationSequence;
 import away3d.animators.data.SkeletonAnimationState;
 import away3d.entities.Mesh;
 
-public class AnimatedKinematicEntityController extends KinematicEntityController
+public class AnimatedCharacterEntityController extends CharacterEntityController
 {
 	private var _animator:SmoothSkeletonAnimator;
 	private var _animationCrossFadeTime:Number = 0.5;
 	private var _animatorTimeScaleFactor:Number = 0.1;
 
-	public function AnimatedKinematicEntityController(entity:KinematicEntity, animatedMesh:Mesh)
+	public function AnimatedCharacterEntityController(entity:CharacterEntity, animatedMesh:Mesh)
 	{
 		_animator = new SmoothSkeletonAnimator(SkeletonAnimationState(animatedMesh.animationState));
 		_animator.updateRootPosition = false;
