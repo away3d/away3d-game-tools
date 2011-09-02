@@ -29,7 +29,7 @@ package CameraAndCharacterControl
 			playerMesh.addChild(middleMesh); // TODO: Can simplify hierarchy here?
 
 			// setup player
-			entity = new CharacterEntity(playerMesh, 150, 500);
+			entity = new CharacterEntity(playerMesh, 150 * playerMesh.scaleX, 500 * playerMesh.scaleX);
 			entity.character.jumpSpeed = 2000;
 			scene.addCharacterEntity(entity);
 

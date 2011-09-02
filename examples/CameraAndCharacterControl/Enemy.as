@@ -7,6 +7,8 @@ package CameraAndCharacterControl
 	import away3d.animators.data.SkeletonAnimationSequence;
 	import away3d.entities.Mesh;
 
+	import flash.geom.Vector3D;
+
 	public class Enemy extends HellKnight
 	{
 		public var inputContext:StupidInputContext;
@@ -22,6 +24,9 @@ package CameraAndCharacterControl
 		public function update():void
 		{
 			controller.update();
+
+			if(entity.container.y < -5000)
+				entity.position = new Vector3D(0, 2000, 0);
 		}
 	}
 }

@@ -131,7 +131,9 @@ package CameraAndCharacterControl
 			{
 				var x:Number = rand(-3000, 3000);
 				var z:Number = rand(-3000, 3000);
-				var enemy:Enemy = new Enemy(_hellKnightMesh.clone() as Mesh, scene, _idleAnimation, _walkAnimation);
+				var mesh:Mesh = _hellKnightMesh.clone() as Mesh;
+				mesh.scale(rand(0.5, 1.5));
+				var enemy:Enemy = new Enemy(mesh, scene, _idleAnimation, _walkAnimation);
 				enemy.entity.position = new Vector3D(x, 500 + level.terrainMesh.getHeightAt(x, z), z);
 				_enemies.push(enemy);
 			}
@@ -188,7 +190,9 @@ package CameraAndCharacterControl
 
 			// update enemies
 			for(var i:uint; i < _enemies.length; ++i)
+			{
 				_enemies[i].update();
+			}
 
 			// update scene physics
 			scene.updatePhysics();

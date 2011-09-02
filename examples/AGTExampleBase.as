@@ -4,10 +4,6 @@ package
 	import agt.physics.PhysicsScene3D;
 	import agt.debug.AGTSimpleGUI;
 
-	import away3d.cameras.Camera3D;
-
-	import away3d.containers.Scene3D;
-
 	import away3d.containers.View3D;
 	import away3d.debug.AwayStats;
 
