@@ -1,7 +1,7 @@
 package CameraAndCharacterControl
 {
 
-	import agt.input.ai.StupidInputContext;
+	import agt.input.ai.AIStupidInputContext;
 	import agt.physics.PhysicsScene3D;
 
 	import away3d.animators.data.SkeletonAnimationSequence;
@@ -11,13 +11,13 @@ package CameraAndCharacterControl
 
 	public class Enemy extends HellKnight
 	{
-		public var inputContext:StupidInputContext;
+		public var inputContext:AIStupidInputContext;
 
 		public function Enemy(mesh:Mesh, scene:PhysicsScene3D, idleAnimation:SkeletonAnimationSequence, walkAnimation:SkeletonAnimationSequence)
 		{
 		 	super(mesh, scene, idleAnimation, walkAnimation);
 
-			inputContext = new StupidInputContext();
+			inputContext = new AIStupidInputContext();
 			controller.inputContext = inputContext;
 		}
 

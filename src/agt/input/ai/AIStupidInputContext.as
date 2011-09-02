@@ -4,7 +4,7 @@ package agt.input.ai
 	import agt.input.InputContext;
 	import agt.input.events.InputEvent;
 
-	public class StupidInputContext extends InputContext
+	public class AIStupidInputContext extends InputContext
 	{
 		private var _walkEvent:InputEvent;
 		private var _turnRightEvent:InputEvent;
@@ -13,7 +13,7 @@ package agt.input.ai
 		private var _stopEvent:InputEvent;
 		private var _nextChance:Number = 0;
 
-		public function StupidInputContext()
+		public function AIStupidInputContext()
 		{
 			super();
 
