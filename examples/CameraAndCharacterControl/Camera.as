@@ -8,8 +8,8 @@ package CameraAndCharacterControl
 	import agt.controllers.camera.OrbitCameraController;
 	import agt.controllers.camera.ThirdPersonCameraController;
 	import agt.controllers.entities.character.CharacterEntityController;
-	import agt.data.MouseActions;
-	import agt.entities.CharacterEntity;
+	import agt.input.data.MouseActions;
+	import agt.physics.entities.CharacterEntity;
 	import agt.input.CompositeInputContext;
 	import agt.input.KeyboardInputContext;
 	import agt.input.MouseInputContext;

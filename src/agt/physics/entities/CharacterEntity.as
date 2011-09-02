@@ -1,4 +1,4 @@
-package agt.entities
+package agt.physics.entities
 {
 
 	import agt.debug.DebugMaterialLibrary;

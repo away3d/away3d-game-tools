@@ -1,7 +1,7 @@
 package
 {
 
-	import agt.core.PhysicsScene3D;
+	import agt.physics.PhysicsScene3D;
 	import agt.debug.AGTSimpleGUI;
 
 	import away3d.cameras.Camera3D;

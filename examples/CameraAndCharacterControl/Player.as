@@ -2,8 +2,8 @@ package CameraAndCharacterControl
 {
 
 	import agt.controllers.entities.character.AnimatedCharacterEntityController;
-	import agt.core.PhysicsScene3D;
-	import agt.entities.CharacterEntity;
+	import agt.physics.PhysicsScene3D;
+	import agt.physics.entities.CharacterEntity;
 	import agt.input.KeyboardInputContext;
 	import agt.input.events.InputEvent;
 

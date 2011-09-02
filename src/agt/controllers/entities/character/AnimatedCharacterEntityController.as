@@ -5,7 +5,7 @@ package agt.controllers.entities.character
 
 import agt.input.InputContext;
 import agt.input.events.InputEvent;
-import agt.entities.CharacterEntity;
+import agt.physics.entities.CharacterEntity;
 
 import away3d.animators.SmoothSkeletonAnimator;
 import away3d.animators.data.SkeletonAnimationSequence;

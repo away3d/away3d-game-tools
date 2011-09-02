@@ -1,8 +1,8 @@
-package agt.core
+package agt.physics
 {
 
-	import agt.entities.CharacterEntity;
-	import agt.entities.DynamicEntity;
+	import agt.physics.entities.CharacterEntity;
+	import agt.physics.entities.DynamicEntity;
 
 	import away3d.containers.Scene3D;
 

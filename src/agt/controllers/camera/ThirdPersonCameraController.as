@@ -2,7 +2,7 @@ package agt.controllers.camera
 {
 
 import agt.controllers.entities.character.CharacterEntityController;
-import agt.entities.CharacterEntity;
+import agt.physics.entities.CharacterEntity;
 import agt.input.InputContext;
 import agt.input.events.InputEvent;
 

@@ -1,4 +1,4 @@
-package agt.entities
+package agt.physics.entities
 {
 
 	import away3d.containers.ObjectContainer3D;

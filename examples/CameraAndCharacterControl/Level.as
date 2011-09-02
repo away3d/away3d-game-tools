@@ -1,9 +1,9 @@
 package CameraAndCharacterControl
 {
 
-	import agt.core.PhysicsScene3D;
+	import agt.physics.PhysicsScene3D;
 	import agt.debug.DebugMaterialLibrary;
-	import agt.entities.DynamicEntity;
+	import agt.physics.entities.DynamicEntity;
 
 	import away3d.containers.ObjectContainer3D;
 
