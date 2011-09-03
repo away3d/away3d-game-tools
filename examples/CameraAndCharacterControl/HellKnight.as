@@ -30,7 +30,7 @@ package CameraAndCharacterControl
 
 			// setup player
 			entity = new CharacterEntity(playerMesh, 150 * playerMesh.scaleX, 500 * playerMesh.scaleX);
-			entity.character.jumpSpeed = 2000;
+			entity.character.jumpSpeed = 4000;
 			scene.addCharacterEntity(entity);
 
 			// player controller
@@ -38,8 +38,8 @@ package CameraAndCharacterControl
 			controller.addAnimationSequence(walkAnimation); // TODO: Map animations to actions too?
 			controller.addAnimationSequence(idleAnimation);
 			controller.stop();
-			controller.speedEase = 0.1;
-			controller.animatorTimeScaleFactor = 0.05;
+			controller.speedEase = 0.25;
+			controller.animatorTimeScaleFactor = 0.03;
 		}
 	}
 }

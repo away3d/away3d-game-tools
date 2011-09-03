@@ -17,9 +17,9 @@ package agt.input.ai
 		{
 			super();
 
-			_walkEvent = new InputEvent(InputEvent.MOVE_Z, 15);
-			_turnRightEvent = new InputEvent(InputEvent.ROTATE_Y, 3);
-			_turnLeftEvent = new InputEvent(InputEvent.ROTATE_Y, 3);
+			_walkEvent = new InputEvent(InputEvent.MOVE_Z, 30); // TODO: Set these externally
+			_turnRightEvent = new InputEvent(InputEvent.ROTATE_Y, 5);
+			_turnLeftEvent = new InputEvent(InputEvent.ROTATE_Y, 5);
 			_stopEvent = new InputEvent(InputEvent.STOP);
 		}
 

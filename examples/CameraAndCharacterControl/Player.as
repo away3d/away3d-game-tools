@@ -21,10 +21,10 @@ package CameraAndCharacterControl
 
 			// player controller input context
 			inputContext = new KeyboardInputContext(stage);
-			inputContext.map(Keyboard.W, new InputEvent(InputEvent.MOVE_Z, 30));
-			inputContext.map(Keyboard.S, new InputEvent(InputEvent.MOVE_Z, -30));
-			inputContext.map(Keyboard.D, new InputEvent(InputEvent.ROTATE_Y, 3));
-			inputContext.map(Keyboard.A, new InputEvent(InputEvent.ROTATE_Y, -3));
+			inputContext.map(Keyboard.W, new InputEvent(InputEvent.MOVE_Z, 50));
+			inputContext.map(Keyboard.S, new InputEvent(InputEvent.MOVE_Z, -50));
+			inputContext.map(Keyboard.D, new InputEvent(InputEvent.ROTATE_Y, 5));
+			inputContext.map(Keyboard.A, new InputEvent(InputEvent.ROTATE_Y, -5));
 			inputContext.map(Keyboard.SPACE, new InputEvent(InputEvent.JUMP));
 			inputContext.mapOnAllKeysUp(new InputEvent(InputEvent.STOP));
 			inputContext.mapMultiplier(Keyboard.SHIFT, 2);
