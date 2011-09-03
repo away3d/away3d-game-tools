@@ -16,10 +16,10 @@ package agt.physics
 	{
 		private var _physics:AWPDynamicsWorld;
 		// keep this at 1/60 or 1/120
-		private var _fixedTimeStep:Number = 1/60; // TODO: add option to not use adaptive time step?
+		private var _fixedTimeStep:Number = 1 / 30; // TODO: add option to not use adaptive time step?
 		// time since last timestep
 		private var _deltaTime:Number;
-		private var _maxSubStep:int = 2;
+		private var _maxSubStep:int = 1;
 		private var _lastTimeStep:Number = -1;
 		private var _characterEntities:Vector.<CharacterEntity>;
 
@@ -41,8 +41,9 @@ package agt.physics
 			// init world
 			_physics = AWPDynamicsWorld.getInstance();
 			_physics.initWithDbvtBroadphase();
-			_physics.collisionCallbackOn = true;
-			_physics.gravity = new Vector3D(0, -10, 0);
+			_physics.scaling = 50;
+			//_physics.collisionCallbackOn = true;
+			_physics.gravity = new Vector3D(0, -50, 0);
 		}
 
 		public function addDynamicEntity(entity:DynamicEntity):void

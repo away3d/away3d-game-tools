@@ -73,7 +73,7 @@ package CameraAndCharacterControl
 
 			// use height map to produce mesh
 			var terrainMaterial:ColorMaterial = DebugMaterialLibrary.instance.whiteMaterial;
-			terrainMesh = new Elevation(terrainMaterial, heightMap, 15000, 2000, 15000, 60, 60, 4000);
+			terrainMesh = new Elevation(terrainMaterial, heightMap, 40000, 5000, 40000, 50, 50, 5000);
 
 			// add body
 			var terrainShape:AWPBvhTriangleMeshShape = new AWPBvhTriangleMeshShape(terrainMesh);

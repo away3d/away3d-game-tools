@@ -62,7 +62,7 @@ public class ThirdPersonCameraController extends CameraControllerBase
 			cameraRight.normalize();
 			cameraRight.y = 0;
 			var proj:Number = targetForward.dotProduct(cameraRight);
-			var speed:Number = _targetController.entity.character.walkDirection.v3d.length;
+			var speed:Number = _targetController.entity.character.walkDirection.length;
 			rotateCamera(-_directionEnforcement * proj * speed);
 		}
 
