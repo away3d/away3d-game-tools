@@ -1,9 +1,54 @@
-package CameraAndCharacterControl
-{
+/*
+
+Basic character and camera control using AwayGameTools.
+
+Demonstrates:
+
+How to set up input controllers
+How to set up an animated character
+How to manage basic physics
+How to use a triangle based collision mesh
+
+Code by Alejandro Santander
+palebluedot@gmail.com
+http://www.lidev.com.ar
+
+This code is distributed under the MIT License
+
+Copyright (c)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+package {
+
+	import CameraAndCharacterControl.*;
+
+	import agt.debug.AGTSimpleGUI;
 
 	import agt.debug.DebugMaterialLibrary;
+	import agt.physics.PhysicsScene3D;
 
 	import away3d.animators.data.SkeletonAnimationSequence;
+	import away3d.containers.View3D;
+	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
 	import away3d.events.AssetEvent;
 	import away3d.library.assets.AssetType;
@@ -13,22 +58,26 @@ package CameraAndCharacterControl
 	import away3d.loaders.parsers.MD5MeshParser;
 	import away3d.materials.BitmapMaterial;
 
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+
 	import flash.events.Event;
 	import flash.geom.Vector3D;
 
-	public class CameraAndCharacterControlExample extends AGTExampleBase
+	public class CameraAndCharacterControlExample extends Sprite
 	{
-		[Embed(source="../assets/models/hellknight/hellknight.md5mesh", mimeType="application/octet-stream")]
+		[Embed(source="assets/models/hellknight/hellknight.md5mesh", mimeType="application/octet-stream")]
 		private var HellKnightMesh:Class;
-		[Embed(source="../assets/models/hellknight/idle2.md5anim", mimeType="application/octet-stream")]
+		[Embed(source="assets/models/hellknight/idle2.md5anim", mimeType="application/octet-stream")]
 		private var HellKnightIdleAnimation:Class;
-		[Embed(source="../assets/models/hellknight/walk7.md5anim", mimeType="application/octet-stream")]
+		[Embed(source="assets/models/hellknight/walk7.md5anim", mimeType="application/octet-stream")]
 		private var HellKnightWalkAnimation:Class;
-		[Embed(source="../assets/models/hellknight/hellknight.jpg")]
+		[Embed(source="assets/models/hellknight/hellknight.jpg")]
 		private var HellKnightTexture:Class;
-		[Embed(source="../assets/models/hellknight/hellknight_s.png")]
+		[Embed(source="assets/models/hellknight/hellknight_s.png")]
 		private var HellKnightSpecularMap:Class;
-		[Embed(source="../assets/models/hellknight/hellknight_local.png")]
+		[Embed(source="assets/models/hellknight/hellknight_local.png")]
 		private var HellKnightNormalMap:Class;
 
 		private var _light:PointLight;
@@ -37,23 +86,81 @@ package CameraAndCharacterControl
 		private var _walkAnimation:SkeletonAnimationSequence;
 		private var _enemies:Vector.<Enemy>;
 
+		public var signature:Signature;
+		public var gui:AGTSimpleGUI;
+		public var view:View3D;
+		public var scene:PhysicsScene3D;
+		public var stats:AwayStats;
 		public var level:Level;
 		public var player:Player;
 		public var camera:Camera;
 
 		public function CameraAndCharacterControlExample()
 		{
-			super();
+			// wait for stage before pre-init...
+			addEventListener(Event.ADDED_TO_STAGE, stageInitHandler);
+		}
+
+		private function stageInitHandler(evt:Event):void
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, stageInitHandler);
+			init();
+		}
+
+		private function stageResizeHandler(evt:Event):void
+		{
+			// place signature at bottom left
+			signature.x = 5;
+			signature.y = stage.stageHeight - 22 - 5;
+
+			// place stats at top right
+			stats.x = stage.stageWidth - stats.width;
 		}
 
 		// ---------------------------------------------------------------------
 		// init
 		// ---------------------------------------------------------------------
 
-		override protected function startExample():void
+		private function init():void
+		{
+			// init stage
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT;
+			stage.frameRate = 30;
+
+			// init signature
+			signature = new Signature();
+			addChild(signature);
+
+			// init away3d
+			scene = new PhysicsScene3D();
+			view = new View3D(scene); // use physics
+			addChild(view);
+
+			// init stats
+			stats = new AwayStats(view);
+			addChild(stats);
+
+			// init simple gui
+			gui = new AGTSimpleGUI(this, "", "C");
+			gui.addGroup("View");
+			gui.addStepper("view.antiAlias", 0, 8, {label:"AntiAlias"});
+			gui.addSlider("view.camera.lens.near", 0, 1000, {label:"lens near"});
+			gui.addSlider("view.camera.lens.far", 0, 100000, {label:"lens far"});
+			gui.show();
+
+			// listen for stage resize
+			stage.addEventListener(Event.RESIZE, stageResizeHandler);
+			stageResizeHandler(null);
+
+			// trigger init
+			startExample();
+		}
+
+		private function startExample():void
 		{
 			// set example signature
-			signatureText = "AwayGameTools 2011 - Camera and character control example.";
+			signature.text = "AwayGameTools 2011 - Camera and character control example.";
 
 			// init away3d general settings
 			view.antiAlias = 4;
