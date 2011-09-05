@@ -67,26 +67,9 @@ package {
 
 	public class CameraAndCharacterControlExample extends Sprite
 	{
-		[Embed(source="assets/models/hellknight/hellknight.md5mesh", mimeType="application/octet-stream")]
-		private var HellKnightMesh:Class;
-		[Embed(source="assets/models/hellknight/idle2.md5anim", mimeType="application/octet-stream")]
-		private var HellKnightIdleAnimation:Class;
-		[Embed(source="assets/models/hellknight/walk7.md5anim", mimeType="application/octet-stream")]
-		private var HellKnightWalkAnimation:Class;
-		[Embed(source="assets/models/hellknight/hellknight.jpg")]
-		private var HellKnightTexture:Class;
-		[Embed(source="assets/models/hellknight/hellknight_s.png")]
-		private var HellKnightSpecularMap:Class;
-		[Embed(source="assets/models/hellknight/hellknight_local.png")]
-		private var HellKnightNormalMap:Class;
-
-		private var _light:PointLight;
-		private var _hellKnightMesh:Mesh;
-		private var _idleAnimation:SkeletonAnimationSequence;
-		private var _walkAnimation:SkeletonAnimationSequence;
-		private var _enemies:Vector.<Enemy>;
-
 		public var signature:Signature;
+		public var _light:PointLight;
+		public var _enemies:Vector.<Enemy>;
 		public var gui:AGTSimpleGUI;
 		public var view:View3D;
 		public var scene:PhysicsScene3D;
@@ -94,6 +77,7 @@ package {
 		public var level:Level;
 		public var player:Player;
 		public var camera:Camera;
+		public var resources:Resources;
 
 		public function CameraAndCharacterControlExample()
 		{
@@ -173,63 +157,21 @@ package {
 			DebugMaterialLibrary.instance.lights = [_light];
 
 			// start load process...
-			// (1) retrieve hell knight mesh
-			var loader:Loader3D = new Loader3D();
-			loader.parseData(new HellKnightMesh(), new MD5MeshParser());
-			loader.addEventListener(AssetEvent.ASSET_COMPLETE, init1);
-			trace("loading hellknight mesh...");
+			resources = new Resources();
+			resources.addEventListener(Event.COMPLETE, resourcesLoadedHandler);
+			resources.load();
 		}
 
-		private function init1(evt:AssetEvent):void
+		private function resourcesLoadedHandler(evt:Event):void
 		{
-			// retrieve hell knight mesh}
-			if(evt.asset.assetType != AssetType.MESH)
-				return;
-			trace("hellknight mesh loaded");
-			_hellKnightMesh = evt.asset as Mesh;
-
-			// set hell knight material
-			var hellknightMaterial:BitmapMaterial = new BitmapMaterial(new HellKnightTexture().bitmapData);
-			hellknightMaterial.lights = [_light];
-			hellknightMaterial.normalMap = new HellKnightNormalMap().bitmapData;
-			hellknightMaterial.specularMap = new HellKnightSpecularMap().bitmapData;
-			_hellKnightMesh.material = hellknightMaterial;
-
-			// (2) retrieve hell knight idle animation sequence
-			trace("loading idle animation...");
-			var loader:Loader3D = new Loader3D();
-			loader.addEventListener(AssetEvent.ASSET_COMPLETE, init2);
-			loader.parseData(new HellKnightIdleAnimation(), new MD5AnimParser());
-		}
-
-		private function init2(evt:AssetEvent):void
-		{
-			// retrieve hell knight idle animation sequence
-			trace("idle animation loaded");
-			_idleAnimation = evt.asset as SkeletonAnimationSequence;
-			_idleAnimation.name = "idle";
-
-			// (3) retrieve hell knight idle animation sequence
-			trace("loading walk animation...");
-			var loader:Loader3D = new Loader3D();
-			loader.addEventListener(AssetEvent.ASSET_COMPLETE, init3);
-			loader.parseData(new HellKnightWalkAnimation(), new MD5AnimParser());
-		}
-
-		private function init3(evt:AssetEvent):void
-		{
-			// retrieve hell knight idle animation sequence
-			trace("walk animation loaded");
-			_walkAnimation = evt.asset as SkeletonAnimationSequence;
-			_walkAnimation.name = "walk";
-
-			// load process complete.
+			resources.removeEventListener(Event.COMPLETE, resourcesLoadedHandler);
 
 			// init level
 			level = new Level(scene, _light);
 
 			// init player
-			player = new Player(_hellKnightMesh.clone() as Mesh, scene, _idleAnimation, _walkAnimation, stage);
+			resources.hellKnightMesh.material.lights = [_light];
+			player = new Player(resources.hellKnightMesh.clone() as Mesh, scene, resources.idleAnimation, resources.walkAnimation, stage);
 			player.entity.position = new Vector3D(0, 500 + level.terrainMesh.getHeightAt(0, -1000), -1000);
 
 			// init enemies
@@ -238,9 +180,9 @@ package {
 			{
 				var x:Number = rand(-3000, 3000);
 				var z:Number = rand(-3000, 3000);
-				var mesh:Mesh = _hellKnightMesh.clone() as Mesh;
+				var mesh:Mesh = resources.hellKnightMesh.clone() as Mesh;
 				mesh.scale(rand(0.5, 1.5));
-				var enemy:Enemy = new Enemy(mesh, scene, _idleAnimation, _walkAnimation);
+				var enemy:Enemy = new Enemy(mesh, scene, resources.idleAnimation, resources.walkAnimation);
 				enemy.entity.position = new Vector3D(x, 500 + level.terrainMesh.getHeightAt(x, z), z);
 				_enemies.push(enemy);
 			}
