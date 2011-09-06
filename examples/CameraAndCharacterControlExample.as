@@ -75,9 +75,9 @@ package {
 		public var scene:PhysicsScene3D;
 		public var stats:AwayStats;
 		public var level:Level;
-		public var player:Player;
+		public var player:MainPlayer;
 		public var camera:Camera;
-		public var resources:Resources;
+		public var resources:ResourceManager;
 
 		public function CameraAndCharacterControlExample()
 		{
@@ -157,7 +157,7 @@ package {
 			DebugMaterialLibrary.instance.lights = [_light];
 
 			// start load process...
-			resources = new Resources();
+			resources = new ResourceManager();
 			resources.addEventListener(Event.COMPLETE, resourcesLoadedHandler);
 			resources.load();
 		}
@@ -171,7 +171,7 @@ package {
 
 			// init player
 			resources.hellKnightMesh.material.lights = [_light];
-			player = new Player(resources.hellKnightMesh.clone() as Mesh, scene, resources.idleAnimation, resources.walkAnimation, stage);
+			player = new MainPlayer(resources.hellKnightMesh.clone() as Mesh, scene, resources.idleAnimation, resources.walkAnimation, stage);
 			player.entity.position = new Vector3D(0, 500 + level.terrainMesh.getHeightAt(0, -1000), -1000);
 
 			// init enemies
@@ -212,7 +212,7 @@ package {
 			gui.addToggle("player.entity.dynamicCapsuleMesh.visible", {label:"debug dynamic"});
 			gui.addSlider("player.entity.collideStrength", 0.01, 25000, {label:"strength"});
 			gui.addSlider("player.controller.speedEase", 0.01, 1, {label:"move ease"});
-			gui.addSlider("player.controller.animatorTimeScaleFactor", 0.01, 1, {label:"anim speed"});
+			gui.addSlider("player.controller.animationToSpeedFactor", 0.01, 1, {label:"anim speed"});
 			gui.addSlider("player.controller.animationCrossFadeTime", 0.01, 2, {label:"anim fade"});
 
 			// physics

@@ -33,7 +33,7 @@ package CameraAndCharacterControl
 
 		public function update():void
 		{
-			controller.update();
+			controller.update(); // TODO: Should be in Hellknight.as
 		}
 	}
 }

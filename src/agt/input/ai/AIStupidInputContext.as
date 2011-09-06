@@ -23,7 +23,7 @@ package agt.input.ai
 			_stopEvent = new InputEvent(InputEvent.STOP);
 		}
 
-		override protected function processInput():void
+		override protected function processContinuousInput():void
 		{
 			if(Math.random() > 0.9)
 			{

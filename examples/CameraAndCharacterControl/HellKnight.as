@@ -6,6 +6,7 @@ package CameraAndCharacterControl
 	import agt.physics.entities.CharacterEntity;
 
 	import away3d.animators.data.SkeletonAnimationSequence;
+	import away3d.animators.data.SkeletonAnimationState;
 	import away3d.entities.Mesh;
 
 	public class HellKnight
@@ -34,8 +35,8 @@ package CameraAndCharacterControl
 			scene.addCharacterEntity(entity);
 
 			// player controller
-			controller = new AnimatedCharacterEntityController(entity, baseMesh);
-			controller.addAnimationSequence(walkAnimation); // TODO: Map animations to actions too?
+			controller = new AnimatedCharacterEntityController(entity, baseMesh.animationState as SkeletonAnimationState);
+			controller.addAnimationSequence(walkAnimation);
 			controller.addAnimationSequence(idleAnimation);
 			controller.stop();
 			controller.speedEase = 0.25;

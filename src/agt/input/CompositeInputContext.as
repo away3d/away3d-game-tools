@@ -1,20 +1,28 @@
-package agt.input {
+package agt.input
+{
+
 	import agt.input.events.InputEvent;
 
-	public class CompositeInputContext extends InputContext {
-		private var _inputContexts : Vector.<InputContext>;
+	public class CompositeInputContext extends InputContext
+	{
+		private var _inputContexts:Vector.<InputContext>;
 
-		public function CompositeInputContext() {
+		public function CompositeInputContext()
+		{
 			super();
 			_inputContexts = new Vector.<InputContext>();
 		}
 
-		override protected function processInput() : void {
-			for (var i : uint; i < _inputContexts.length; ++i)
+		override protected function processContinuousInput():void
+		{
+			for(var i:uint; i < _inputContexts.length; ++i)
+			{
 				_inputContexts[i].update();
+			}
 		}
 
-		public function addContext(context : InputContext) : void {
+		public function addContext(context:InputContext):void
+		{
 			_inputContexts.push(context);
 			context.addEventListener(InputEvent.MOVE_X, forwardEvent);
 			context.addEventListener(InputEvent.MOVE_Y, forwardEvent);
@@ -24,7 +32,8 @@ package agt.input {
 			context.addEventListener(InputEvent.ROTATE_Z, forwardEvent);
 		}
 
-		private function forwardEvent(evt : InputEvent) : void {
+		private function forwardEvent(evt:InputEvent):void
+		{
 			dispatchEvent(evt);
 		}
 	}

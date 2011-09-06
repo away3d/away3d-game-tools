@@ -12,86 +12,114 @@ import flash.utils.Dictionary;
 public class KeyboardInputContext extends InputContext
 {
 	private var _keysDown:Dictionary;
-	private var _onAnyRegisteredKeyUpEvent:InputEvent;
-	private var _onAllRegisteredKeysUpEvent:InputEvent;
+	private var _keyPressedMappings:Dictionary;
+	private var _keyReleasedMappings:Dictionary;
+	private var _keyDownMappings:Dictionary;
+	private var _keyComboDownMappings:Dictionary;
+	private var _nonEligibleKeyCodes:Vector.<uint>;
 
 	public function KeyboardInputContext(stage:Stage)
 	{
-		stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
-		stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
+		stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPressedHandler);
+		stage.addEventListener(KeyboardEvent.KEY_UP, keyReleasedHandler);
 
 		_keysDown = new Dictionary();
+		_keyPressedMappings = new Dictionary();
+		_keyReleasedMappings = new Dictionary();
+		_keyDownMappings = new Dictionary();
+		_keyComboDownMappings =new Dictionary();
 
 		super();
 	}
 
-	public function mapOnAnyKeyUp(event:InputEvent):void
+	// -----------------------
+	// public
+	// -----------------------
+
+	public function mapOnKeyComboDown(event:InputEvent, ...keyCodes):void
 	{
-		_onAnyRegisteredKeyUpEvent = event;
+		_keyComboDownMappings[keyCodes] = event;
 	}
 
-	public function mapOnAllKeysUp(event:InputEvent):void
+	public function mapOnKeyPressed(event:InputEvent, keyCode:uint):void
 	{
-		_onAnyRegisteredKeyUpEvent = event;
+		_keyPressedMappings[keyCode] = event;
 	}
 
-	override protected function processInput():void
+	public function mapOnKeyReleased(event:InputEvent, keyCode:uint):void
 	{
-		// check multipliers
-		var k:Number = 1;
-		if(_multiplierCode >= 0 && keyIsDown(_multiplierCode))
-			k = _multiplierValue;
+		_keyReleasedMappings[keyCode] = event;
+	}
 
-		// dispatch events from any pressed key mappings
-		for(var i:uint; i < _mappedCodes.length; i++)
+	public function mapOnKeyDown(event:InputEvent, keyCode:uint):void
+	{
+		_keyDownMappings[keyCode] = event;
+	}
+
+	// ----------------------------
+	// InputContext.as overrides
+	// ----------------------------
+
+	override protected function processContinuousInput():void
+	{
+		// reset non eligible key codes
+		_nonEligibleKeyCodes = new Vector.<uint>();
+
+		// check mapped down key combos
+		var i:uint, j:uint;
+		for(var keyCodes:Object in _keyComboDownMappings)
 		{
-			var keyCode:uint = _mappedCodes[i];
-			if(_continuity[keyCode] && keyIsDown(keyCode))
+			// check if any key in the combo is not pressed
+			var keyCodesArray:Array = String(keyCodes).split(",");
+			var allPressed:Boolean = true;
+			for(i = 0; i < keyCodesArray.length; ++i)
 			{
-				var evt:InputEvent = _eventMappings[keyCode];
-				evt.multiplier = k;
-				dispatchEvent(evt);
+				if(!keyIsDown(keyCodesArray[i]))
+				{
+					allPressed = false;
+					break;
+				}
 			}
+
+			// if all pressed, dispatch event and consider pressed keys
+			// non eligible for single down keys
+			if(allPressed)
+			{
+				dispatchEvent(_keyComboDownMappings[keyCodes]);
+				for(j = 0; j < keyCodesArray.length; ++j)
+					_nonEligibleKeyCodes.push(keyCodesArray[j]);
+			}
+		}
+
+		// check mapped down keys
+		for(var keyCode:Object in _keyDownMappings)
+		{
+			var keyCodeUint:uint = uint(keyCode);
+			if(_nonEligibleKeyCodes.indexOf(keyCodeUint) == -1 && keyIsDown(keyCodeUint))
+				dispatchEvent(_keyDownMappings[keyCode]);
 		}
 	}
 
-	private function keyDownHandler(evt:KeyboardEvent):void
+	// -----------------------
+	// private
+	// -----------------------
+
+	private function keyPressedHandler(evt:KeyboardEvent):void
 	{
 		_keysDown[evt.keyCode] = true;
 
-		// dispatch event from key mapping?
-		if(_continuity[evt.keyCode] != null && !_continuity[evt.keyCode])
-			dispatchEvent(_eventMappings[evt.keyCode]);
+		// check mapped pressed keys
+		if(_keyPressedMappings[evt.keyCode])
+			dispatchEvent(_keyPressedMappings[evt.keyCode]);
 	}
 
-	private function keyUpHandler(evt:KeyboardEvent):void
+	private function keyReleasedHandler(evt:KeyboardEvent):void
 	{
 		_keysDown[evt.keyCode] = false;
 
-		// analyze up keys
-		if(_onAnyRegisteredKeyUpEvent || _onAllRegisteredKeysUpEvent)
-		{
-			var allRegisteredKeysAreUp:Boolean = true;
-			var anyRegisteredKeyIsUp:Boolean = false;
-
-			// sweep all registered keys
-			for(var i:uint; i < _mappedCodes.length; i++)
-			{
-				var keyCode:uint = _mappedCodes[i];
-				if(keyIsDown(keyCode))
-					allRegisteredKeysAreUp = false;
-				else
-					anyRegisteredKeyIsUp = true;
-			}
-
-			// dispatch event for any registered key being up
-			if(_onAnyRegisteredKeyUpEvent && anyRegisteredKeyIsUp)
-				dispatchEvent(_onAnyRegisteredKeyUpEvent);
-
-			// dispatch event for all registered keys being up?
-			if(_onAllRegisteredKeysUpEvent && allRegisteredKeysAreUp)
-				dispatchEvent(_onAllRegisteredKeysUpEvent);
-		}
+		// check mapped released keys
+		if(_keyReleasedMappings[evt.keyCode])
+			dispatchEvent(_keyReleasedMappings[evt.keyCode]);
 	}
 
 	private function keyIsDown(keyCode:uint):Boolean
