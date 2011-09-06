@@ -4,10 +4,7 @@ Basic character and camera control using AwayGameTools.
 
 Demonstrates:
 
-How to set up input controllers
-How to set up an animated character
-How to manage basic physics
-How to use a triangle based collision mesh
+How to set up input controllers for use in camera and character controllers
 
 Code by Alejandro Santander
 palebluedot@gmail.com
@@ -39,14 +36,19 @@ THE SOFTWARE.
 
 package {
 
-	import CameraAndCharacterControl.*;
-
-	import agt.debug.AGTSimpleGUI;
+	import agt.controllers.camera.OrbitCameraController;
+	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 
 	import agt.debug.DebugMaterialLibrary;
+	import agt.input.device.KeyboardInputContext;
+	import agt.input.device.MouseInputContext;
+	import agt.input.events.InputEvent;
 	import agt.physics.PhysicsScene3D;
+	import agt.physics.entities.CharacterEntity;
+	import agt.physics.entities.DynamicEntity;
 
 	import away3d.animators.data.SkeletonAnimationSequence;
+	import away3d.animators.data.SkeletonAnimationState;
 	import away3d.containers.View3D;
 	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
@@ -57,6 +59,9 @@ package {
 	import away3d.loaders.parsers.MD5AnimParser;
 	import away3d.loaders.parsers.MD5MeshParser;
 	import away3d.materials.BitmapMaterial;
+	import away3d.primitives.Plane;
+
+	import awayphysics.collision.shapes.AWPStaticPlaneShape;
 
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -64,48 +69,102 @@ package {
 
 	import flash.events.Event;
 	import flash.geom.Vector3D;
+	import flash.ui.Keyboard;
 
 	public class CameraAndCharacterControlExample extends Sprite
 	{
+		[Embed(source="assets/models/hellknight/hellknight.md5mesh", mimeType="application/octet-stream")]
+		private var HellKnightMesh:Class;
+		[Embed(source="assets/models/hellknight/idle2.md5anim", mimeType="application/octet-stream")]
+		private var HellKnightIdleAnimation:Class;
+		[Embed(source="assets/models/hellknight/walk7.md5anim", mimeType="application/octet-stream")]
+		private var HellKnightWalkAnimation:Class;
+		[Embed(source="assets/models/hellknight/hellknight.jpg")]
+		private var HellKnightTexture:Class;
+		[Embed(source="assets/models/hellknight/hellknight_s.png")]
+		private var HellKnightSpecularMap:Class;
+		[Embed(source="assets/models/hellknight/hellknight_local.png")]
+		private var HellKnightNormalMap:Class;
+
 		public var signature:Signature;
 		public var _light:PointLight;
-		public var _enemies:Vector.<Enemy>;
-		public var gui:AGTSimpleGUI;
 		public var view:View3D;
 		public var scene:PhysicsScene3D;
 		public var stats:AwayStats;
-		public var level:Level;
-		public var player:MainPlayer;
-		public var camera:Camera;
-		public var resources:ResourceManager;
+		public var hellKnightMesh:Mesh;
+		public var idleAnimation:SkeletonAnimationSequence;
+		public var walkAnimation:SkeletonAnimationSequence;
+		public var cameraController:OrbitCameraController;
+		public var playerController:AnimatedCharacterEntityController;
 
 		public function CameraAndCharacterControlExample()
 		{
-			// wait for stage before pre-init...
+			// wait for stage before init...
 			addEventListener(Event.ADDED_TO_STAGE, stageInitHandler);
 		}
 
 		private function stageInitHandler(evt:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, stageInitHandler);
-			init();
+			loadStuff();
 		}
 
-		private function stageResizeHandler(evt:Event):void
+		private function loadStuff():void
 		{
-			// place signature at bottom left
-			signature.x = 5;
-			signature.y = stage.stageHeight - 22 - 5;
-
-			// place stats at top right
-			stats.x = stage.stageWidth - stats.width;
+			// (1) retrieve hell knight mesh
+			var loader:Loader3D = new Loader3D();
+			loader.parseData(new HellKnightMesh(), new MD5MeshParser());
+			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load1);
+			trace("loading hellknight mesh...");
 		}
 
-		// ---------------------------------------------------------------------
-		// init
-		// ---------------------------------------------------------------------
+		private function load1(evt:AssetEvent):void
+		{
+			// retrieve hell knight mesh}
+			if(evt.asset.assetType != AssetType.MESH)
+				return;
+			trace("hellknight mesh loaded");
+			hellKnightMesh = evt.asset as Mesh;
 
-		private function init():void
+			// set hell knight material
+			var hellknightMaterial:BitmapMaterial = new BitmapMaterial(new HellKnightTexture().bitmapData);
+			hellknightMaterial.normalMap = new HellKnightNormalMap().bitmapData;
+			hellknightMaterial.specularMap = new HellKnightSpecularMap().bitmapData;
+			hellKnightMesh.material = hellknightMaterial;
+
+			// (2) retrieve hell knight idle animation sequence
+			trace("loading idle animation...");
+			var loader:Loader3D = new Loader3D();
+			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load2);
+			loader.parseData(new HellKnightIdleAnimation(), new MD5AnimParser());
+		}
+
+		private function load2(evt:AssetEvent):void
+		{
+			// retrieve hell knight idle animation sequence
+			trace("idle animation loaded");
+			idleAnimation = evt.asset as SkeletonAnimationSequence;
+			idleAnimation.name = "idle";
+
+			// (3) retrieve hell knight idle animation sequence
+			trace("loading walk animation...");
+			var loader:Loader3D = new Loader3D();
+			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load3);
+			loader.parseData(new HellKnightWalkAnimation(), new MD5AnimParser());
+		}
+
+		private function load3(evt:AssetEvent):void
+		{
+			// retrieve hell knight idle animation sequence
+			trace("walk animation loaded");
+			walkAnimation = evt.asset as SkeletonAnimationSequence;
+			walkAnimation.name = "walk";
+
+			// run example
+			startExample();
+		}
+
+		private function startExample():void
 		{
 			// init stage
 			stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -125,24 +184,6 @@ package {
 			stats = new AwayStats(view);
 			addChild(stats);
 
-			// init simple gui
-			gui = new AGTSimpleGUI(this, "", "C");
-			gui.addGroup("View");
-			gui.addStepper("view.antiAlias", 0, 8, {label:"AntiAlias"});
-			gui.addSlider("view.camera.lens.near", 0, 1000, {label:"lens near"});
-			gui.addSlider("view.camera.lens.far", 0, 100000, {label:"lens far"});
-			gui.show();
-
-			// listen for stage resize
-			stage.addEventListener(Event.RESIZE, stageResizeHandler);
-			stageResizeHandler(null);
-
-			// trigger init
-			startExample();
-		}
-
-		private function startExample():void
-		{
 			// set example signature
 			signature.text = "AwayGameTools 2011 - Camera and character control example.";
 
@@ -152,163 +193,87 @@ package {
 			view.camera.lens.far = 50000;
 			view.camera.position = new Vector3D(2000, 2000, -2000);
 			view.camera.lookAt(new Vector3D(0, 0, 0));
+
+			// lights
 			_light = new PointLight();
 			view.scene.addChild(_light);
 			DebugMaterialLibrary.instance.lights = [_light];
 
-			// start load process...
-			resources = new ResourceManager();
-			resources.addEventListener(Event.COMPLETE, resourcesLoadedHandler);
-			resources.load();
-		}
-
-		private function resourcesLoadedHandler(evt:Event):void
-		{
-			resources.removeEventListener(Event.COMPLETE, resourcesLoadedHandler);
-
-			// init level
-			level = new Level(scene, _light);
+			// setup floor
+			var floorMesh:Plane = new Plane(DebugMaterialLibrary.instance.redMaterial);
+			floorMesh.width = floorMesh.height = 5000;
+			floorMesh.rotationX = 90;
+			var floor:DynamicEntity = new DynamicEntity(new AWPStaticPlaneShape(), floorMesh);
+			scene.addDynamicEntity(floor);
 
 			// init player
-			resources.hellKnightMesh.material.lights = [_light];
-			player = new MainPlayer(resources.hellKnightMesh.clone() as Mesh, scene, resources.idleAnimation, resources.walkAnimation, stage);
-			player.entity.position = new Vector3D(0, 500 + level.terrainMesh.getHeightAt(0, -1000), -1000);
+			hellKnightMesh.material.lights = [_light];
+			var middleMesh:Mesh = new Mesh();
+			middleMesh.rotationY = -180;
+			middleMesh.scale(6);
+			middleMesh.moveTo(0, -400, 20);
+			middleMesh.addChild(hellKnightMesh);
+			var playerMesh:Mesh = new Mesh();
+			playerMesh.addChild(middleMesh);
 
-			// init enemies
-			_enemies = new Vector.<Enemy>();
-			for(var i:uint; i < 2; ++i)
-			{
-				var x:Number = rand(-3000, 3000);
-				var z:Number = rand(-3000, 3000);
-				var mesh:Mesh = resources.hellKnightMesh.clone() as Mesh;
-				mesh.scale(rand(0.5, 1.5));
-				var enemy:Enemy = new Enemy(mesh, scene, resources.idleAnimation, resources.walkAnimation);
-				enemy.entity.position = new Vector3D(x, 500 + level.terrainMesh.getHeightAt(x, z), z);
-				_enemies.push(enemy);
-			}
+			// setup player
+			var player:CharacterEntity = new CharacterEntity(playerMesh, 150 * playerMesh.scaleX, 500 * playerMesh.scaleX);
+			player.character.jumpSpeed = 4000;
+			scene.addCharacterEntity(player);
 
-			// init camera control
-			camera = new Camera(stage, view, player.entity, player.controller, player.baseMesh);
-			cameraMode = "orbit";
+			// player controller input context
+			var playerInputContext:KeyboardInputContext = new KeyboardInputContext(stage);
+			playerInputContext.mapOnKeyComboDown(new InputEvent(InputEvent.WALK, 60), Keyboard.SHIFT, Keyboard.W);
+			playerInputContext.mapOnKeyDown(new InputEvent(InputEvent.WALK, 30), Keyboard.W);
+			playerInputContext.mapOnKeyDown(new InputEvent(InputEvent.WALK, -5), Keyboard.S);
+			playerInputContext.mapOnKeyDown(new InputEvent(InputEvent.SPIN, 5), Keyboard.D);
+			playerInputContext.mapOnKeyDown(new InputEvent(InputEvent.SPIN, -5), Keyboard.A);
+			playerInputContext.mapOnKeyPressed(new InputEvent(InputEvent.JUMP), Keyboard.SPACE);
+			playerInputContext.mapOnAllDownKeysReleased(new InputEvent(InputEvent.STOP));
 
-			// set additional gui...
+			// player controller
+			playerController = new AnimatedCharacterEntityController(player, hellKnightMesh.animationState as SkeletonAnimationState);
+			playerController.addAnimationSequence(walkAnimation);
+			playerController.addAnimationSequence(idleAnimation);
+			playerController.walkAnimationToSpeedFactor = 0.06;
+			playerController.jumpAnimationToSpeedFactor = 0.005;
+			playerController.stop();
+			playerController.inputContext = playerInputContext;
 
-			// camera
-			gui.addGroup("camera");
-			var cameraModes:Array = [
-				{label:"observer", data:"observer"},
-				{label:"orbit", data:"orbit"},
-				{label:"free fly", data:"fly"},
-				{label:"third person", data:"3rd"},
-				{label:"first person", data:"1st"}
-			];
-			gui.addComboBox("cameraMode", cameraModes, {width:100, label:"camera mode", numVisibleItems:cameraModes.length});
-			gui.addSlider("camera.controller.linearEase", 0.01, 1, {label:"linear ease"});
-			gui.addSlider("camera.controller.angularEase", 0.01, 1, {label:"angular ease"});
+			// setup camera control
+			var cameraInputContext:MouseInputContext = new MouseInputContext(view);
+			cameraInputContext.mapOnDragX(new InputEvent(InputEvent.ROTATE_Y));
+			cameraInputContext.mapOnDragY(new InputEvent(InputEvent.ROTATE_X));
+			cameraInputContext.mapOnWheel(new InputEvent(InputEvent.MOVE_Z));
+			cameraInputContext.mouseInputFactorX = -3;
+			cameraInputContext.mouseInputFactorY = 3;
+			cameraInputContext.mouseInputFactorWheel = 25;
+			cameraController = new OrbitCameraController(view.camera, player.container);
+			cameraController.inputContext = cameraInputContext;
 
-			// player
-			gui.addGroup("player");
-			gui.addToggle("player.entity.kinematicCapsuleMesh.visible", {label:"debug kinematic"});
-			gui.addToggle("player.entity.dynamicCapsuleMesh.visible", {label:"debug dynamic"});
-			gui.addSlider("player.entity.collideStrength", 0.01, 25000, {label:"strength"});
-			gui.addSlider("player.controller.speedEase", 0.01, 1, {label:"move ease"});
-			gui.addSlider("player.controller.animationToSpeedFactor", 0.01, 1, {label:"anim speed"});
-			gui.addSlider("player.controller.animationCrossFadeTime", 0.01, 2, {label:"anim fade"});
-
-			// physics
-			gui.addGroup("physics");
-			_gravityY = scene.gravity.y;
-			gui.addSlider("gravityY", -50, 50, {label:"gravity"});
-
-			// level
-			gui.addGroup("level");
-			gui.addButton("reset", {callback:level.reset});
+			// listen for stage resize
+			stage.addEventListener(Event.RESIZE, stageResizeHandler);
+			stageResizeHandler(null);
 
 			// start loop
 			addEventListener(Event.ENTER_FRAME, enterframeHandler);
 		}
 
-		// ---------------------------------------------------------------------
-		// loop
-		// ---------------------------------------------------------------------
-
 		private function enterframeHandler(evt:Event):void
 		{
-			// update player
-			player.update();
-
-			// update enemies
-			for(var i:uint; i < _enemies.length; ++i)
-			{
-				_enemies[i].update();
-			}
-
-			// update scene physics
+			playerController.update();
 			scene.updatePhysics();
-
-			// update camera transform
-			camera.update();
-
-			// light follows camera
+			cameraController.update();
 			_light.transform = view.camera.transform.clone();
-
-			// render 3d view
 			view.render();
 		}
 
-		// ---------------------------------------------------------------------
-		// utils
-		// ---------------------------------------------------------------------
-
-		private function rand(min:Number, max:Number):Number
+		private function stageResizeHandler(evt:Event):void
 		{
-		    return (max - min)*Math.random() + min;
-		}
+			signature.x = 5;
+			signature.y = stage.stageHeight - 22 - 5;
 
-		// ---------------------------------------------------------------------
-		// additional gui stuff
-		// ---------------------------------------------------------------------
-
-		private var _cameraMode:String;
-
-		public function get cameraMode():String
-		{
-			return _cameraMode;
-		}
-
-		public function set cameraMode(value:String):void
-		{
-			_cameraMode = value;
-			switch(value)
-			{
-				case "observer":
-					camera.enableObserverCameraController();
-					break;
-				case "orbit":
-					camera.enableOrbitCameraController();
-					break;
-				case "fly":
-					camera.enableFlyCameraController();
-					break;
-				case "1st":
-					camera.enableFPSCameraController();
-					break;
-				case "3rd":
-					camera.enable3rdPersonCameraController();
-					break;
-			}
-		}
-
-		private var _gravityY:Number;
-		public function get gravityY():Number
-		{
-			return _gravityY;
-		}
-
-		public function set gravityY(value:Number):void
-		{
-			_gravityY = value;
-			scene.gravity = new Vector3D(0, _gravityY, 0);
+			stats.x = stage.stageWidth - stats.width;
 		}
 	}
 }
