@@ -130,6 +130,7 @@ package agt.input.device
 			if(_onMouseWheelEvent)
 			{
 				_onMouseWheelEvent.amount = evt.delta * mouseInputFactorWheel;
+				dispatchEvent(_onMouseWheelEvent);
 			}
 		}
 	}
