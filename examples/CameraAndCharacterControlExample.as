@@ -86,8 +86,7 @@ package {
 		[Embed(source="assets/models/hellknight/hellknight_local.png")]
 		private var HellKnightNormalMap:Class;
 
-		public var signature:Signature;
-		public var _light:PointLight;
+		public var light:PointLight;
 		public var view:View3D;
 		public var scene:PhysicsScene3D;
 		public var stats:AwayStats;
@@ -109,13 +108,16 @@ package {
 			loadStuff();
 		}
 
+		// ---------------------------------------------------------------------
+		// loading
+		// ---------------------------------------------------------------------
+
 		private function loadStuff():void
 		{
 			// (1) retrieve hell knight mesh
 			var loader:Loader3D = new Loader3D();
 			loader.parseData(new HellKnightMesh(), new MD5MeshParser());
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load1);
-			trace("loading hellknight mesh...");
 		}
 
 		private function load1(evt:AssetEvent):void
@@ -123,7 +125,7 @@ package {
 			// retrieve hell knight mesh}
 			if(evt.asset.assetType != AssetType.MESH)
 				return;
-			trace("hellknight mesh loaded");
+
 			hellKnightMesh = evt.asset as Mesh;
 
 			// set hell knight material
@@ -133,7 +135,6 @@ package {
 			hellKnightMesh.material = hellknightMaterial;
 
 			// (2) retrieve hell knight idle animation sequence
-			trace("loading idle animation...");
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load2);
 			loader.parseData(new HellKnightIdleAnimation(), new MD5AnimParser());
@@ -142,12 +143,10 @@ package {
 		private function load2(evt:AssetEvent):void
 		{
 			// retrieve hell knight idle animation sequence
-			trace("idle animation loaded");
 			idleAnimation = evt.asset as SkeletonAnimationSequence;
 			idleAnimation.name = "idle";
 
 			// (3) retrieve hell knight idle animation sequence
-			trace("loading walk animation...");
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load3);
 			loader.parseData(new HellKnightWalkAnimation(), new MD5AnimParser());
@@ -156,7 +155,6 @@ package {
 		private function load3(evt:AssetEvent):void
 		{
 			// retrieve hell knight idle animation sequence
-			trace("walk animation loaded");
 			walkAnimation = evt.asset as SkeletonAnimationSequence;
 			walkAnimation.name = "walk";
 
@@ -164,50 +162,46 @@ package {
 			startExample();
 		}
 
+		// ---------------------------------------------------------------------
+		// example
+		// ---------------------------------------------------------------------
+
 		private function startExample():void
 		{
-			// init stage
+			// stage
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			stage.frameRate = 30;
 
-			// init signature
-			signature = new Signature();
-			addChild(signature);
-
-			// init away3d
+			// away3d
 			scene = new PhysicsScene3D();
 			view = new View3D(scene); // use physics
 			addChild(view);
-
-			// init stats
-			stats = new AwayStats(view);
-			addChild(stats);
-
-			// set example signature
-			signature.text = "AwayGameTools 2011 - Camera and character control example.";
-
-			// init away3d general settings
 			view.antiAlias = 4;
 			view.camera.lens.near = 150;
 			view.camera.lens.far = 50000;
 			view.camera.position = new Vector3D(2000, 2000, -2000);
 			view.camera.lookAt(new Vector3D(0, 0, 0));
 
-			// lights
-			_light = new PointLight();
-			view.scene.addChild(_light);
-			DebugMaterialLibrary.instance.lights = [_light];
+			// stats
+			stats = new AwayStats(view);
+			stats.x = stage.stageWidth - stats.width;
+			addChild(stats);
 
-			// setup floor
+			// light
+			light = new PointLight();
+			view.scene.addChild(light);
+			DebugMaterialLibrary.instance.lights = [light];
+
+			// floor
 			var floorMesh:Plane = new Plane(DebugMaterialLibrary.instance.redMaterial);
 			floorMesh.width = floorMesh.height = 5000;
 			floorMesh.rotationX = 90;
 			var floor:DynamicEntity = new DynamicEntity(new AWPStaticPlaneShape(), floorMesh);
 			scene.addDynamicEntity(floor);
 
-			// init player
-			hellKnightMesh.material.lights = [_light];
+			// player
+			hellKnightMesh.material.lights = [light];
 			var middleMesh:Mesh = new Mesh();
 			middleMesh.rotationY = -180;
 			middleMesh.scale(6);
@@ -215,13 +209,11 @@ package {
 			middleMesh.addChild(hellKnightMesh);
 			var playerMesh:Mesh = new Mesh();
 			playerMesh.addChild(middleMesh);
-
-			// setup player
 			var player:CharacterEntity = new CharacterEntity(playerMesh, 150 * playerMesh.scaleX, 500 * playerMesh.scaleX);
 			player.character.jumpSpeed = 4000;
 			scene.addCharacterEntity(player);
 
-			// player controller input context
+			// player controller
 			var playerInputContext:KeyboardInputContext = new KeyboardInputContext(stage);
 			playerInputContext.mapOnKeyComboDown(new InputEvent(InputEvent.WALK, 60), Keyboard.SHIFT, Keyboard.W);
 			playerInputContext.mapOnKeyDown(new InputEvent(InputEvent.WALK, 30), Keyboard.W);
@@ -230,8 +222,6 @@ package {
 			playerInputContext.mapOnKeyDown(new InputEvent(InputEvent.SPIN, -5), Keyboard.A);
 			playerInputContext.mapOnKeyPressed(new InputEvent(InputEvent.JUMP), Keyboard.SPACE);
 			playerInputContext.mapOnAllDownKeysReleased(new InputEvent(InputEvent.STOP));
-
-			// player controller
 			playerController = new AnimatedCharacterEntityController(player, hellKnightMesh.animationState as SkeletonAnimationState);
 			playerController.addAnimationSequence(walkAnimation);
 			playerController.addAnimationSequence(idleAnimation);
@@ -240,7 +230,7 @@ package {
 			playerController.stop();
 			playerController.inputContext = playerInputContext;
 
-			// setup camera control
+			// camera control
 			var cameraInputContext:MouseInputContext = new MouseInputContext(view);
 			cameraInputContext.mapOnDragX(new InputEvent(InputEvent.ROTATE_Y));
 			cameraInputContext.mapOnDragY(new InputEvent(InputEvent.ROTATE_X));
@@ -251,10 +241,6 @@ package {
 			cameraController = new OrbitCameraController(view.camera, player.container);
 			cameraController.inputContext = cameraInputContext;
 
-			// listen for stage resize
-			stage.addEventListener(Event.RESIZE, stageResizeHandler);
-			stageResizeHandler(null);
-
 			// start loop
 			addEventListener(Event.ENTER_FRAME, enterframeHandler);
 		}
@@ -264,16 +250,8 @@ package {
 			playerController.update();
 			scene.updatePhysics();
 			cameraController.update();
-			_light.transform = view.camera.transform.clone();
+			light.transform = view.camera.transform.clone();
 			view.render();
-		}
-
-		private function stageResizeHandler(evt:Event):void
-		{
-			signature.x = 5;
-			signature.y = stage.stageHeight - 22 - 5;
-
-			stats.x = stage.stageWidth - stats.width;
 		}
 	}
 }
