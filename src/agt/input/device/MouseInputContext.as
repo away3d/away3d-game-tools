@@ -3,28 +3,30 @@ package agt.input.device
 
 	import agt.input.*;
 
-	import agt.input.device.data.MouseActions;
 	import agt.input.events.InputEvent;
 
 	import flash.display.Sprite;
-	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
-	import flash.ui.Keyboard;
 
 	public class MouseInputContext extends InputContext
 	{
 		private var _display:Sprite;
-		private var _wheelDelta:Number = 0;
 		private var _mouseIsDown:Boolean;
 		private var _mousePositionCurrent:Vector3D;
 		private var _mousePositionLast:Vector3D;
 		private var _deltaX:Number = 0;
 		private var _deltaY:Number = 0;
 
-		private var _mouseInputFactorX:Number = 1;
-		private var _mouseInputFactorY:Number = 1;
-		private var _mouseInputFactorWheel:Number = 25;
+		public var mouseInputFactorX:Number = 1;
+		public var mouseInputFactorY:Number = 1;
+		public var mouseInputFactorWheel:Number = 25;
+
+		private var _onMouseMoveXEvent:InputEvent;
+		private var _onMouseMoveYEvent:InputEvent;
+		private var _onMouseDragXEvent:InputEvent;
+		private var _onMouseDragYEvent:InputEvent;
+		private var _onMouseWheelEvent:InputEvent;
 
 		public function MouseInputContext(display:Sprite)
 		{
@@ -40,84 +42,36 @@ package agt.input.device
 			_mousePositionLast = new Vector3D();
 		}
 
-		override protected function processContinuousInput():void
+		public function mapOnDragX(event:InputEvent):void
 		{
-			// update deltas
-			updateDeltaX();
-			updateDeltaY();
-
-			// sweep codes
-			/*for(var i:uint; i < _mappedCodes.length; i++)
-			{
-				var valid:Boolean = verifyInputCodes(_mappedCodes[i]);
-
-				var codes:Array = _mappedCodes[i];
-				var evt:InputEvent = _mappedEvents[codes];
-
-				if(valid)
-				{
-					switch(code)
-					{
-						case MouseActions.DRAG_X:
-							evt.amount = _deltaX;
-							dispatchEvent(evt);
-							break;
-						case MouseActions.DRAG_Y:
-							evt.amount = _deltaY;
-							dispatchEvent(evt);
-							break;
-					}
-				}
-
-				if(_mouseIsDown)
-				{
-					switch(code)
-					{
-						case MouseActions.DRAG_X:
-							evt.amount = _deltaX;
-							dispatchEvent(evt);
-							break;
-						case MouseActions.DRAG_Y:
-							evt.amount = _deltaY;
-							dispatchEvent(evt);
-							break;
-					}
-				} else
-				{
-					switch(code)
-					{
-						case MouseActions.MOVE_X:
-							evt.amount = _deltaX;
-							dispatchEvent(evt);
-							break;
-						case MouseActions.MOVE_Y:
-							evt.amount = _deltaY;
-							dispatchEvent(evt);
-							break;
-					}
-				}
-
-				if(code == MouseActions.WHEEL)
-				{
-					evt.amount = _wheelDelta*_mouseInputFactorWheel;
-					dispatchEvent(evt);
-				}
-			}*/
-
-			_wheelDelta = 0;
-			_deltaX = 0;
-			_deltaY = 0;
+			_onMouseDragXEvent = event;
 		}
 
-		private function updateDeltaX():void
+		public function mapOnDragY(event:InputEvent):void
 		{
-			_deltaX = (_mousePositionCurrent.x - _mousePositionLast.x)*_mouseInputFactorX;
+			_onMouseDragYEvent = event;
+		}
+
+		public function mapOnMoveX(event:InputEvent):void
+		{
+			_onMouseMoveXEvent = event;
+		}
+
+		public function mapOnMoveY(event:InputEvent):void
+		{
+			_onMouseMoveYEvent = event;
+		}
+
+		public function mapOnWheel(event:InputEvent):void
+		{
+			_onMouseWheelEvent = event;
+		}
+
+		private function updateDeltas():void
+		{
+			_deltaX = (_mousePositionCurrent.x - _mousePositionLast.x)*mouseInputFactorX;
+			_deltaY = (_mousePositionCurrent.y - _mousePositionLast.y)*mouseInputFactorY;
 			_mousePositionLast.x = _mousePositionCurrent.x;
-		}
-
-		private function updateDeltaY():void
-		{
-			_deltaY = (_mousePositionCurrent.y - _mousePositionLast.y)*_mouseInputFactorY;
 			_mousePositionLast.y = _mousePositionCurrent.y;
 		}
 
@@ -137,41 +91,46 @@ package agt.input.device
 		{
 			_mousePositionCurrent.x = _display.mouseX;
 			_mousePositionCurrent.y = _display.mouseY;
+
+			updateDeltas();
+
+			if(!enabled)
+				return;
+
+			if(_onMouseMoveXEvent)
+			{
+				_onMouseMoveXEvent.amount = _deltaX;
+				dispatchEvent(_onMouseMoveXEvent);
+			}
+
+			if(_onMouseMoveYEvent)
+			{
+				_onMouseMoveYEvent.amount = _deltaY;
+				dispatchEvent(_onMouseMoveYEvent);
+			}
+
+			if(_mouseIsDown && _onMouseDragXEvent)
+			{
+				_onMouseDragXEvent.amount = _deltaX;
+				dispatchEvent(_onMouseDragXEvent);
+			}
+
+			if(_mouseIsDown && _onMouseDragYEvent)
+			{
+				_onMouseDragYEvent.amount = _deltaY;
+				dispatchEvent(_onMouseDragYEvent);
+			}
 		}
 
 		private function mouseWheelHandler(evt:MouseEvent):void
 		{
-			_wheelDelta = evt.delta;
-		}
+			if(!enabled)
+				return;
 
-		public function get mouseInputFactorY():Number
-		{
-			return _mouseInputFactorY;
-		}
-
-		public function set mouseInputFactorY(value:Number):void
-		{
-			_mouseInputFactorY = value;
-		}
-
-		public function get mouseInputFactorX():Number
-		{
-			return _mouseInputFactorX;
-		}
-
-		public function set mouseInputFactorX(value:Number):void
-		{
-			_mouseInputFactorX = value;
-		}
-
-		public function get mouseInputFactorWheel():Number
-		{
-			return _mouseInputFactorWheel;
-		}
-
-		public function set mouseInputFactorWheel(value:Number):void
-		{
-			_mouseInputFactorWheel = value;
+			if(_onMouseWheelEvent)
+			{
+				_onMouseWheelEvent.amount = evt.delta * mouseInputFactorWheel;
+			}
 		}
 	}
 }

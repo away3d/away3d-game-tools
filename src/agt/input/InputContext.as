@@ -23,7 +23,7 @@ package agt.input
 
 		protected function processContinuousInput():void
 		{
-			throw new Error("Method must be overriden.");
+			// can be overriden
 		}
 	}
 }
