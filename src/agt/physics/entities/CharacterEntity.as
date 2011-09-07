@@ -27,7 +27,7 @@ package agt.physics.entities
 		private var _body:AWPRigidBody;
 		private var _ghost:AWPGhostObject;
 
-		public var collideStrength:Number = 3000;
+		public var collideStrength:Number = 1000;
 
 		// force strength exerted on dynamic objects
 		public function CharacterEntity(container:ObjectContainer3D, capsuleRadius:Number, capsuleHeight:Number)

@@ -1,33 +1,34 @@
 package agt.controllers.camera
 {
 
-import away3d.containers.ObjectContainer3D;
+	import agt.controllers.IController;
 
-public class ObserverCameraController extends CameraControllerBase
-{
-	// TODO: Make orbit, 1st person and 3rd person camera controllers extend this one (these are all target based)?
+	import away3d.containers.ObjectContainer3D;
 
-	private var _target:ObjectContainer3D;
-
-	public function ObserverCameraController(camera:ObjectContainer3D, target:ObjectContainer3D)
+	public class ObserverCameraController extends CameraControllerBase implements IController
 	{
-		this.target = target || new ObjectContainer3D();
-		super(camera);
-	}
+		private var _target:ObjectContainer3D;
 
-	override public function update():void
-	{
-		_camera.lookAt(target.position);
-	}
+		public function ObserverCameraController(camera:ObjectContainer3D, target:ObjectContainer3D)
+		{
+			this.target = target || new ObjectContainer3D();
+			super(camera);
+		}
 
-	public function get target():ObjectContainer3D
-	{
-		return _target;
-	}
+		override public function update():void
+		{
+			super.update();
+			_camera.lookAt(target.position);
+		}
 
-	public function set target(value:ObjectContainer3D):void
-	{
-		_target = value;
+		public function get target():ObjectContainer3D
+		{
+			return _target;
+		}
+
+		public function set target(value:ObjectContainer3D):void
+		{
+			_target = value;
+		}
 	}
-}
 }

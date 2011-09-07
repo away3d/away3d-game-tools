@@ -1,8 +1,7 @@
 package agt.controllers.entities.character
 {
 
-	import agt.input.InputContextBase;
-	import agt.input.events.InputEvent;
+	import agt.input.InputType;
 	import agt.physics.entities.CharacterEntity;
 
 	import away3d.animators.SmoothSkeletonAnimator;
@@ -20,7 +19,10 @@ package agt.controllers.entities.character
 		public var walkAnimationToSpeedFactor:Number = 1;
 		public var runAnimationToSpeedFactor:Number = 1;
 		public var jumpAnimationToSpeedFactor:Number = 1;
+		public var overallAnimationToSpeedFactor:Number = 1;
+		public var runSpeedLimit:Number = 50;
 
+		private var _activeAnimationName:String;
 		private var _animator:SmoothSkeletonAnimator;
 		private var _currentAnimationToSpeedFactor:Number = walkAnimationToSpeedFactor;
 		private var _jumping:Boolean;
@@ -29,14 +31,8 @@ package agt.controllers.entities.character
 		{
 			_animator = new SmoothSkeletonAnimator(SkeletonAnimationState(animationState));
 			_animator.updateRootPosition = false;
+			_activeAnimationName = "";
 			super(entity);
-		}
-
-		override public function set inputContext(context:InputContextBase):void
-		{
-			super.inputContext = context;
-			registerEvent(InputEvent.WALK, walk);
-			registerEvent(InputEvent.RUN, run);
 		}
 
 		public function addAnimationSequence(sequence:SkeletonAnimationSequence):void
@@ -51,62 +47,57 @@ package agt.controllers.entities.character
 
 			// end of jump?
 			if(_jumping && _onGround)
-			{
 				_jumping = false;
-			}
 
-			_animator.timeScale = (1 + _currentSpeed) * _currentAnimationToSpeedFactor;
+			_animator.timeScale = (1 + _currentSpeed) * _currentAnimationToSpeedFactor * overallAnimationToSpeedFactor;
 		}
 
-		public function run(value:Number):void
+		override public function moveZ(value:Number):void
 		{
-			if(!_jumping)
-			{
-				if(_animator.hasSequence(runAnimationName))
-					_animator.play(runAnimationName, animationCrossFadeTime);
+			super.moveZ(value);
 
-				_currentAnimationToSpeedFactor = runAnimationToSpeedFactor;
+			if(_onGround && !_jumping)
+			{
+				if(_currentSpeed > runSpeedLimit)
+				{
+					playAnimation(runAnimationName);
+					_currentAnimationToSpeedFactor = runAnimationToSpeedFactor;
+				}
+				else if(_currentSpeed != 0)
+				{
+					playAnimation(walkAnimationName);
+					_currentAnimationToSpeedFactor = walkAnimationToSpeedFactor;
+				}
 			}
 
-			super.moveZ(value);
-		}
-
-		public function walk(value:Number):void
-		{
-			if(!_jumping)
+			if(_currentSpeed == 0)
 			{
-				if(_animator.hasSequence(walkAnimationName))
-					_animator.play(walkAnimationName, animationCrossFadeTime);
-
-				_currentAnimationToSpeedFactor = walkAnimationToSpeedFactor;
+				playAnimation(idleAnimationName);
+				_currentAnimationToSpeedFactor = idleAnimationToSpeedFactor;
 			}
-
-			super.moveZ(value);
 		}
 
-		override public function jump(value:Number = 0):void
+		override public function jump():void
 		{
 			if(_onGround)
 			{
-				if(_animator.hasSequence(jumpAnimationName))
-					_animator.play(jumpAnimationName, animationCrossFadeTime);
-
+				playAnimation(jumpAnimationName);
 				_currentAnimationToSpeedFactor = jumpAnimationToSpeedFactor;
-
 				_jumping = true;
 			}
 
-			super.jump(value);
+			super.jump();
 		}
 
-		override public function stop(value:Number = 0):void
+		private function playAnimation(animationName:String):void
 		{
-			if(_animator.hasSequence(idleAnimationName))
-				_animator.play(idleAnimationName, animationCrossFadeTime);
+			if(_activeAnimationName == animationName)
+				return;
 
-			_currentAnimationToSpeedFactor = idleAnimationToSpeedFactor;
+			if(_animator.hasSequence(animationName))
+				_animator.play(animationName, animationCrossFadeTime);
 
-			super.stop(value);
+			_activeAnimationName = animationName;
 		}
 	}
 }

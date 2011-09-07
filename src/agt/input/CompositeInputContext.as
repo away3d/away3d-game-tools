@@ -1,40 +1,49 @@
 package agt.input
 {
 
-	import agt.input.events.InputEvent;
-
-	public class CompositeInputContext extends InputContextBase
+	public class CompositeInputContext extends InputContextBase implements IInputContext
 	{
-		private var _inputContexts:Vector.<InputContextBase>;
+		private var _inputContexts:Vector.<IInputContext>;
 
 		public function CompositeInputContext()
 		{
 			super();
-			_inputContexts = new Vector.<InputContextBase>();
+
+			_inputContexts = new Vector.<IInputContext>();
 		}
 
-		override protected function processContinuousInput():void
+		public function update():void
 		{
-			for(var i:uint; i < _inputContexts.length; ++i)
-			{
+			var len:uint = _inputContexts.length;
+			for(var i:uint; i < len; ++i)
 				_inputContexts[i].update();
+		}
+
+		public function inputActive(inputType:String):Boolean
+		{
+			var len:uint = _inputContexts.length;
+			for(var i:uint; i < len; ++i)
+			{
+				if(_inputContexts[i].inputActive(inputType))
+					return true;
 			}
+
+			return false;
+		}
+
+		public function inputAmount(inputType:String):Number
+		{
+			var total:Number = 0;
+			var len:uint = _inputContexts.length;
+			for(var i:uint; i < len; ++i)
+				total += _inputContexts[i].inputAmount(inputType);
+
+			return total;
 		}
 
 		public function addContext(context:InputContextBase):void
 		{
 			_inputContexts.push(context);
-			context.addEventListener(InputEvent.MOVE_X, forwardEvent);
-			context.addEventListener(InputEvent.MOVE_Y, forwardEvent);
-			context.addEventListener(InputEvent.MOVE_Z, forwardEvent);
-			context.addEventListener(InputEvent.ROTATE_X, forwardEvent);
-			context.addEventListener(InputEvent.ROTATE_Y, forwardEvent);
-			context.addEventListener(InputEvent.ROTATE_Z, forwardEvent);
-		}
-
-		private function forwardEvent(evt:InputEvent):void
-		{
-			dispatchEvent(evt);
 		}
 	}
 }

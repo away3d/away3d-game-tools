@@ -2,14 +2,15 @@ package agt.controllers.entities.character
 {
 
 	import agt.controllers.ControllerBase;
+	import agt.controllers.IController;
 	import agt.input.InputContextBase;
-	import agt.input.events.InputEvent;
+	import agt.input.InputType;
 	import agt.physics.entities.CharacterEntity;
 
 	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
 
-	public class CharacterEntityController extends ControllerBase
+	public class CharacterEntityController extends ControllerBase implements IController
 	{
 		protected var _currentSpeed:Number = 0;
 		protected var _onGround:Boolean;
@@ -18,7 +19,7 @@ package agt.controllers.entities.character
 		private var _rotationY:Number = 0;
 		private var _entity:CharacterEntity;
 
-		public var moveEase:Number = 0.25;
+		public var moveEase:Number = 1;
 
 		public function CharacterEntityController(entity:CharacterEntity)
 		{
@@ -26,18 +27,19 @@ package agt.controllers.entities.character
 			_entity = entity;
 		}
 
-		override public function set inputContext(context:InputContextBase):void
-		{
-			super.inputContext = context;
-			registerEvent(InputEvent.MOVE_Z, moveZ);
-			registerEvent(InputEvent.SPIN, rotateY);
-			registerEvent(InputEvent.STOP, stop);
-			registerEvent(InputEvent.JUMP, jump);
-		}
-
 		override public function update():void
 		{
 			super.update();
+
+			// update input from context
+			if(_inputContext)
+			{
+				moveZ(_inputContext.inputAmount(InputType.TRANSLATE_Z));
+				rotateY(_inputContext.inputAmount(InputType.ROTATE_Y));
+
+				if(_inputContext.inputActive(InputType.JUMP))
+					jump();
+			}
 
 			// update on ground
 			_onGround = _entity.character.onGround();
@@ -62,15 +64,10 @@ package agt.controllers.entities.character
 			rotationY += value;
 		}
 
-		public function jump(value:Number = 0):void
+		public function jump():void
 		{
 			if(_onGround)
 				_entity.character.jump();
-		}
-
-		public function stop(value:Number = 0):void
-		{
-			_currentSpeed = 0;
 		}
 
 		public function get rotationY():Number

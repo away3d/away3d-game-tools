@@ -5,10 +5,10 @@
 package agt.input
 {
 
-	import flash.events.IEventDispatcher;
-
-	public interface IInputContext extends IEventDispatcher
+	public interface IInputContext
 	{
+		function update():void;
+
 		/**
 		 * Defines whether this input context implements a certain input type,
 		 * e.g. a WASD controller would likely return true on all the TRANSLATE
