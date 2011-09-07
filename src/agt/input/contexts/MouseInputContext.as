@@ -1,5 +1,8 @@
-package agt.input
+package agt.input.contexts
 {
+
+	import agt.input.*;
+	import agt.input.data.MouseAction;
 
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;

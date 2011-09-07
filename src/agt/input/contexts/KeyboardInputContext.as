@@ -1,5 +1,7 @@
-package agt.input
+package agt.input.contexts
 {
+
+	import agt.input.*;
 
 	import flash.events.EventDispatcher;
 	import flash.events.KeyboardEvent;

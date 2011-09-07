@@ -3,7 +3,7 @@ package agt.controllers.camera
 
 	import agt.controllers.IController;
 	import agt.controllers.entities.character.CharacterEntityController;
-	import agt.input.InputType;
+	import agt.input.data.InputType;
 	import agt.physics.entities.CharacterEntity;
 
 	import away3d.containers.ObjectContainer3D;

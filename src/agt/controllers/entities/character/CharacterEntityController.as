@@ -4,7 +4,7 @@ package agt.controllers.entities.character
 	import agt.controllers.ControllerBase;
 	import agt.controllers.IController;
 	import agt.input.InputContextBase;
-	import agt.input.InputType;
+	import agt.input.data.InputType;
 	import agt.physics.entities.CharacterEntity;
 
 	import flash.geom.Matrix3D;

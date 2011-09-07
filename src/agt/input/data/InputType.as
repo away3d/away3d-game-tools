@@ -1,4 +1,4 @@
-package agt.input
+package agt.input.data
 {
 
 	public class InputType

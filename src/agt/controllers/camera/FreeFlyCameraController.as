@@ -3,7 +3,7 @@ package agt.controllers.camera
 
 	import agt.controllers.IController;
 	import agt.input.InputContextBase;
-	import agt.input.InputType;
+	import agt.input.data.InputType;
 
 	import away3d.containers.ObjectContainer3D;
 

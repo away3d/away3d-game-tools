@@ -1,7 +1,7 @@
 package agt.controllers.entities.character
 {
 
-	import agt.input.InputType;
+	import agt.input.data.InputType;
 	import agt.physics.entities.CharacterEntity;
 
 	import away3d.animators.SmoothSkeletonAnimator;
