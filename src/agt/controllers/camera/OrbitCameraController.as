@@ -1,7 +1,7 @@
 package agt.controllers.camera
 {
 
-import agt.input.InputContext;
+import agt.input.InputContextBase;
 import agt.input.events.InputEvent;
 
 import away3d.containers.ObjectContainer3D;
@@ -25,7 +25,7 @@ public class OrbitCameraController extends CameraControllerBase
 		super(camera);
 	}
 
-	override public function set inputContext(context:InputContext):void
+	override public function set inputContext(context:InputContextBase):void
 	{
 		super.inputContext = context;
 		registerEvent(InputEvent.MOVE_Z, moveRadius);

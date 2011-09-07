@@ -1,7 +1,7 @@
 package agt.controllers.entities.character
 {
 
-	import agt.input.InputContext;
+	import agt.input.InputContextBase;
 	import agt.input.events.InputEvent;
 	import agt.physics.entities.CharacterEntity;
 
@@ -32,7 +32,7 @@ package agt.controllers.entities.character
 			super(entity);
 		}
 
-		override public function set inputContext(context:InputContext):void
+		override public function set inputContext(context:InputContextBase):void
 		{
 			super.inputContext = context;
 			registerEvent(InputEvent.WALK, walk);

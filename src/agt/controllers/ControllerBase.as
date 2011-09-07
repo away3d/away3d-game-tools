@@ -1,7 +1,7 @@
 package agt.controllers
 {
 
-	import agt.input.InputContext;
+	import agt.input.InputContextBase;
 	import agt.input.events.InputEvent;
 
 	import flash.events.EventDispatcher;
@@ -9,7 +9,7 @@ package agt.controllers
 
 	public class ControllerBase extends EventDispatcher
 	{
-		private var _inputContext:InputContext;
+		private var _inputContext:InputContextBase;
 		protected var _eventMapping:Dictionary;
 
 		public function ControllerBase()
@@ -37,12 +37,12 @@ package agt.controllers
 			_eventMapping[evt.type](evt.amount);
 		}
 
-		public function get inputContext():InputContext
+		public function get inputContext():InputContextBase
 		{
 			return _inputContext;
 		}
 
-		public function set inputContext(value:InputContext):void
+		public function set inputContext(value:InputContextBase):void
 		{
 			_inputContext = value;
 		}

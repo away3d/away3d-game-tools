@@ -3,14 +3,14 @@ package agt.input
 
 	import agt.input.events.InputEvent;
 
-	public class CompositeInputContext extends InputContext
+	public class CompositeInputContext extends InputContextBase
 	{
-		private var _inputContexts:Vector.<InputContext>;
+		private var _inputContexts:Vector.<InputContextBase>;
 
 		public function CompositeInputContext()
 		{
 			super();
-			_inputContexts = new Vector.<InputContext>();
+			_inputContexts = new Vector.<InputContextBase>();
 		}
 
 		override protected function processContinuousInput():void
@@ -21,7 +21,7 @@ package agt.input
 			}
 		}
 
-		public function addContext(context:InputContext):void
+		public function addContext(context:InputContextBase):void
 		{
 			_inputContexts.push(context);
 			context.addEventListener(InputEvent.MOVE_X, forwardEvent);

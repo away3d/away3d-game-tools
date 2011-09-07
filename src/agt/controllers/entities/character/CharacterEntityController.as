@@ -2,7 +2,7 @@ package agt.controllers.entities.character
 {
 
 	import agt.controllers.ControllerBase;
-	import agt.input.InputContext;
+	import agt.input.InputContextBase;
 	import agt.input.events.InputEvent;
 	import agt.physics.entities.CharacterEntity;
 
@@ -26,7 +26,7 @@ package agt.controllers.entities.character
 			_entity = entity;
 		}
 
-		override public function set inputContext(context:InputContext):void
+		override public function set inputContext(context:InputContextBase):void
 		{
 			super.inputContext = context;
 			registerEvent(InputEvent.MOVE_Z, moveZ);
@@ -43,7 +43,7 @@ package agt.controllers.entities.character
 			_onGround = _entity.character.onGround();
 
 			// update walk vector
-			_entity.ghost.rotation.copyRowTo(2, _walkDirection);
+			_entity.ghost.rotation.copyColumnTo(2, _walkDirection);
 			_walkDirection.scaleBy(_currentSpeed);
 			_entity.character.setWalkDirection(_walkDirection);
 		}

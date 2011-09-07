@@ -9,7 +9,7 @@ package agt.input.device
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 
-	public class MouseInputContext extends InputContext
+	public class MouseInputContext extends InputContextBase
 	{
 		private var _display:Sprite;
 		private var _mouseIsDown:Boolean;

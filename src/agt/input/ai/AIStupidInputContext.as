@@ -1,10 +1,10 @@
 package agt.input.ai
 {
 
-	import agt.input.InputContext;
+	import agt.input.InputContextBase;
 	import agt.input.events.InputEvent;
 
-	public class AIStupidInputContext extends InputContext
+	public class AIStupidInputContext extends InputContextBase
 	{
 		private var _walkEvent:InputEvent;
 		private var _turnRightEvent:InputEvent;
