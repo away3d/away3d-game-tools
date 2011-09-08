@@ -42,9 +42,9 @@ package agt.physics.entities
 			_ghost.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
 
 			// build dynamic entity
-			var dynamicOffset:Number = 100; // TODO: Make settable
-			var dynamicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius + dynamicOffset, capsuleHeight);
-			_dynamicCapsuleMesh = new Capsule(DebugMaterialLibrary.instance.transparentRedMaterial, capsuleRadius + dynamicOffset, capsuleHeight);
+			var dynamicOffset:Number = 1.1; // TODO: Make settable
+			var dynamicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius * dynamicOffset, capsuleHeight);
+			_dynamicCapsuleMesh = new Capsule(DebugMaterialLibrary.instance.transparentRedMaterial, capsuleRadius * dynamicOffset, capsuleHeight);
 			_dynamicCapsuleMesh.visible = false;
 			var dynamicEntity:DynamicEntity = new DynamicEntity(dynamicShape, _dynamicCapsuleMesh);
 			_body = dynamicEntity.body;

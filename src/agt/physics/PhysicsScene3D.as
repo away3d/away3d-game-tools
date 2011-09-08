@@ -43,7 +43,11 @@ package agt.physics
 			_physics.initWithDbvtBroadphase();
 			//_physics.scaling = 50;
 			//_physics.collisionCallbackOn = true;
+<<<<<<< HEAD
 			_physics.gravity = new Vector3D(0, -10, 0);
+=======
+			_physics.gravity = new Vector3D(0, -5, 0);
+>>>>>>> Started working on a GameLevel parser
 		}
 
 		public function addDynamicEntity(entity:DynamicEntity):void
