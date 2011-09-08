@@ -24,10 +24,10 @@ package agt.parsing
 
 	public class GameLevel
 	{
-		private var _scene:PhysicsScene3D;
-		private var _sourceMesh:Mesh;
-		private var _defMass : Number;
-		private var _defFriction : Number;
+		protected var _scene:PhysicsScene3D;
+		protected var _sourceMesh:Mesh;
+		protected var _defMass : Number;
+		protected var _defFriction : Number;
 
 		public var showColliders:Boolean = false;
 
@@ -43,43 +43,34 @@ package agt.parsing
 		{
 			trace("parsing scene...");
 
+			// register children in array and sweep them
 			var len:uint = _sourceMesh.numChildren;
 			var children:Array = [];
 			for(var i:uint; i < len; ++i)
-			{
 				children.push(_sourceMesh.getChildAt(i));
-			}
 			for(i = 0; i < len; ++i)
-			{
 			    parseObject(children[i]);
-			}
 		}
 
 		private function parseObject(obj:ObjectContainer3D):void
 		{
+			// check for type property and apply the appropriate function to the object
 			trace("parsing game level object...");
 			if(obj.extra && obj.extra.hasOwnProperty("type"))
 			{
 				trace("type: " + obj.extra.type);
-
-				switch(obj.extra.type)
-				{
-					case ObjectType.COLLIDER:
-						parseCollider(obj);
-						break;
-					default:
-						_scene.addChild(obj);
-						break;
-				}
-
-				if(obj.extra.hasOwnProperty("type"))
-				{
-
-				}
+				var typeStr:String = obj.extra.type;
+				var firstChar:String = typeStr.substr(0, 1);
+				var restOfString:String = typeStr.substr(1, typeStr.length);
+				var funcName:String = "parse" + firstChar.toUpperCase() + restOfString.toLowerCase();
+				if(this.hasOwnProperty(funcName))
+					this[funcName](obj);
+				else
+					trace("*** Warning, parsing method '" + funcName + "()' does not exist. ***");
 			}
 		}
 
-		private function parseCollider(obj:ObjectContainer3D):void
+		public function parseCollider(obj:ObjectContainer3D):void
 		{
 			var mesh:Mesh = obj as Mesh;
 			mesh.material = DebugMaterialLibrary.instance.redMaterial;

@@ -21,7 +21,17 @@ package agt.debug
 				return;
 
 			var numChildren:uint = obj.numChildren;
-			trace(offset + "object: " + obj.name + ", children: " + numChildren);
+			var trc:String = offset + "name: " + obj.name + ", numChildren: " + numChildren + ", extra:[";
+			var i:uint;
+			for(var prop:String in obj.extra)
+			{
+				if(i != 0)
+					trc += ", ";
+				trc += prop + ": " + obj.extra[prop];
+				i++;
+			}
+			trc += "]";
+			trace(trc);
 			for(var i:uint; i < numChildren; ++i)
 			{
 				var child:Mesh = obj.getChildAt(i) as Mesh;
