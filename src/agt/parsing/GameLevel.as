@@ -130,8 +130,6 @@ package agt.parsing
 
 			trace("shape: " + mesh.extra.shape);
 
-			var alterTransform:Boolean = true;
-
 			switch(mesh.extra.shape)
 			{
 				case 'plane':
@@ -156,9 +154,7 @@ package agt.parsing
 					break;
 
 				case 'mesh':
-					shape = new AWPBvhTriangleMeshShape(mesh, false);
-					mesh.material = DebugMaterialLibrary.instance.greenMaterial;
-					alterTransform = false;
+					shape = new AWPBvhTriangleMeshShape(mesh);
 					break;
 
 				case 'box':
@@ -172,7 +168,7 @@ package agt.parsing
 			friction = mesh.extra.hasOwnProperty('friction') ? parseFloat(mesh.extra["friction"]) : _defFriction;
 			mass = mesh.extra.hasOwnProperty('mass') ? parseFloat(mesh.extra["mass"]) : _defMass;
 
-			var entity:DynamicEntity = new DynamicEntity(shape, mesh, mass, alterTransform);
+			var entity:DynamicEntity = new DynamicEntity(shape, mesh, mass, true);
 			entity.body.friction = friction;
 
 			entity.container.visible = showColliders;
