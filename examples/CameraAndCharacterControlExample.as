@@ -274,9 +274,9 @@ package
 
 			// player input context
 			var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
-			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, 50, Keyboard.W);
-			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, -15, Keyboard.S);
-			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, 100, Keyboard.W, Keyboard.SHIFT);
+			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, 25, Keyboard.W);
+			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, -8, Keyboard.S);
+			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, 50, Keyboard.W, Keyboard.SHIFT);
 			keyboardContext.mapWithAmount(InputType.ROTATE_Y, 5, Keyboard.D);
 			keyboardContext.mapWithAmount(InputType.ROTATE_Y, -5, Keyboard.A);
 			keyboardContext.map(InputType.JUMP, Keyboard.SPACE);
@@ -291,7 +291,7 @@ package
 			playerController.runAnimationToSpeedFactor = 0.5;
 			playerController.idleAnimationToSpeedFactor = 25;
 			playerController.jumpAnimationToSpeedFactor = 0.1;
-			playerController.runSpeedLimit = 50;
+			playerController.runSpeedLimit = 25;
 			playerController.inputContext = keyboardContext;
 		}
 
