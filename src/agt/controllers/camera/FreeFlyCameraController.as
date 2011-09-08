@@ -2,7 +2,6 @@ package agt.controllers.camera
 {
 
 	import agt.controllers.IController;
-	import agt.input.InputContextBase;
 	import agt.input.data.InputType;
 
 	import away3d.containers.ObjectContainer3D;
@@ -56,7 +55,6 @@ package agt.controllers.camera
 
 		public function rotateX(value:Number):void
 		{
-			trace("rot x: " + value);
 			_cameraDummy.rotationX += value;
 		}
 

@@ -84,7 +84,7 @@ package agt.debug
 		{
 			if(!_transparentRedMaterial)
 			{
-				_transparentRedMaterial = new ColorMaterial(0xFF0000, 0.25);
+				_transparentRedMaterial = new ColorMaterial(0xFF0000, 0.1);
 
 				if(_lights)
 					_transparentRedMaterial.lights = _lights;
@@ -96,7 +96,7 @@ package agt.debug
 		{
 			if(!_transparentGreenMaterial)
 			{
-				_transparentGreenMaterial = new ColorMaterial(0x00FF00, 0.25);
+				_transparentGreenMaterial = new ColorMaterial(0x00FF00, 0.1);
 
 				if(_lights)
 					_transparentGreenMaterial.lights = _lights;
@@ -108,7 +108,7 @@ package agt.debug
 		{
 			if(!_transparentBlueMaterial)
 			{
-				_transparentBlueMaterial = new ColorMaterial(0x0000FF, 0.25);
+				_transparentBlueMaterial = new ColorMaterial(0x0000FF, 0.1);
 
 				if(_lights)
 					_transparentBlueMaterial.lights = _lights;

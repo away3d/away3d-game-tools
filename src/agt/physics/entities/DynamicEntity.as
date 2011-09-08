@@ -15,11 +15,13 @@ package agt.physics.entities
 	{
 		private var _body:AWPRigidBody;
 
-		public function DynamicEntity(shape:AWPShape, container:ObjectContainer3D, mass:Number = 0)
+		public function DynamicEntity(shape:AWPShape, container:ObjectContainer3D, mass:Number = 0, alterTransform:Boolean = true)
 		{
 			super(shape, container);
 			_body = new AWPRigidBody(_shape, _container, mass);
-			objTransformToBodyTransform(_container, _body);
+
+//			if(alterTransform) // TODO: temp hack
+//				objTransformToBodyTransform(_container, _body);
 		}
 
 		public function get body():AWPRigidBody
