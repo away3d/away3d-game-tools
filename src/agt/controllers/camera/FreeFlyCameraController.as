@@ -40,15 +40,15 @@ package agt.controllers.camera
 			_camera.z += dz * linearEase;
 
 			// ease orientation
-//			dx = _cameraDummy.rotationX - _camera.rotationX;
-//			dy = _cameraDummy.rotationY - _camera.rotationY;
-//			dz = _cameraDummy.rotationZ - _camera.rotationZ;
-//			_camera.rotationX += dx * angularEase;
-//			_camera.rotationY += dy * angularEase;
-//			_camera.rotationZ += dz * angularEase;
-			_camera.rotationX = _cameraDummy.rotationX;
-			_camera.rotationY = _cameraDummy.rotationY;
-			_camera.rotationZ = _cameraDummy.rotationZ;
+			dx = _cameraDummy.rotationX - _camera.rotationX;
+			dy = _cameraDummy.rotationY - _camera.rotationY;
+			dz = _cameraDummy.rotationZ - _camera.rotationZ;
+			_camera.rotationX += dx * angularEase;
+			_camera.rotationY += dy * angularEase;
+			_camera.rotationZ += dz * angularEase;
+//			_camera.rotationX = _cameraDummy.rotationX;
+//			_camera.rotationY = _cameraDummy.rotationY;
+//			_camera.rotationZ = _cameraDummy.rotationZ;
 		}
 
 		public function rotateY(value:Number):void
