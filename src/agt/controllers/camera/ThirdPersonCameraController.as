@@ -35,6 +35,7 @@ package agt.controllers.camera
 			if(_inputContext)
 			{
 				rotateY(_inputContext.inputAmount(InputType.TRANSLATE_X) * 0.1);
+				zoom(_inputContext.inputAmount(InputType.TRANSLATE_Z) * 0.1);
 			}
 
 			var target:ObjectContainer3D = _targetController.entity.container;
@@ -46,10 +47,10 @@ package agt.controllers.camera
 			realDelta.z = target.z - _cameraDummy.z;
 			var xzDelta:Vector3D = new Vector3D(realDelta.x, 0, realDelta.z); // ignore y
 			xzDelta.normalize();
-			xzDelta.scaleBy(-_cameraOffsetXZ); // apply xz delta
+			xzDelta.scaleBy(-_cameraOffsetXZ * _zoomMultiplier); // apply xz delta
 			_cameraDummy.x = target.x + xzDelta.x;
 			_cameraDummy.z = target.z + xzDelta.z;
-			_cameraDummy.y = target.y + _cameraOffsetY;
+			_cameraDummy.y = target.y + _cameraOffsetY * _zoomMultiplier;
 
 			// mimic character direction with camera (to see faster where the character is going)
 			if(_directionEnforcement != 0)
@@ -75,6 +76,15 @@ package agt.controllers.camera
 
 			// always look at target
 			_camera.lookAt(target.position);
+		}
+
+		private var _zoomMultiplier:Number = 1;
+		public function zoom(value:Number = 0):void
+		{
+			_zoomMultiplier += value;
+
+			_zoomMultiplier = _zoomMultiplier < 0.2 ? 0.2 : _zoomMultiplier; // TODO: ability to set this
+			_zoomMultiplier = _zoomMultiplier > 15 ? 15 : _zoomMultiplier;
 		}
 
 		public function rotateY(value:Number = 0):void

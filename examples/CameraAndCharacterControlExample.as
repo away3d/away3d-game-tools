@@ -298,7 +298,7 @@ package
 		private function setupCameraControl():void
 		{
 			// mouse input
-			var mouseInput:MouseInputContext = new MouseInputContext(view);
+			var mouseInput:MouseInputContext = new MouseInputContext(view, stage);
 			mouseInput.map(InputType.TRANSLATE_X, MouseAction.DRAG_X, -5);
 			mouseInput.map(InputType.TRANSLATE_Y, MouseAction.DRAG_Y, 5);
 //			mouseInput.map(InputType.ROTATE_Y, MouseAction.DRAG_X, -5); // use these with free fly or 1st person camera controllers

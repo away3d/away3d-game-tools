@@ -5,6 +5,7 @@ package agt.input.contexts
 	import agt.input.data.MouseAction;
 
 	import flash.display.Sprite;
+	import flash.display.Stage;
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 
@@ -17,14 +18,16 @@ package agt.input.contexts
 		private var _deltaY:Number;
 		private var _deltaWheel:Number;
 		private var _inputMappings:Object;
+		private var _stage:Stage;
 
-		public function MouseInputContext(context:Sprite)
+		public function MouseInputContext(context:Sprite, stage:Stage)
 		{
 			super();
 
 			_context = context;
+			_stage = stage;
 			_context.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
-			_context.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
+			_stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
 			_context.addEventListener(MouseEvent.MOUSE_WHEEL, mouseWheelHandler);
 
 			_mousePositionLast = new Vector3D();

@@ -8,6 +8,8 @@ package agt.controllers.camera
 
 	import away3d.containers.ObjectContainer3D;
 
+	import flash.geom.Matrix3D;
+
 	import flash.geom.Vector3D;
 
 	public class FirstPersonCameraController extends CameraControllerBase implements IController
@@ -76,8 +78,14 @@ package agt.controllers.camera
 		override public function set camera(value:ObjectContainer3D):void
 		{
 			super.camera = value;
+
 			_camera.transform = CharacterEntity(_targetController.entity).container.transform.clone();
 			_cameraDummy.transform = _camera.transform.clone();
+
+			// TODO: Not sure why, but if this isn't done, Y rotation is inverted some times
+			// Happens after coming from an orbit camera and being at certain rotations
+			// this sucks since it makes the camera jump when changed, but avoids the bug
+			_cameraDummy.rotationX = _cameraDummy.rotationY = _cameraDummy.rotationZ = 0;
 		}
 
 		public function get cameraOffset():Vector3D

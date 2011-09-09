@@ -16,11 +16,11 @@ package agt.parsing
 
 	import awayphysics.collision.shapes.AWPBoxShape;
 	import awayphysics.collision.shapes.AWPBvhTriangleMeshShape;
+	import awayphysics.collision.shapes.AWPCollisionShape;
 
 	import awayphysics.collision.shapes.AWPConeShape;
 	import awayphysics.collision.shapes.AWPCylinderShape;
 
-	import awayphysics.collision.shapes.AWPShape;
 	import awayphysics.collision.shapes.AWPSphereShape;
 	import awayphysics.collision.shapes.AWPStaticPlaneShape;
 
@@ -97,6 +97,7 @@ package agt.parsing
 			if(obj is Mesh) // parse materials
 			{
 				var mesh:Mesh = Mesh(obj);
+				mesh.castsShadows = false; // TODO: Create a default mesh parser in extending classes?
 				if(mesh.material)
 				{
 					var mat:DefaultMaterialBase = DefaultMaterialBase(mesh.material);
@@ -164,7 +165,7 @@ package agt.parsing
 			var aabb:AxisAlignedBoundingBox;
 			var friction:Number;
 			var mass:Number;
-			var shape:AWPShape;
+			var shape:AWPCollisionShape;
 
 			trace("shape: " + mesh.extra.shape);
 

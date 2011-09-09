@@ -49,7 +49,8 @@ package agt.controllers.entities.character
 			if(_jumping && _onGround)
 				_jumping = false;
 
-			_animator.timeScale = (1 + _currentSpeed) * _currentAnimationToSpeedFactor * overallAnimationToSpeedFactor;
+			var k:Number = _currentSpeed > 0 ? 1 : -1;
+			_animator.timeScale = k * (1 + k * _currentSpeed) * _currentAnimationToSpeedFactor * overallAnimationToSpeedFactor;
 		}
 
 		override public function moveZ(value:Number):void

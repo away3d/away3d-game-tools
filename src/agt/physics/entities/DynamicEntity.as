@@ -4,7 +4,8 @@ package agt.physics.entities
 	import away3d.containers.ObjectContainer3D;
 	import away3d.entities.Mesh;
 
-	import awayphysics.collision.shapes.AWPShape;
+	import awayphysics.collision.shapes.AWPCollisionShape;
+
 	import awayphysics.dynamics.AWPRigidBody;
 
 	import flash.geom.Matrix3D;
@@ -15,7 +16,7 @@ package agt.physics.entities
 	{
 		private var _body:AWPRigidBody;
 
-		public function DynamicEntity(shape:AWPShape, container:ObjectContainer3D, mass:Number = 0, alterTransform:Boolean = true)
+		public function DynamicEntity(shape:AWPCollisionShape, container:ObjectContainer3D, mass:Number = 0, alterTransform:Boolean = true)
 		{
 			super(shape, container);
 			_body = new AWPRigidBody(_shape, _container, mass);
