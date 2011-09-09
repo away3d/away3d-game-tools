@@ -50,7 +50,7 @@ package agt.controllers.camera
 			xzDelta.scaleBy(-_cameraOffsetXZ * _zoomMultiplier); // apply xz delta
 			_cameraDummy.x = target.x + xzDelta.x;
 			_cameraDummy.z = target.z + xzDelta.z;
-			_cameraDummy.y = target.y + _cameraOffsetY * _zoomMultiplier;
+			_cameraDummy.y += 0.5 * (target.y + _cameraOffsetY * _zoomMultiplier - _cameraDummy.y);
 
 			// mimic character direction with camera (to see faster where the character is going)
 			if(_directionEnforcement != 0)
