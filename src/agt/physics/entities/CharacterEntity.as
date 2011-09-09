@@ -62,8 +62,8 @@ package agt.physics.entities
 			// apply ghost position and 'velocity' to rigid body
 			var vel:Vector3D = character.walkDirection;
 			vel.scaleBy(collideStrength);
-			_body.position = _ghost.position;
 			_body.linearVelocity = vel;
+			_body.position = _ghost.position;
 		}
 
 		public function set position(value:Vector3D):void
