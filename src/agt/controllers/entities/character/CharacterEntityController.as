@@ -20,6 +20,7 @@ package agt.controllers.entities.character
 		private var _entity:CharacterEntity;
 
 		public var moveEase:Number = 1;
+		public var speedFactor:Number = 1;
 
 		public function CharacterEntityController(entity:CharacterEntity)
 		{
@@ -54,6 +55,8 @@ package agt.controllers.entities.character
 		{
 			if(!_onGround)
 				return;
+
+			value *= speedFactor;
 
 			var delta:Number = moveEase * (value - _currentSpeed);
 			_currentSpeed = _currentSpeed + delta <= value ? _currentSpeed + delta : value;

@@ -20,7 +20,7 @@ package agt.controllers.entities.character
 		public var runAnimationToSpeedFactor:Number = 1;
 		public var jumpAnimationToSpeedFactor:Number = 1;
 		public var overallAnimationToSpeedFactor:Number = 1;
-		public var runSpeedLimit:Number = 50;
+		public var runSpeedThreshold:Number = 2;
 
 		private var _activeAnimationName:String;
 		private var _animator:SmoothSkeletonAnimator;
@@ -58,7 +58,7 @@ package agt.controllers.entities.character
 
 			if(_onGround && !_jumping)
 			{
-				if(_currentSpeed > runSpeedLimit)
+				if(_currentSpeed > runSpeedThreshold * speedFactor)
 				{
 					playAnimation(runAnimationName);
 					_currentAnimationToSpeedFactor = runAnimationToSpeedFactor;

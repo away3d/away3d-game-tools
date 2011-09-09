@@ -291,7 +291,7 @@ package
 			playerController.runAnimationToSpeedFactor = 0.5;
 			playerController.idleAnimationToSpeedFactor = 25;
 			playerController.jumpAnimationToSpeedFactor = 0.1;
-			playerController.runSpeedLimit = 25;
+			playerController.runSpeedThreshold = 25;
 			playerController.inputContext = keyboardContext;
 		}
 

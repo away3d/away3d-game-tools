@@ -11,6 +11,7 @@ package agt.parsing
 
 	import away3d.entities.Mesh;
 	import away3d.library.assets.IAsset;
+	import away3d.materials.DefaultMaterialBase;
 	import away3d.materials.MaterialBase;
 
 	import awayphysics.collision.shapes.AWPBoxShape;
@@ -33,12 +34,12 @@ package agt.parsing
 		protected var _sourceMesh:Mesh;
 		protected var _defMass:Number;
 		protected var _defFriction:Number;
+		protected var _colliderMeshes:Vector.<ObjectContainer3D>;
+		protected var _nonColliderMeshes:Vector.<ObjectContainer3D>;
 
 		public var playerSpawnPosition:Vector3D;
-		public var showColliders:Boolean = false;
-		public var showNonColliders:Boolean = true;
 
-		private var _meshes:Array;
+		private var _debugColliders:Boolean = false;
 
 		public function GameLevel(scene:PhysicsScene3D, sourceMesh:Mesh, defMass:Number = 0, defFriction:Number = 0.9)
 		{
@@ -47,7 +48,10 @@ package agt.parsing
 			_defMass = defMass;
 			_defFriction = defFriction;
 
-			_meshes = [];
+//			_meshes = [];
+
+			_colliderMeshes = new Vector.<ObjectContainer3D>();
+			_nonColliderMeshes = new Vector.<ObjectContainer3D>();
 		}
 
 		public function parse():void
@@ -65,62 +69,96 @@ package agt.parsing
 
 		private function parseObject(obj:ObjectContainer3D):void
 		{
-			trace("parsing game level object >>>>>>>> ");
+			trace("parsing game level object >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ");
 
-			// check for type property and apply the appropriate function to the object
-			if(obj.extra && obj.extra.hasOwnProperty("type"))
+			if(obj.extra) // parse objects
 			{
-				trace("type: " + obj.extra.type);
-				redirectParse(obj.extra.type, obj);
-//				var typeStr:String = obj.extra.type;
-//				var firstChar:String = typeStr.substr(0, 1);
-//				var restOfString:String = typeStr.substr(1, typeStr.length);
-//				var funcName:String = "parse" + firstChar.toUpperCase() + restOfString.toLowerCase();
-//				if(this.hasOwnProperty(funcName))
-//					this[funcName](obj);
+//				if(obj.extra.hasOwnProperty("type")) // parse by type
+//					redirectParse(obj.extra.type, "Type", obj);
 //				else
-//					trace("*** Warning, parsing method '" + funcName + "()' does not exist. ***");
+//					processUntyped(obj);
+
+				for(var prop:String in obj.extra)
+				{
+//					trace("XXX OBJ PROP: " + prop + " -> " + obj.extra[prop]);
+
+					if(prop == "shape")
+						continue;
+
+					redirectParse(obj.extra[prop], prop, obj);
+				}
 			}
 			else
-			{
-				if(obj is Mesh)
-				{
-					var mesh:Mesh = Mesh(obj);
-					if(mesh.material && mesh.material.extra && mesh.material.extra.hasOwnProperty("surface"))
-						redirectParse(mesh.material.extra.surface, mesh.material);
-				}
-
-				if(!showNonColliders)
-					obj.visible = false;
-
-				_scene.addChild(obj);
-			}
+				processUntyped(obj);
 		}
 
-		private function redirectParse(id:String, asset:IAsset):void
+		private function processUntyped(obj:ObjectContainer3D):void
 		{
-			var firstChar:String = id.substr(0, 1);
-			var restOfString:String = id.substr(1, id.length);
-			var funcName:String = "parse" + firstChar.toUpperCase() + restOfString.toLowerCase();
+			if(obj is Mesh) // parse materials
+			{
+				var mesh:Mesh = Mesh(obj);
+				if(mesh.material)
+				{
+					var mat:DefaultMaterialBase = DefaultMaterialBase(mesh.material);
+					if(mat.extra)
+					{
+						for(var prop:String in mat.extra)
+						{
+//							trace("XXX MAT PROP: " + prop + " -> " + mat.extra[prop]);
+							redirectParse(mat.extra[prop], prop, mat);
+						}
+					}
+				}
+			}
+
+			_nonColliderMeshes.push(obj);
+
+			_scene.addChild(obj);
+		}
+
+		private function redirectParse(propValue:String, propName:String, asset:IAsset):void
+		{
+			propValue = firstCharToUpperCase(propValue);
+			propName = firstCharToUpperCase(propName);
+			var funcName:String = "parse" + propName + propValue;
 			if(this.hasOwnProperty(funcName))
+			{
+				trace("@@@ redirecting parse to: " + funcName + "()");
 				this[funcName](asset);
+			}
 			else
 				trace("------------------------- *** Warning, parsing method '" + funcName + "()' does not exist. ***");
+		}
+
+		private function firstCharToUpperCase(str:String):String
+		{
+			var firstChar:String = str.substr(0, 1);
+			var restOfString:String = str.substr(1, str.length);
+			return firstChar.toUpperCase() + restOfString.toLowerCase();
 		}
 
 		// -----------------------
 		// default parse methods
 		// -----------------------
 
-		public function parsePlayerspawn(obj:ObjectContainer3D):void
+		public function parseRepeatTrue(mat:DefaultMaterialBase):void
+		{
+			mat.repeat = true;
+		}
+
+		public function parseAlphathresholdTrue(mat:DefaultMaterialBase):void
+		{
+			mat.alphaThreshold = 0.5;
+		}
+
+		public function parseTypePlayerspawn(obj:ObjectContainer3D):void
 		{
 			playerSpawnPosition = obj.position;
 		}
 
-		public function parseCollider(obj:ObjectContainer3D):void
+		public function parseTypeCollider(obj:ObjectContainer3D):void
 		{
 			var mesh:Mesh = obj as Mesh;
-//			mesh.material = DebugMaterialLibrary.instance.transparentRedMaterial;
 			mesh.material = DebugMaterialLibrary.instance.redMaterial;
 
 			var aabb:AxisAlignedBoundingBox;
@@ -155,6 +193,7 @@ package agt.parsing
 
 				case 'mesh':
 					shape = new AWPBvhTriangleMeshShape(mesh);
+					mesh.material = DebugMaterialLibrary.instance.greenMaterial;
 					break;
 
 				case 'box':
@@ -171,28 +210,37 @@ package agt.parsing
 			var entity:DynamicEntity = new DynamicEntity(shape, mesh, mass, true);
 			entity.body.friction = friction;
 
-			entity.container.visible = showColliders;
-			mesh.scale(1.05);
-
-			_meshes.push(mesh);
-			/*mesh.addEventListener(Event.ENTER_FRAME, function(evt:Event):void {
-
-				trace("ETF!");
-
-				var mesh:Mesh = evt.target as Mesh;
-				mesh.rotationX += 5;
-
-			})*/
+			mesh.visible = false;
+			_colliderMeshes.push(mesh);
 
 			_scene.addDynamicEntity(entity);
 		}
 
-		public function update():void
+		public function get debugColliders():Boolean
 		{
-			for(var i:uint; i < _meshes.length; ++i)
-			{
-				_meshes[i].rotationX += 1;
-			}
+			return _debugColliders;
+		}
+
+		public function set debugColliders(value:Boolean):void
+		{
+			_debugColliders = value;
+
+			showColliders(_debugColliders);
+			showNonColliders(!_debugColliders);
+		}
+
+		public function showColliders(visible:Boolean = true):void
+		{
+			var len:uint = _colliderMeshes.length;
+			for(var i:uint; i < len; ++i)
+				_colliderMeshes[i].visible = visible;
+		}
+
+		public function showNonColliders(visible:Boolean = true):void
+		{
+			var len:uint = _nonColliderMeshes.length;
+			for(var i:uint; i < len; ++i)
+				_nonColliderMeshes[i].visible = visible;
 		}
 	}
 }
