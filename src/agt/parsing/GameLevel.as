@@ -208,7 +208,7 @@ package agt.parsing
 			friction = mesh.extra.hasOwnProperty('friction') ? parseFloat(mesh.extra["friction"]) : _defFriction;
 			mass = mesh.extra.hasOwnProperty('mass') ? parseFloat(mesh.extra["mass"]) : _defMass;
 
-			var entity:DynamicEntity = new DynamicEntity(shape, mesh, mass, true);
+			var entity:DynamicEntity = new DynamicEntity(shape, mesh, mass, true, 1); // TODO: add scaling options
 			entity.body.friction = friction;
 
 			mesh.visible = false;
