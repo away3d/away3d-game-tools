@@ -48,9 +48,10 @@ package agt.controllers.camera
 			var xzDelta:Vector3D = new Vector3D(realDelta.x, 0, realDelta.z); // ignore y
 			xzDelta.normalize();
 			xzDelta.scaleBy(-_cameraOffsetXZ * _zoomMultiplier); // apply xz delta
+			var c:Number = 0.1; // TODO: make param
 			_cameraDummy.x = target.x + xzDelta.x;
 			_cameraDummy.z = target.z + xzDelta.z;
-			_cameraDummy.y += 0.5 * (target.y + _cameraOffsetY * _zoomMultiplier - _cameraDummy.y);
+			_cameraDummy.y += c * (target.y + _cameraOffsetY * _zoomMultiplier - _cameraDummy.y);
 
 			// mimic character direction with camera (to see faster where the character is going)
 			if(_directionEnforcement != 0)
@@ -95,7 +96,11 @@ package agt.controllers.camera
 			t.appendRotation(-value, Vector3D.Y_AXIS);
 			t.appendTranslation(target.x, target.y, target.z);
 			var cs:Vector.<Vector3D> = t.decompose(); // extract and apply position from transform
-			_cameraDummy.position = cs[0];
+			var p:Vector3D = cs[0];
+			_cameraDummy.x -= 0.25 * (_cameraDummy.x - p.x);
+			_cameraDummy.y -= 0.25 * (_cameraDummy.y - p.y);
+			_cameraDummy.z -= 0.25 * (_cameraDummy.z - p.z);
+//			_cameraDummy.position = cs[0];
 		}
 
 		public function get targetController():CharacterEntityController
