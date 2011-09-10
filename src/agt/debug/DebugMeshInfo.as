@@ -32,9 +32,9 @@ package agt.debug
 			}
 			trc += "]";
 			trace(trc);
-			for(var i:uint; i < numChildren; ++i)
+			for(var j:uint; j < numChildren; ++j)
 			{
-				var child:Mesh = obj.getChildAt(i) as Mesh;
+				var child:Mesh = obj.getChildAt(j) as Mesh;
 				traceObjectHierarchy(child, offset + ">");
 			}
 		}
