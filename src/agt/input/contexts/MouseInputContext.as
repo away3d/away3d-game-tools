@@ -44,7 +44,7 @@ package agt.input.contexts
 			_mousePositionLast.y = _context.mouseY;
 		}
 
-		public function map(inputType:String, mouseAction:String, multiplier:Number):void
+		public function map(inputType:String, mouseAction:String, multiplier:Number = 1):void
 		{
 			_inputMappings[inputType] = new MouseMapping(mouseAction, multiplier);
 			_implementedInputs.push(inputType);

@@ -8,5 +8,6 @@ package agt.input.data
 		public static const MOVE_X:String = "moveX";
 		public static const MOVE_Y:String = "moveY";
 		public static const WHEEL:String = "wheel";
+		public static const DOWN:String = "down";
 	}
 }

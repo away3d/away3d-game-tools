@@ -20,6 +20,8 @@ package agt.controllers.camera
 		private var _cameraOffsetXZ:Number = 1000;
 		private var _directionEnforcement:Number = 10;
 
+		private var _locked:Boolean = false;
+
 		public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:CharacterEntityController)
 		{
 			_cameraDummy = new ObjectContainer3D();
@@ -34,8 +36,14 @@ package agt.controllers.camera
 			// update input from context?
 			if(_inputContext)
 			{
-				rotateY(_inputContext.inputAmount(InputType.TRANSLATE_X) * 0.1);
+				rotate(_inputContext.inputAmount(InputType.TRANSLATE_X) * 0.1, _inputContext.inputAmount(InputType.TRANSLATE_Y) * 0.1);
+
 				zoom(_inputContext.inputAmount(InputType.TRANSLATE_Z) * 0.1);
+
+				if(_inputContext.inputActive(InputType.RELEASE))
+					_locked = false;
+				else
+					_locked = true;
 			}
 
 			var target:ObjectContainer3D = _targetController.entity.container;
@@ -48,13 +56,13 @@ package agt.controllers.camera
 			var xzDelta:Vector3D = new Vector3D(realDelta.x, 0, realDelta.z); // ignore y
 			xzDelta.normalize();
 			xzDelta.scaleBy(-_cameraOffsetXZ * _zoomMultiplier); // apply xz delta
-//			var c:Number = 0.1; // TODO: make param
 			_cameraDummy.x = target.x + xzDelta.x;
 			_cameraDummy.z = target.z + xzDelta.z;
-			_cameraDummy.y = /*c * (*/target.y + _cameraOffsetY * _zoomMultiplier/* - _cameraDummy.y)*/;
+			if(!_locked)
+				_cameraDummy.y = target.y + _cameraOffsetY * _zoomMultiplier;
 
 			// mimic character direction with camera (to see faster where the character is going)
-			if(_directionEnforcement != 0)
+			if(!_locked && _directionEnforcement != 0)
 			{
 				var targetForward:Vector3D = target.transform.deltaTransformVector(Vector3D.X_AXIS);
 				targetForward.normalize();
@@ -64,7 +72,7 @@ package agt.controllers.camera
 				cameraRight.y = 0;
 				var proj:Number = targetForward.dotProduct(cameraRight);
 				var speed:Number = _targetController.entity.character.walkDirection.length;
-				rotateY(_directionEnforcement * proj * speed);
+				rotate(0, _directionEnforcement * proj * speed);
 			}
 
 			// ease camera towards the dummy
@@ -88,18 +96,23 @@ package agt.controllers.camera
 			_zoomMultiplier = _zoomMultiplier > 15 ? 15 : _zoomMultiplier;
 		}
 
-		public function rotateY(value:Number = 0):void
+		private function rotate(rotationX:Number, rotationY:Number):void
 		{
+			if(rotationX == 0 && rotationY == 0)
+				return;
+
 			var target:ObjectContainer3D = _targetController.entity.container;
+
+			var yAxis:Vector3D = Vector3D.Y_AXIS;
+			var xAxis:Vector3D = Vector3D.X_AXIS;
+			xAxis = target.transform.deltaTransformVector(xAxis);
+
 			var t:Matrix3D = _cameraDummy.transform.clone(); // rotate in target space
 			t.appendTranslation(-target.x, -target.y, -target.z);
-			t.appendRotation(-value, Vector3D.Y_AXIS);
+			t.appendRotation(-rotationY, xAxis);
+			t.appendRotation(-rotationX, yAxis);
 			t.appendTranslation(target.x, target.y, target.z);
 			var cs:Vector.<Vector3D> = t.decompose(); // extract and apply position from transform
-			var p:Vector3D = cs[0];
-//			_cameraDummy.x -= 0.25 * (_cameraDummy.x - p.x);
-//			_cameraDummy.y -= 0.25 * (_cameraDummy.y - p.y);
-//			_cameraDummy.z -= 0.25 * (_cameraDummy.z - p.z);
 			_cameraDummy.position = cs[0];
 		}
 
