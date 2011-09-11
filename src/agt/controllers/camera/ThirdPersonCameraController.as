@@ -4,28 +4,30 @@ package agt.controllers.camera
 	import agt.controllers.IController;
 	import agt.controllers.entities.character.CharacterEntityController;
 	import agt.input.data.InputType;
-	import agt.physics.entities.CharacterEntity;
 
 	import away3d.containers.ObjectContainer3D;
 
-	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
 
+	// TODO: Very similar to orbit camera controller, extend?
 	public class ThirdPersonCameraController extends CameraControllerBase implements IController
 	{
-		private var _cameraDummy:ObjectContainer3D;
+		private var _target:ObjectContainer3D;
+		private var _targetSphericalCoordinates:Vector3D;
+		private var _currentSphericalCoordinates:Vector3D;
+
+		private var _minElevation:Number = -Math.PI / 2;
+		private var _maxElevation:Number = Math.PI / 2;
+		private var _minRadius:Number = 0;
+		private var _maxRadius:Number = Number.MAX_VALUE;
+		private var _directionEnforcement:Number = 1000;
+		private var _free:Boolean = true;
 		private var _targetController:CharacterEntityController;
-
-		private var _cameraOffsetY:Number = 500;
-		private var _cameraOffsetXZ:Number = 1000;
-		private var _directionEnforcement:Number = 10;
-
-		private var _locked:Boolean = false;
 
 		public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:CharacterEntityController)
 		{
-			_cameraDummy = new ObjectContainer3D();
-			this.targetController = targetController;
+			_targetController = targetController;
+			this.target = targetController.entity.container;
 			super(camera);
 		}
 
@@ -36,33 +38,18 @@ package agt.controllers.camera
 			// update input from context?
 			if(_inputContext)
 			{
-				rotate(_inputContext.inputAmount(InputType.TRANSLATE_X) * 0.1, _inputContext.inputAmount(InputType.TRANSLATE_Y) * 0.1);
-
-				zoom(_inputContext.inputAmount(InputType.TRANSLATE_Z) * 0.1);
+				moveAzimuth(_inputContext.inputAmount(InputType.TRANSLATE_X));
+				moveElevation(_inputContext.inputAmount(InputType.TRANSLATE_Y));
+				moveRadius(_inputContext.inputAmount(InputType.TRANSLATE_Z));
 
 				if(_inputContext.inputActive(InputType.RELEASE))
-					_locked = false;
+					_free = true;
 				else
-					_locked = true;
+					_free = false;
 			}
 
-			var target:ObjectContainer3D = _targetController.entity.container;
-
-			// maintain 3rd person relation to target
-			var realDelta:Vector3D = new Vector3D(); // evaluate delta between camera and target
-			realDelta.x = target.x - _cameraDummy.x;
-			realDelta.y = target.y - _cameraDummy.y;
-			realDelta.z = target.z - _cameraDummy.z;
-			var xzDelta:Vector3D = new Vector3D(realDelta.x, 0, realDelta.z); // ignore y
-			xzDelta.normalize();
-			xzDelta.scaleBy(-_cameraOffsetXZ * _zoomMultiplier); // apply xz delta
-			_cameraDummy.x = target.x + xzDelta.x;
-			_cameraDummy.z = target.z + xzDelta.z;
-			if(!_locked)
-				_cameraDummy.y = target.y + _cameraOffsetY * _zoomMultiplier;
-
 			// mimic character direction with camera (to see faster where the character is going)
-			if(!_locked && _directionEnforcement != 0)
+			if(!_free && _directionEnforcement != 0)
 			{
 				var targetForward:Vector3D = target.transform.deltaTransformVector(Vector3D.X_AXIS);
 				targetForward.normalize();
@@ -72,78 +59,129 @@ package agt.controllers.camera
 				cameraRight.y = 0;
 				var proj:Number = targetForward.dotProduct(cameraRight);
 				var speed:Number = _targetController.entity.character.walkDirection.length;
-				rotate(0, _directionEnforcement * proj * speed);
+				var enforcement:Number = _directionEnforcement * proj * speed;
+				moveAzimuth(enforcement);
 			}
 
-			// ease camera towards the dummy
-			var dx:Number = _cameraDummy.x - _camera.x;
-			var dy:Number = _cameraDummy.y - _camera.y;
-			var dz:Number = _cameraDummy.z - _camera.z;
-			_camera.x += dx * linearEase;
-			_camera.y += dy * linearEase;
-			_camera.z += dz * linearEase;
+			// contain elevation and radius
+			_targetSphericalCoordinates.y = containValue(_targetSphericalCoordinates.y, _minElevation, _maxElevation);
+			_targetSphericalCoordinates.z = containValue(_targetSphericalCoordinates.z, _minRadius, _maxRadius);
 
-			// always look at target
-			_camera.lookAt(target.position);
+			// ease spherical position
+			var dx:Number = _targetSphericalCoordinates.x - _currentSphericalCoordinates.x;
+			var dy:Number = _targetSphericalCoordinates.y - _currentSphericalCoordinates.y;
+			var dz:Number = _targetSphericalCoordinates.z - _currentSphericalCoordinates.z;
+			_currentSphericalCoordinates.x += dx * angularEase;
+			_currentSphericalCoordinates.y += dy * angularEase;
+			_currentSphericalCoordinates.z += dz * linearEase;
+			_camera.position = sphericalToCartesian(_currentSphericalCoordinates);
+			_camera.lookAt(_target.position);
 		}
 
-		private var _zoomMultiplier:Number = 1;
-		public function zoom(value:Number = 0):void
+		public function moveAzimuth(amount:Number):void
 		{
-			_zoomMultiplier += value;
-
-			_zoomMultiplier = _zoomMultiplier < 0.2 ? 0.2 : _zoomMultiplier; // TODO: ability to set this
-			_zoomMultiplier = _zoomMultiplier > 15 ? 15 : _zoomMultiplier;
+			_targetSphericalCoordinates.x -= amount * 0.001;
 		}
 
-		private function rotate(rotationX:Number, rotationY:Number):void
+		public function moveElevation(amount:Number):void
 		{
-			if(rotationX == 0 && rotationY == 0)
-				return;
-
-			var target:ObjectContainer3D = _targetController.entity.container;
-
-			var yAxis:Vector3D = Vector3D.Y_AXIS;
-			var xAxis:Vector3D = Vector3D.X_AXIS;
-			xAxis = target.transform.deltaTransformVector(xAxis);
-
-			var t:Matrix3D = _cameraDummy.transform.clone(); // rotate in target space
-			t.appendTranslation(-target.x, -target.y, -target.z);
-			t.appendRotation(-rotationY, xAxis);
-			t.appendRotation(-rotationX, yAxis);
-			t.appendTranslation(target.x, target.y, target.z);
-			var cs:Vector.<Vector3D> = t.decompose(); // extract and apply position from transform
-			_cameraDummy.position = cs[0];
+			_targetSphericalCoordinates.y -= amount * 0.001;
 		}
 
-		public function get targetController():CharacterEntityController
+		public function moveRadius(amount:Number):void
 		{
-			return _targetController;
+			_targetSphericalCoordinates.z -= amount;
 		}
 
-		public function set targetController(value:CharacterEntityController):void
+		private function containValue(value:Number, min:Number, max:Number):Number
 		{
-			_targetController = value;
+			if(value < min)
+				return min;
+			else if(value > max)
+				return max;
+			else
+				return value;
 		}
 
-		public function get cameraOffsetXZ():Number
+		public function get target():ObjectContainer3D
 		{
-			return _cameraOffsetXZ;
+			return _target;
 		}
 
-		public function set cameraOffsetXZ(value:Number):void
+		public function set target(value:ObjectContainer3D):void
 		{
-			_cameraOffsetXZ = value;
+			_target = value;
 		}
 
-		public function get cameraOffsetY():Number
+		private function sphericalToCartesian(sphericalCoords:Vector3D):Vector3D
 		{
-			return _cameraOffsetY;
+			var cartesianCoords:Vector3D = new Vector3D();
+			var r:Number = sphericalCoords.z;
+			cartesianCoords.y = _target.y + r * Math.sin(-sphericalCoords.y);
+			var cosE:Number = Math.cos(-sphericalCoords.y);
+			cartesianCoords.x = _target.x + r * cosE * Math.sin(sphericalCoords.x);
+			cartesianCoords.z = _target.z + r * cosE * Math.cos(sphericalCoords.x);
+			return cartesianCoords;
 		}
 
-		public function set cameraOffsetY(value:Number):void
+		private function cartesianToSpherical(cartesianCoords:Vector3D):Vector3D
 		{
-			_cameraOffsetY = value;
+			var cartesianFromCenter:Vector3D = new Vector3D();
+			cartesianFromCenter.x = cartesianCoords.x - _target.x;
+			cartesianFromCenter.y = cartesianCoords.y - _target.y;
+			cartesianFromCenter.z = cartesianCoords.z - _target.z;
+			var sphericalCoords:Vector3D = new Vector3D();
+			sphericalCoords.z = cartesianFromCenter.length;
+			sphericalCoords.x = Math.atan2(cartesianFromCenter.x, cartesianFromCenter.z);
+			sphericalCoords.y = -Math.asin((cartesianFromCenter.y) / sphericalCoords.z);
+			return sphericalCoords;
+		}
+
+		public function get minElevation():Number
+		{
+			return _minElevation;
+		}
+
+		public function set minElevation(value:Number):void
+		{
+			_minElevation = value;
+		}
+
+		public function get maxElevation():Number
+		{
+			return _maxElevation;
+		}
+
+		public function set maxElevation(value:Number):void
+		{
+			_maxElevation = value;
+		}
+
+		public function get maxRadius():Number
+		{
+			return _maxRadius;
+		}
+
+		public function set maxRadius(value:Number):void
+		{
+			_maxRadius = value;
+		}
+
+		public function get minRadius():Number
+		{
+			return _minRadius;
+		}
+
+		public function set minRadius(value:Number):void
+		{
+			_minRadius = value;
+		}
+
+		override public function set camera(value:ObjectContainer3D):void
+		{
+			super.camera = value;
+			_targetSphericalCoordinates = cartesianToSpherical(_camera.position);
+			_currentSphericalCoordinates = _targetSphericalCoordinates.clone();
 		}
 
 		public function get directionEnforcement():Number
@@ -154,12 +192,6 @@ package agt.controllers.camera
 		public function set directionEnforcement(value:Number):void
 		{
 			_directionEnforcement = value;
-		}
-
-		override public function set camera(value:ObjectContainer3D):void
-		{
-			super.camera = value;
-			_cameraDummy.transform = _camera.transform.clone();
 		}
 	}
 }

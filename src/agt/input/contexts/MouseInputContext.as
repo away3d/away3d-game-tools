@@ -57,6 +57,8 @@ package agt.input.contexts
 				var mouseAction:String = _inputMappings[inputType].mouseAction;
 				if(_mouseIsDown)
 				{
+					if(mouseAction == MouseAction.DOWN)
+						return true;
 					if(mouseAction == MouseAction.DRAG_X && _deltaX != 0)
 						return true;
 					if(mouseAction == MouseAction.DRAG_Y && _deltaY != 0)
