@@ -18,7 +18,7 @@ package agt.physics
 		private var _fixedTimeStep:Number = 1 / 60; // TODO: add option to not use adaptive time step?
 		// time since last timestep
 		private var _deltaTime:Number;
-		private var _maxSubStep:int = 4;
+		private var _maxSubStep:int = 2;
 		private var _lastTimeStep:Number = -1;
 		private var _characterEntities:Vector.<CharacterEntity>;
 
