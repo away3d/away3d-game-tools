@@ -2,7 +2,6 @@ package agt.physics.entities
 {
 
 	import away3d.containers.ObjectContainer3D;
-	import away3d.entities.Mesh;
 
 	import awayphysics.collision.shapes.AWPCollisionShape;
 
@@ -24,7 +23,7 @@ package agt.physics.entities
 			_scale = scale;
 			_body = new AWPRigidBody(_shape, _container, mass);
 
-			if(alterTransform) // TODO: temp hack
+			if(alterTransform)
 				objTransformToBodyTransform(_container, _body);
 		}
 

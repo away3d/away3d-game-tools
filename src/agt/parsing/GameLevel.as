@@ -12,7 +12,6 @@ package agt.parsing
 	import away3d.entities.Mesh;
 	import away3d.library.assets.IAsset;
 	import away3d.materials.DefaultMaterialBase;
-	import away3d.materials.MaterialBase;
 
 	import awayphysics.collision.shapes.AWPBoxShape;
 	import awayphysics.collision.shapes.AWPBvhTriangleMeshShape;
@@ -23,8 +22,6 @@ package agt.parsing
 
 	import awayphysics.collision.shapes.AWPSphereShape;
 	import awayphysics.collision.shapes.AWPStaticPlaneShape;
-
-	import flash.events.Event;
 
 	import flash.geom.Vector3D;
 
@@ -48,16 +45,12 @@ package agt.parsing
 			_defMass = defMass;
 			_defFriction = defFriction;
 
-//			_meshes = [];
-
 			_colliderMeshes = new Vector.<ObjectContainer3D>();
 			_nonColliderMeshes = new Vector.<ObjectContainer3D>();
 		}
 
 		public function parse():void
 		{
-			trace("parsing scene /////////////////");
-
 			// register children in array and sweep them
 			var len:uint = _sourceMesh.numChildren;
 			var children:Array = [];
@@ -69,19 +62,13 @@ package agt.parsing
 
 		private function parseObject(obj:ObjectContainer3D):void
 		{
-			trace("parsing game level object >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ");
-
 			if(obj.extra) // parse objects
 			{
-//				if(obj.extra.hasOwnProperty("type")) // parse by type
-//					redirectParse(obj.extra.type, "Type", obj);
-//				else
-//					processUntyped(obj);
+				if(obj.extra.hasOwnProperty("type") && obj.extra.type != "collider") // parse by type
+					processDefault(obj);
 
 				for(var prop:String in obj.extra)
 				{
-//					trace("XXX OBJ PROP: " + prop + " -> " + obj.extra[prop]);
-
 					if(prop == "shape")
 						continue;
 
@@ -89,10 +76,10 @@ package agt.parsing
 				}
 			}
 			else
-				processUntyped(obj);
+				processDefault(obj);
 		}
 
-		private function processUntyped(obj:ObjectContainer3D):void
+		private function processDefault(obj:ObjectContainer3D):void
 		{
 			if(obj is Mesh) // parse materials
 			{
