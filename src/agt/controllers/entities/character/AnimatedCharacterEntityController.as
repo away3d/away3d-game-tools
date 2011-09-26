@@ -57,8 +57,12 @@ package agt.controllers.entities.character
 			// update input from context
 			if(_inputContext)
 			{
-				moveZ(_inputContext.inputAmount(InputType.TRANSLATE_Z));
 				rotateY(_inputContext.inputAmount(InputType.ROTATE_Y));
+
+				if(_inputContext.inputActive(InputType.WALK))
+					moveZ();
+				else
+					stop();
 
 				if(_inputContext.inputActive(InputType.JUMP))
 					jump();
@@ -80,21 +84,8 @@ package agt.controllers.entities.character
 			rotationY += value;
 		}
 
-		public function moveZ(value:Number):void
+		public function moveZ():void
 		{
-			if(value == 0)
-			{
-				if(!_jumping)
-				{
-					playAnimation(idleAnimationName);
-					_walkDirection.x = 0;
-					_walkDirection.y = 0;
-					_walkDirection.z = 0;
-					_entity.character.setWalkDirection(_walkDirection);
-				}
-				return;
-			}
-
 			if(!_jumping)
 			{
 				_walkDirection.x = -_animator.rootDelta.x * speedFactor;
@@ -114,8 +105,39 @@ package agt.controllers.entities.character
 //				}
 //				else
 //				{
-					playAnimation(walkAnimationName);
+//					if(_activeAnimationName != "walk")
+						playAnimation(walkAnimationName);
 //				}
+			}
+		}
+
+		public function moveBack():void
+		{
+			_walkDirection.x = _animator.rootDelta.x * speedFactor;
+			_walkDirection.y = _animator.rootDelta.y * speedFactor;
+			_walkDirection.z = _animator.rootDelta.z * speedFactor;
+			_rotationMatrix.identity();
+			_rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
+			_walkDirection = _rotationMatrix.transformVector(_walkDirection);
+			_entity.character.setWalkDirection(_walkDirection);
+		}
+
+		public function stop():void
+		{
+			if(!_jumping)
+			{
+				var speed:Number = _animator.rootDelta.length;
+				trace("speed: " + speed);
+
+				if(speed > 0)
+				{
+					playAnimation(idleAnimationName);
+				}
+
+				_walkDirection.x = 0;
+				_walkDirection.y = 0;
+				_walkDirection.z = 0;
+				_entity.character.setWalkDirection(_walkDirection);
 			}
 		}
 
@@ -143,10 +165,12 @@ package agt.controllers.entities.character
 			return _rotationY;
 		}
 
-		private function playAnimation(animationName:String):void
+		public function playAnimation(animationName:String):void
 		{
 			if(_activeAnimationName == animationName)
 				return;
+
+			trace("playing: " + animationName);
 
 			if(_animator.hasSequence(animationName))
 				_animator.play(animationName, animationCrossFadeTime);

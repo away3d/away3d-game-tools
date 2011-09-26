@@ -12,8 +12,10 @@ package agt.physics.entities
 	import awayphysics.data.AWPCollisionFlags;
 	import awayphysics.dynamics.AWPRigidBody;
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
+	import awayphysics.events.AWPCollisionEvent;
 
 	import flash.geom.Vector3D;
+	import flash.utils.Dictionary;
 
 	/*
 		Associates a mesh with a kinematic entity, a dynamic entity and a kinematic character controller.
@@ -47,7 +49,7 @@ package agt.physics.entities
 			var dynamicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius * dynamicOffset, capsuleHeight);
 			_dynamicCapsuleMesh = new Capsule(DebugMaterialLibrary.instance.transparentRedMaterial, capsuleRadius * dynamicOffset, capsuleHeight);
 			_dynamicCapsuleMesh.visible = false;
-			var dynamicEntity:DynamicEntity = new DynamicEntity(dynamicShape, _dynamicCapsuleMesh);
+			var dynamicEntity:DynamicEntity = new DynamicEntity(dynamicShape, _dynamicCapsuleMesh, 1);
 			_body = dynamicEntity.body;
 			_body.angularFactor = new Vector3D(0, 1, 0);
 			_body.friction = 0.9;
@@ -59,6 +61,28 @@ package agt.physics.entities
 			super(kinematicEntity.shape, container);
 		}
 
+		private var _collisionNotifications:Dictionary;
+		public function addNotifyOnCollision(entity:DynamicEntity, action:Function):void
+		{
+	   		if(!_collisionNotifications)
+				_collisionNotifications = new Dictionary();
+
+			_body.addEventListener(AWPCollisionEvent.COLLISION_ADDED, collisionAddedHandler);
+			_collisionNotifications[entity.body] = action;
+		}
+
+		public function removeNotifyOnCollision():void
+		{
+			// TODO.
+		}
+
+		private function collisionAddedHandler(evt:AWPCollisionEvent):void
+		{
+			if(_collisionNotifications && _collisionNotifications[AWPRigidBody(evt.collisionObject)])
+				_collisionNotifications[AWPRigidBody(evt.collisionObject)]();
+		}
+
+		// updated by PhysicsScene automatically...
 		public function update():void
 		{
 			// apply ghost position and 'velocity' to rigid body

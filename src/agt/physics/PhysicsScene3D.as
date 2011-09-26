@@ -40,9 +40,8 @@ package agt.physics
 			// init world
 			_physics = AWPDynamicsWorld.getInstance();
 			_physics.initWithDbvtBroadphase();
-//			_physics.scaling = 50;
-			//_physics.collisionCallbackOn = true;
-			_physics.gravity = new Vector3D(0, -5, 0);
+			_physics.collisionCallbackOn = true;
+			_physics.gravity = new Vector3D(0, -10, 0);
 		}
 
 		public function addDynamicEntity(entity:DynamicEntity):void

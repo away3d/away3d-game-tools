@@ -92,6 +92,8 @@ package
 		private var HellKnightWalkAnimation:Class;
 		[Embed(source="assets/models/hellknight/ik_pose.md5anim", mimeType="application/octet-stream")]
 		private var HellKnightJumpAnimation:Class;
+		[Embed(source="assets/models/hellknight/pain1.md5anim", mimeType="application/octet-stream")]
+		private var HellKnightHitAnimation:Class;
 		[Embed(source="assets/models/hellknight/hellknight.jpg")]
 		private var HellKnightTexture:Class;
 		[Embed(source="assets/models/hellknight/hellknight_s.png")]
@@ -107,9 +109,11 @@ package
 		public var idleAnimation:SkeletonAnimationSequence;
 		public var walkAnimation:SkeletonAnimationSequence;
 		public var jumpAnimation:SkeletonAnimationSequence;
+		public var hitAnimation:SkeletonAnimationSequence;
 		public var cameraController:IController;
 		public var player:CharacterEntity;
 		public var playerController:AnimatedCharacterEntityController;
+		public var collideBox:DynamicEntity;
 
 		public function CameraAndCharacterControlExample()
 		{
@@ -181,9 +185,21 @@ package
 
 		private function load4(evt:AssetEvent):void
 		{
-			// retrieve hell knight idle animation sequence
+			// retrieve hell knight jump animation sequence
 			jumpAnimation = evt.asset as SkeletonAnimationSequence;
 			jumpAnimation.name = "jump";
+
+			// (5) retrieve hell knight walk animation sequence
+			var loader:Loader3D = new Loader3D();
+			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load5);
+			loader.parse(new HellKnightHitAnimation(), new MD5AnimParser());
+		}
+
+		private function load5(evt:AssetEvent):void
+		{
+			// retrieve hell knight hit animation sequence
+			hitAnimation = evt.asset as SkeletonAnimationSequence;
+			hitAnimation.name = "hit";
 
 			// run example
 			startExample();
@@ -223,6 +239,7 @@ package
 			// level, player and camera control
 			setupLevel();
 			setupPlayer();
+			setupCollideBoxes();
 			setupCameraControl();
 
 			// start loop
@@ -282,13 +299,14 @@ package
 			player.collideStrength *= 10;
 			player.character.jumpSpeed = 2000;
 			player.position = new Vector3D(0, 500 + 500 * playerMesh.scaleX - 150 * playerMesh.scaleX, -1700);
+			player.kinematicCapsuleMesh.visible = true;
+			player.dynamicCapsuleMesh.visible = true;
 			scene.addCharacterEntity(player);
 
 			// player input context
 			var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
-			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, 25, Keyboard.W);
-			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, -8, Keyboard.S);
-			keyboardContext.mapWithAmount(InputType.TRANSLATE_Z, 50, Keyboard.W, Keyboard.SHIFT);
+			keyboardContext.map(InputType.WALK, Keyboard.W);
+			// TODO: work on run
 			keyboardContext.mapWithAmount(InputType.ROTATE_Y, 5, Keyboard.D);
 			keyboardContext.mapWithAmount(InputType.ROTATE_Y, -5, Keyboard.A);
 			keyboardContext.map(InputType.JUMP, Keyboard.SPACE);
@@ -298,10 +316,29 @@ package
 			playerController.addAnimationSequence(walkAnimation);
 			playerController.addAnimationSequence(idleAnimation);
 			playerController.addAnimationSequence(jumpAnimation);
-			playerController.runAnimationName = "walk";
+			playerController.addAnimationSequence(hitAnimation);
 			playerController.speedFactor = 3;
 			playerController.timeScale = 1.5;
 			playerController.inputContext = keyboardContext;
+		}
+
+		private function setupCollideBoxes():void
+		{
+			// Red box
+			var mesh:Cube = new Cube(DebugMaterialLibrary.instance.redMaterial, 500, 500, 500);
+			var shape:AWPBoxShape = new AWPBoxShape(mesh.width, mesh.height, mesh.depth);
+			collideBox = new DynamicEntity(shape, mesh);
+			collideBox.body.position = new Vector3D(0, mesh.height/2, -600);
+			scene.addDynamicEntity(collideBox);
+			player.addNotifyOnCollision(collideBox, onPlayerRedBoxCollision);
+		}
+
+		public function onPlayerRedBoxCollision():void
+		{
+			trace("OUCH!");
+			playerController.stop();
+			playerController.moveBack();
+			playerController.playAnimation("hit");
 		}
 
 		private function setupCameraControl():void
@@ -339,6 +376,7 @@ package
 
 		private function enterframeHandler(evt:Event):void
 		{
+			player.update();
 			playerController.update();
 			scene.updatePhysics();
 			cameraController.update();

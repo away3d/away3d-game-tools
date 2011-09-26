@@ -6,10 +6,12 @@ package agt.physics.entities
 	import awayphysics.collision.shapes.AWPCollisionShape;
 
 	import awayphysics.dynamics.AWPRigidBody;
+	import awayphysics.events.AWPCollisionEvent;
 
 	import flash.geom.Matrix3D;
 
 	import flash.geom.Vector3D;
+	import flash.utils.Dictionary;
 
 	public class DynamicEntity extends PhysicsEntity
 	{
