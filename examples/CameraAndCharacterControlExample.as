@@ -335,7 +335,7 @@ package
 
 		public function onPlayerRedBoxCollision():void
 		{
-			trace("OUCH!");
+			trace("OUCH!"); // TODO: Continue work here... this does seriously NOT work.
 			playerController.stop();
 			playerController.moveBack();
 			playerController.playAnimation("hit");
