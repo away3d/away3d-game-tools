@@ -2,7 +2,7 @@ package agt.controllers.camera
 {
 
 	import agt.controllers.IController;
-	import agt.controllers.entities.character.CharacterEntityController;
+	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 	import agt.input.data.InputType;
 	import agt.physics.entities.CharacterEntity;
 
@@ -14,11 +14,11 @@ package agt.controllers.camera
 
 	public class FirstPersonCameraController extends CameraControllerBase implements IController
 	{
-		private var _targetController:CharacterEntityController;
+		private var _targetController:AnimatedCharacterEntityController;
 		private var _cameraDummy:ObjectContainer3D;
 		private var _cameraOffset:Vector3D;
 
-		public function FirstPersonCameraController(camera:ObjectContainer3D, targetController:CharacterEntityController = null)
+		public function FirstPersonCameraController(camera:ObjectContainer3D, targetController:AnimatedCharacterEntityController = null)
 		{
 			_cameraDummy = new ObjectContainer3D();
 			this.targetController = targetController;
@@ -65,12 +65,12 @@ package agt.controllers.camera
 			_cameraDummy.rotationY += value;
 		}
 
-		public function get targetController():CharacterEntityController
+		public function get targetController():AnimatedCharacterEntityController
 		{
 			return _targetController;
 		}
 
-		public function set targetController(value:CharacterEntityController):void
+		public function set targetController(value:AnimatedCharacterEntityController):void
 		{
 			_targetController = value;
 		}

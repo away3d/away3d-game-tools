@@ -1,6 +1,8 @@
 package agt.controllers.entities.character
 {
 
+	import agt.controllers.ControllerBase;
+	import agt.controllers.IController;
 	import agt.input.data.InputType;
 	import agt.physics.entities.CharacterEntity;
 
@@ -8,31 +10,38 @@ package agt.controllers.entities.character
 	import away3d.animators.data.SkeletonAnimationSequence;
 	import away3d.animators.data.SkeletonAnimationState;
 
-	public class AnimatedCharacterEntityController extends CharacterEntityController
+	import flash.geom.Matrix3D;
+
+	import flash.geom.Vector3D;
+
+	public class AnimatedCharacterEntityController extends ControllerBase implements IController
 	{
 		public var walkAnimationName:String = "walk";
 		public var idleAnimationName:String = "idle";
 		public var runAnimationName:String = "run";
 		public var jumpAnimationName:String = "jump";
-		public var animationCrossFadeTime:Number = 0.5;
-		public var idleAnimationToSpeedFactor:Number = 1;
-		public var walkAnimationToSpeedFactor:Number = 1;
-		public var runAnimationToSpeedFactor:Number = 1;
-		public var jumpAnimationToSpeedFactor:Number = 1;
-		public var overallAnimationToSpeedFactor:Number = 1;
-		public var runSpeedThreshold:Number = 2;
+		public var animationCrossFadeTime:Number = 0.25;
+		public var runSpeedThreshold:Number = 1;
 
 		private var _activeAnimationName:String;
 		private var _animator:SmoothSkeletonAnimator;
-		private var _currentAnimationToSpeedFactor:Number = walkAnimationToSpeedFactor;
 		private var _jumping:Boolean;
+		private var _entity:CharacterEntity;
+		private var _walkDirection:Vector3D;
+		private var _onGround:Boolean;
+		private var _rotationY:Number = 0;
+		private var _rotationMatrix:Matrix3D;
+
+		public var speedFactor:Number = 1;
 
 		public function AnimatedCharacterEntityController(entity:CharacterEntity, animationState:SkeletonAnimationState)
 		{
 			_animator = new SmoothSkeletonAnimator(SkeletonAnimationState(animationState));
 			_animator.updateRootPosition = false;
 			_activeAnimationName = "";
-			super(entity);
+			_walkDirection = new Vector3D();
+			_entity = entity;
+			_rotationMatrix = new Matrix3D();
 		}
 
 		public function addAnimationSequence(sequence:SkeletonAnimationSequence):void
@@ -45,49 +54,93 @@ package agt.controllers.entities.character
 		{
 			super.update();
 
+			// update input from context
+			if(_inputContext)
+			{
+				moveZ(_inputContext.inputAmount(InputType.TRANSLATE_Z));
+				rotateY(_inputContext.inputAmount(InputType.ROTATE_Y));
+
+				if(_inputContext.inputActive(InputType.JUMP))
+					jump();
+			}
+
+			// update ground contact
+			_onGround = _entity.character.onGround();
+
 			// end of jump?
 			if(_jumping && _onGround)
 				_jumping = false;
-
-			var k:Number = _currentSpeed > 0 ? 1 : -1;
-			_animator.timeScale = k * (1 + k * _currentSpeed) * _currentAnimationToSpeedFactor * overallAnimationToSpeedFactor;
 		}
 
-		override public function moveZ(value:Number):void
+		public function rotateY(value:Number):void
 		{
-			super.moveZ(value);
+			if(value == 0)
+				return;
+
+			rotationY += value;
+		}
+
+		public function moveZ(value:Number):void
+		{
+			if(value == 0)
+			{
+				if(!_jumping)
+				{
+					playAnimation(idleAnimationName);
+					_walkDirection.x = 0;
+					_walkDirection.y = 0;
+					_walkDirection.z = 0;
+					_entity.character.setWalkDirection(_walkDirection);
+				}
+				return;
+			}
+
+			if(!_jumping)
+			{
+				_walkDirection.x = -_animator.rootDelta.x * speedFactor;
+				_walkDirection.y = -_animator.rootDelta.y * speedFactor;
+				_walkDirection.z = -_animator.rootDelta.z * speedFactor;
+				_rotationMatrix.identity();
+				_rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
+				_walkDirection = _rotationMatrix.transformVector(_walkDirection);
+				_entity.character.setWalkDirection(_walkDirection);
+			}
 
 			if(_onGround && !_jumping)
 			{
-				if(_currentSpeed > runSpeedThreshold * speedFactor)
-				{
-					playAnimation(runAnimationName);
-					_currentAnimationToSpeedFactor = runAnimationToSpeedFactor;
-				}
-				else if(_currentSpeed != 0)
-				{
+//				if(_currentSpeed > runSpeedThreshold * speedFactor)
+//				{
+//					playAnimation(runAnimationName);
+//				}
+//				else
+//				{
 					playAnimation(walkAnimationName);
-					_currentAnimationToSpeedFactor = walkAnimationToSpeedFactor;
-				}
-			}
-
-			if(_currentSpeed == 0)
-			{
-				playAnimation(idleAnimationName);
-				_currentAnimationToSpeedFactor = idleAnimationToSpeedFactor;
+//				}
 			}
 		}
 
-		override public function jump():void
+		public function jump():void
 		{
 			if(_onGround)
 			{
 				playAnimation(jumpAnimationName);
-				_currentAnimationToSpeedFactor = jumpAnimationToSpeedFactor;
 				_jumping = true;
+				_entity.character.jump();
 			}
+		}
 
-			super.jump();
+		public function set rotationY(value:Number):void
+		{
+			_rotationY = value;
+
+			var rotationMatrix:Matrix3D = new Matrix3D(); // TODO: Optimize.
+			rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
+			_entity.ghost.rotation = rotationMatrix;
+		}
+
+		public function get rotationY():Number
+		{
+			return _rotationY;
 		}
 
 		private function playAnimation(animationName:String):void
@@ -99,6 +152,21 @@ package agt.controllers.entities.character
 				_animator.play(animationName, animationCrossFadeTime);
 
 			_activeAnimationName = animationName;
+		}
+
+		public function set timeScale(value:Number):void
+		{
+			_animator.timeScale = value;
+		}
+
+		public function get timeScale():Number
+		{
+			return _animator.timeScale;
+		}
+
+		public function get entity():CharacterEntity
+		{
+			return _entity;
 		}
 	}
 }

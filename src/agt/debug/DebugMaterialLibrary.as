@@ -1,16 +1,22 @@
 package agt.debug
 {
 
+	import away3d.materials.BitmapMaterial;
 	import away3d.materials.ColorMaterial;
+
+	import flash.display.BitmapData;
 
 	public class DebugMaterialLibrary
 	{
 		private static var _instance:DebugMaterialLibrary;
 		private var _lights:Array;
+
 		private var _redMaterial:ColorMaterial;
 		private var _greenMaterial:ColorMaterial;
 		private var _blueMaterial:ColorMaterial;
 		private var _whiteMaterial:ColorMaterial;
+
+		private var _noiseMaterial:BitmapMaterial;
 
 		private var _transparentRedMaterial:ColorMaterial;
 		private var _transparentGreenMaterial:ColorMaterial;
@@ -114,6 +120,26 @@ package agt.debug
 					_transparentBlueMaterial.lights = _lights;
 			}
 			return _transparentBlueMaterial;
+		}
+
+		public function get noiseMaterial():BitmapMaterial
+		{
+			if(!_noiseMaterial)
+			{
+				var perlin:BitmapData = new BitmapData(1024, 1024, false, 0);
+				perlin.perlinNoise(50, 50, 8, uint(1000*Math.random()), false, true, 7, true);
+				_noiseMaterial = new BitmapMaterial(perlin);
+
+				if(_lights)
+					_noiseMaterial.lights = _lights;
+			}
+
+			return _noiseMaterial;
+		}
+
+		public function set noiseMaterial(value:BitmapMaterial):void
+		{
+			_noiseMaterial = value;
 		}
 	}
 }

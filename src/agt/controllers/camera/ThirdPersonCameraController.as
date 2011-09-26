@@ -2,7 +2,7 @@ package agt.controllers.camera
 {
 
 	import agt.controllers.IController;
-	import agt.controllers.entities.character.CharacterEntityController;
+	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 	import agt.input.data.InputType;
 
 	import away3d.containers.ObjectContainer3D;
@@ -22,9 +22,9 @@ package agt.controllers.camera
 		private var _maxRadius:Number = Number.MAX_VALUE;
 		private var _directionEnforcement:Number = 1000;
 		private var _free:Boolean = true;
-		private var _targetController:CharacterEntityController;
+		private var _targetController:AnimatedCharacterEntityController;
 
-		public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:CharacterEntityController)
+		public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:AnimatedCharacterEntityController)
 		{
 			_targetController = targetController;
 			this.target = targetController.entity.container;

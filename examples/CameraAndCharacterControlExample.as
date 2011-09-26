@@ -38,10 +38,7 @@ package
 {
 
 	import agt.controllers.IController;
-	import agt.controllers.camera.CameraControllerBase;
-	import agt.controllers.camera.FirstPersonCameraController;
 	import agt.controllers.camera.FreeFlyCameraController;
-	import agt.controllers.camera.ObserverCameraController;
 	import agt.controllers.camera.OrbitCameraController;
 	import agt.controllers.camera.ThirdPersonCameraController;
 	import agt.controllers.entities.character.AnimatedCharacterEntityController;
@@ -89,10 +86,12 @@ package
 	{
 		[Embed(source="assets/models/hellknight/hellknight.md5mesh", mimeType="application/octet-stream")]
 		private var HellKnightMesh:Class;
-		[Embed(source="assets/models/hellknight/idle2.md5anim", mimeType="application/octet-stream")]
+		[Embed(source="assets/models/hellknight/stand.md5anim", mimeType="application/octet-stream")]
 		private var HellKnightIdleAnimation:Class;
 		[Embed(source="assets/models/hellknight/walk7.md5anim", mimeType="application/octet-stream")]
 		private var HellKnightWalkAnimation:Class;
+		[Embed(source="assets/models/hellknight/ik_pose.md5anim", mimeType="application/octet-stream")]
+		private var HellKnightJumpAnimation:Class;
 		[Embed(source="assets/models/hellknight/hellknight.jpg")]
 		private var HellKnightTexture:Class;
 		[Embed(source="assets/models/hellknight/hellknight_s.png")]
@@ -107,6 +106,7 @@ package
 		public var hellKnightMesh:Mesh;
 		public var idleAnimation:SkeletonAnimationSequence;
 		public var walkAnimation:SkeletonAnimationSequence;
+		public var jumpAnimation:SkeletonAnimationSequence;
 		public var cameraController:IController;
 		public var player:CharacterEntity;
 		public var playerController:AnimatedCharacterEntityController;
@@ -131,7 +131,7 @@ package
 		{
 			// (1) retrieve hell knight mesh
 			var loader:Loader3D = new Loader3D();
-			loader.parseData(new HellKnightMesh(), new MD5MeshParser());
+			loader.parse(new HellKnightMesh(), new MD5MeshParser());
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load1);
 		}
 
@@ -152,7 +152,7 @@ package
 			// (2) retrieve hell knight idle animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load2);
-			loader.parseData(new HellKnightIdleAnimation(), new MD5AnimParser());
+			loader.parse(new HellKnightIdleAnimation(), new MD5AnimParser());
 		}
 
 		private function load2(evt:AssetEvent):void
@@ -161,10 +161,10 @@ package
 			idleAnimation = evt.asset as SkeletonAnimationSequence;
 			idleAnimation.name = "idle";
 
-			// (3) retrieve hell knight idle animation sequence
+			// (3) retrieve hell knight walk animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load3);
-			loader.parseData(new HellKnightWalkAnimation(), new MD5AnimParser());
+			loader.parse(new HellKnightWalkAnimation(), new MD5AnimParser());
 		}
 
 		private function load3(evt:AssetEvent):void
@@ -172,6 +172,18 @@ package
 			// retrieve hell knight idle animation sequence
 			walkAnimation = evt.asset as SkeletonAnimationSequence;
 			walkAnimation.name = "walk";
+
+			// (4) retrieve hell knight walk animation sequence
+			var loader:Loader3D = new Loader3D();
+			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load4);
+			loader.parse(new HellKnightJumpAnimation(), new MD5AnimParser());
+		}
+
+		private function load4(evt:AssetEvent):void
+		{
+			// retrieve hell knight idle animation sequence
+			jumpAnimation = evt.asset as SkeletonAnimationSequence;
+			jumpAnimation.name = "jump";
 
 			// run example
 			startExample();
@@ -220,9 +232,8 @@ package
 		private function setupLevel():void
 		{
 			// floor
-			var floorMesh:Plane = new Plane(DebugMaterialLibrary.instance.redMaterial);
+			var floorMesh:Plane = new Plane(DebugMaterialLibrary.instance.noiseMaterial);
 			floorMesh.width = floorMesh.height = 15000;
-			floorMesh.rotationX = 90;
 			var floor:DynamicEntity = new DynamicEntity(new AWPStaticPlaneShape(), floorMesh);
 			scene.addDynamicEntity(floor);
 
@@ -268,8 +279,9 @@ package
 			var playerMesh:Mesh = new Mesh();
 			playerMesh.addChild(middleMesh);
 			player = new CharacterEntity(playerMesh, 150 * playerMesh.scaleX, 500 * playerMesh.scaleX);
-			player.character.jumpSpeed = 4000;
-			player.position = new Vector3D(0, 500 * playerMesh.scaleX - 150 * playerMesh.scaleX, -1700);
+			player.collideStrength *= 10;
+			player.character.jumpSpeed = 2000;
+			player.position = new Vector3D(0, 500 + 500 * playerMesh.scaleX - 150 * playerMesh.scaleX, -1700);
 			scene.addCharacterEntity(player);
 
 			// player input context
@@ -285,13 +297,10 @@ package
 			playerController = new AnimatedCharacterEntityController(player, hellKnightMesh.animationState as SkeletonAnimationState);
 			playerController.addAnimationSequence(walkAnimation);
 			playerController.addAnimationSequence(idleAnimation);
-			playerController.moveEase = 0.2;
-			playerController.overallAnimationToSpeedFactor = 0.05;
-			playerController.walkAnimationToSpeedFactor = 1;
-			playerController.runAnimationToSpeedFactor = 0.5;
-			playerController.idleAnimationToSpeedFactor = 25;
-			playerController.jumpAnimationToSpeedFactor = 0.1;
-			playerController.runSpeedThreshold = 25;
+			playerController.addAnimationSequence(jumpAnimation);
+			playerController.runAnimationName = "walk";
+			playerController.speedFactor = 3;
+			playerController.timeScale = 1.5;
 			playerController.inputContext = keyboardContext;
 		}
 

@@ -27,7 +27,8 @@ package agt.physics.entities
 		private var _body:AWPRigidBody;
 		private var _ghost:AWPGhostObject;
 
-		public var collideStrength:Number = 1000;
+		private var _collideStrength:Number = 1000;
+		private var _jumpStrength:Number;
 
 		// force strength exerted on dynamic objects
 		public function CharacterEntity(container:ObjectContainer3D, capsuleRadius:Number, capsuleHeight:Number)
@@ -53,6 +54,7 @@ package agt.physics.entities
 
 			// build character controller
 			_character = new AWPKinematicCharacterController(kinematicEntity.ghost, kinematicShape, 0.1);
+			_jumpStrength = _character.jumpSpeed;
 
 			super(kinematicEntity.shape, container);
 		}
@@ -61,7 +63,7 @@ package agt.physics.entities
 		{
 			// apply ghost position and 'velocity' to rigid body
 			var vel:Vector3D = character.walkDirection;
-			vel.scaleBy(collideStrength);
+			vel.scaleBy(_collideStrength);
 			_body.linearVelocity = vel;
 			_body.position = _ghost.position;
 		}
@@ -95,6 +97,27 @@ package agt.physics.entities
 		public function get dynamicCapsuleMesh():Mesh
 		{
 			return _dynamicCapsuleMesh;
+		}
+
+		public function get jumpStrength():Number
+		{
+			return _jumpStrength;
+		}
+
+		public function set jumpStrength(value:Number):void
+		{
+			_jumpStrength = value;
+			_character.jumpSpeed = value;
+		}
+
+		public function get collideStrength():Number
+		{
+			return _collideStrength;
+		}
+
+		public function set collideStrength(value:Number):void
+		{
+			_collideStrength = value;
 		}
 	}
 }

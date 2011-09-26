@@ -48,7 +48,7 @@ package agt.physics.entities
 
 			body.position = position;
 	        body.rotation = rot;
-			body.shape.setLocalScaling(scale.x * _scale, scale.y * _scale, scale.z * _scale);
+//			body.shape.setLocalScaling(scale.x * _scale, scale.y * _scale, scale.z * _scale);
 	    }
 	}
 }
