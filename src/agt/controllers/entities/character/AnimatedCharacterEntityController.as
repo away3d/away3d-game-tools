@@ -34,7 +34,6 @@ package agt.controllers.entities.character
 		protected var _rotationMatrix:Matrix3D;
 
 		public var speedFactor:Number = 1;
-		public var runSpeedFactor:Number = 2;
 
 		public function AnimatedCharacterEntityController(entity:CharacterEntity, animationState:SkeletonAnimationState)
 		{
