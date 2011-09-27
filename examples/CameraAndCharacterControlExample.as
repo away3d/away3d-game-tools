@@ -318,7 +318,6 @@ package
 			playerController.addAnimationSequence(jumpAnimation);
 			playerController.addAnimationSequence(hitAnimation);
 			playerController.speedFactor = 3;
-			playerController.runSpeedFactor = 6;
 			playerController.timeScale = 1.5;
 			playerController.inputContext = keyboardContext;
 			playerController.playAnimation(idleAnimation.name);
