@@ -299,14 +299,14 @@ package
 			player.collideStrength *= 10;
 			player.character.jumpSpeed = 2000;
 			player.position = new Vector3D(0, 500 + 500 * playerMesh.scaleX - 150 * playerMesh.scaleX, -1700);
-			player.kinematicCapsuleMesh.visible = true;
-			player.dynamicCapsuleMesh.visible = true;
+//			player.kinematicCapsuleMesh.visible = true;
+//			player.dynamicCapsuleMesh.visible = true;
 			scene.addCharacterEntity(player);
 
 			// player input context
 			var keyboardContext:KeyboardInputContext = new KeyboardInputContext(stage);
 			keyboardContext.map(InputType.WALK, Keyboard.W);
-			// TODO: work on run
+			keyboardContext.map(InputType.RUN, Keyboard.W, Keyboard.SHIFT);
 			keyboardContext.mapWithAmount(InputType.ROTATE_Y, 5, Keyboard.D);
 			keyboardContext.mapWithAmount(InputType.ROTATE_Y, -5, Keyboard.A);
 			keyboardContext.map(InputType.JUMP, Keyboard.SPACE);
@@ -318,8 +318,10 @@ package
 			playerController.addAnimationSequence(jumpAnimation);
 			playerController.addAnimationSequence(hitAnimation);
 			playerController.speedFactor = 3;
+			playerController.runSpeedFactor = 6;
 			playerController.timeScale = 1.5;
 			playerController.inputContext = keyboardContext;
+			playerController.playAnimation(idleAnimation.name);
 		}
 
 		private function setupCollideBoxes():void
@@ -335,10 +337,19 @@ package
 
 		public function onPlayerRedBoxCollision():void
 		{
-			trace("OUCH!"); // TODO: Continue work here... this does seriously NOT work.
-			playerController.stop();
-			playerController.moveBack();
-			playerController.playAnimation("hit");
+			// eval character speed
+			var speed:Number = player.character.walkDirection.length;
+			if(speed > 0) // if moving
+			{
+				var playerToObject:Vector3D = collideBox.body.position;
+				playerToObject = playerToObject.subtract(player.ghost.position);
+				playerToObject.normalize();
+				var comp:Number = player.character.walkDirection.dotProduct(playerToObject);
+				if(comp > 0.1) // if moving towards the box
+				{
+					playerController.playAnimation("hit", true);
+				}
+			}
 		}
 
 		private function setupCameraControl():void
@@ -347,8 +358,6 @@ package
 			var mouseInput:MouseInputContext = new MouseInputContext(view, stage);
 			mouseInput.map(InputType.TRANSLATE_X, MouseAction.DRAG_X, -5);
 			mouseInput.map(InputType.TRANSLATE_Y, MouseAction.DRAG_Y, 5);
-//			mouseInput.map(InputType.ROTATE_Y, MouseAction.DRAG_X, -5); // use these with free fly or 1st person camera controllers
-//			mouseInput.map(InputType.ROTATE_X, MouseAction.DRAG_Y, 5);
 			mouseInput.map(InputType.TRANSLATE_Z, MouseAction.WHEEL, 50);
 
 			// keyboard input
@@ -367,10 +376,6 @@ package
 
 			// camera controller (choose one)
 			cameraController = new OrbitCameraController(view.camera, player.container);
-//			cameraController = new ObserverCameraController(view.camera, player.container);
-//			cameraController = new ThirdPersonCameraController(view.camera, playerController);
-//			cameraController = new FreeFlyCameraController(view.camera);
-//			cameraController = new FirstPersonCameraController(view.camera, playerController);
 			cameraController.inputContext = compositeInput;
 		}
 

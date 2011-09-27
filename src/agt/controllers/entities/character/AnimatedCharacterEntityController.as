@@ -9,6 +9,7 @@ package agt.controllers.entities.character
 	import away3d.animators.SmoothSkeletonAnimator;
 	import away3d.animators.data.SkeletonAnimationSequence;
 	import away3d.animators.data.SkeletonAnimationState;
+	import away3d.events.AnimatorEvent;
 
 	import flash.geom.Matrix3D;
 
@@ -23,16 +24,17 @@ package agt.controllers.entities.character
 		public var animationCrossFadeTime:Number = 0.25;
 		public var runSpeedThreshold:Number = 1;
 
-		private var _activeAnimationName:String;
-		private var _animator:SmoothSkeletonAnimator;
-		private var _jumping:Boolean;
-		private var _entity:CharacterEntity;
-		private var _walkDirection:Vector3D;
-		private var _onGround:Boolean;
-		private var _rotationY:Number = 0;
-		private var _rotationMatrix:Matrix3D;
+		protected var _activeAnimationName:String;
+		protected var _animator:SmoothSkeletonAnimator;
+		protected var _jumping:Boolean;
+		protected var _entity:CharacterEntity;
+		protected var _walkDirection:Vector3D;
+		protected var _onGround:Boolean;
+		protected var _rotationY:Number = 0;
+		protected var _rotationMatrix:Matrix3D;
 
 		public var speedFactor:Number = 1;
+		public var runSpeedFactor:Number = 2;
 
 		public function AnimatedCharacterEntityController(entity:CharacterEntity, animationState:SkeletonAnimationState)
 		{
@@ -59,8 +61,15 @@ package agt.controllers.entities.character
 			{
 				rotateY(_inputContext.inputAmount(InputType.ROTATE_Y));
 
-				if(_inputContext.inputActive(InputType.WALK))
-					moveZ();
+				var walk:Boolean = _inputContext.inputActive(InputType.WALK);
+				var run:Boolean = _inputContext.inputActive(InputType.RUN);
+				if( walk || run )
+				{
+					if(walk)
+						moveZ();
+					if(run)
+						moveZ(true);
+				}
 				else
 					stop();
 
@@ -84,7 +93,7 @@ package agt.controllers.entities.character
 			rotationY += value;
 		}
 
-		public function moveZ():void
+		public function moveZ(run:Boolean = false):void
 		{
 			if(!_jumping)
 			{
@@ -99,27 +108,17 @@ package agt.controllers.entities.character
 
 			if(_onGround && !_jumping)
 			{
-//				if(_currentSpeed > runSpeedThreshold * speedFactor)
-//				{
-//					playAnimation(runAnimationName);
-//				}
-//				else
-//				{
-//					if(_activeAnimationName != "walk")
+				if( run )
+				{
+					if(_activeAnimationName != "run")
+						playAnimation(runAnimationName);
+				}
+				else
+				{
+					if(_activeAnimationName != "walk")
 						playAnimation(walkAnimationName);
-//				}
+				}
 			}
-		}
-
-		public function moveBack():void
-		{
-			_walkDirection.x = _animator.rootDelta.x * speedFactor;
-			_walkDirection.y = _animator.rootDelta.y * speedFactor;
-			_walkDirection.z = _animator.rootDelta.z * speedFactor;
-			_rotationMatrix.identity();
-			_rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
-			_walkDirection = _rotationMatrix.transformVector(_walkDirection);
-			_entity.character.setWalkDirection(_walkDirection);
 		}
 
 		public function stop():void
@@ -127,7 +126,6 @@ package agt.controllers.entities.character
 			if(!_jumping)
 			{
 				var speed:Number = _animator.rootDelta.length;
-				trace("speed: " + speed);
 
 				if(speed > 0)
 				{
@@ -165,17 +163,35 @@ package agt.controllers.entities.character
 			return _rotationY;
 		}
 
-		public function playAnimation(animationName:String):void
+		private var _animationsLocked:Boolean = false;
+		private var _exclusiveSequence:SkeletonAnimationSequence;
+		public function playAnimation(animationName:String, exclusive:Boolean = false):void
 		{
-			if(_activeAnimationName == animationName)
+			if(_animationsLocked || _activeAnimationName == animationName)
 				return;
 
-			trace("playing: " + animationName);
-
 			if(_animator.hasSequence(animationName))
+			{
 				_animator.play(animationName, animationCrossFadeTime);
 
+				if(exclusive)
+				{
+					_exclusiveSequence = _animator.getSequence(animationName) as SkeletonAnimationSequence;
+					_exclusiveSequence.looping = false;
+					_exclusiveSequence.addEventListener(AnimatorEvent.SEQUENCE_DONE, exclusiveSequenceDoneHandler);
+					_animationsLocked = true;
+				}
+			}
+
 			_activeAnimationName = animationName;
+		}
+
+		private function exclusiveSequenceDoneHandler(evt:AnimatorEvent):void
+		{
+			_exclusiveSequence.removeEventListener(AnimatorEvent.SEQUENCE_DONE, exclusiveSequenceDoneHandler);
+			_animationsLocked = false;
+			_animator.stop();
+			_activeAnimationName = "";
 		}
 
 		public function set timeScale(value:Number):void
