@@ -67,7 +67,9 @@ package agt.physics.entities
 	   		if(!_collisionNotifications)
 				_collisionNotifications = new Dictionary();
 
-			_body.addEventListener(AWPCollisionEvent.COLLISION_ADDED, collisionAddedHandler);
+			if(!_ghost.hasEventListener(AWPCollisionEvent.COLLISION_ADDED))
+				_ghost.addEventListener(AWPCollisionEvent.COLLISION_ADDED, collisionAddedHandler);
+
 			_collisionNotifications[entity.body] = action;
 		}
 

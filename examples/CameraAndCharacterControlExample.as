@@ -114,6 +114,7 @@ package
 		public var player:CharacterEntity;
 		public var playerController:AnimatedCharacterEntityController;
 		public var collideBox:DynamicEntity;
+		public var collideBox1:DynamicEntity;
 
 		public function CameraAndCharacterControlExample()
 		{
@@ -332,6 +333,19 @@ package
 			collideBox.body.position = new Vector3D(0, mesh.height/2, -600);
 			scene.addDynamicEntity(collideBox);
 			player.addNotifyOnCollision(collideBox, onPlayerRedBoxCollision);
+
+			// Green box
+			var mesh1:Cube = new Cube(DebugMaterialLibrary.instance.greenMaterial, 3000, 25, 3000);
+			var shape1:AWPBoxShape = new AWPBoxShape(mesh1.width, mesh1.height, mesh1.depth);
+			collideBox1 = new DynamicEntity(shape1, mesh1);
+			collideBox1.body.position = new Vector3D(0, 0, 2000);
+			scene.addDynamicEntity(collideBox1);
+			player.addNotifyOnCollision(collideBox1, onPlayerGreenBoxCollision);
+		}
+
+		public function onPlayerGreenBoxCollision():void
+		{
+			playerController.jump();
 		}
 
 		public function onPlayerRedBoxCollision():void
