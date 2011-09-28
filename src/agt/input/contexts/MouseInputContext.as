@@ -2,6 +2,7 @@ package agt.input.contexts
 {
 
 	import agt.input.*;
+	import agt.input.data.InputType;
 	import agt.input.data.MouseAction;
 
 	import flash.display.Sprite;
@@ -34,6 +35,10 @@ package agt.input.contexts
 			_inputMappings = new Object();
 
 			_deltaWheel = 0;
+
+			_inputMappings[InputType.TRANSLATE_X] = new MouseMapping(MouseAction.DRAG_X, -5);
+			_inputMappings[InputType.TRANSLATE_Y] = new MouseMapping(MouseAction.DRAG_Y,  5);
+			_inputMappings[InputType.TRANSLATE_Z] = new MouseMapping(MouseAction.WHEEL, 50);
 		}
 
 		public function update():void
@@ -42,12 +47,6 @@ package agt.input.contexts
 			_deltaY = _context.mouseY - _mousePositionLast.y;
 			_mousePositionLast.x = _context.mouseX;
 			_mousePositionLast.y = _context.mouseY;
-		}
-
-		public function map(inputType:String, mouseAction:String, multiplier:Number = 1):void
-		{
-			_inputMappings[inputType] = new MouseMapping(mouseAction, multiplier);
-			_implementedInputs.push(inputType);
 		}
 
 		public function inputActive(inputType:String):Boolean

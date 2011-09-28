@@ -45,6 +45,7 @@ package
 
 	import agt.debug.DebugMaterialLibrary;
 	import agt.input.CompositeInputContext;
+	import agt.input.contexts.DefaultMouseKeyboardInputContext;
 	import agt.input.data.InputType;
 	import agt.input.contexts.KeyboardInputContext;
 	import agt.input.data.MouseAction;
@@ -367,29 +368,9 @@ package
 
 		private function setupCameraControl():void
 		{
-			// mouse input
-			var mouseInput:MouseInputContext = new MouseInputContext(view, stage);
-			mouseInput.map(InputType.TRANSLATE_X, MouseAction.DRAG_X, -5);
-			mouseInput.map(InputType.TRANSLATE_Y, MouseAction.DRAG_Y, 5);
-			mouseInput.map(InputType.TRANSLATE_Z, MouseAction.WHEEL, 50);
-
-			// keyboard input
-			var keyboardInput:KeyboardInputContext = new KeyboardInputContext(stage);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_X, 50, Keyboard.RIGHT);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_X, -50, Keyboard.LEFT);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Z, 50, Keyboard.UP);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Z, -50, Keyboard.DOWN);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Y, 50, Keyboard.Z);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Y, -50, Keyboard.X);
-
-			// composite input
-			var compositeInput:CompositeInputContext = new CompositeInputContext();
-			compositeInput.addContext(mouseInput);
-			compositeInput.addContext(keyboardInput);
-
 			// camera controller (choose one)
 			cameraController = new OrbitCameraController(view.camera, player.container);
-			cameraController.inputContext = compositeInput;
+			cameraController.inputContext = new DefaultMouseKeyboardInputContext(view, stage);
 		}
 
 		private function enterframeHandler(evt:Event):void

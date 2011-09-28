@@ -66,7 +66,7 @@ package agt.controllers.entities.character
 				{
 					if(walk)
 						moveZ();
-					if(run)
+					else if(run)
 						moveZ(true);
 				}
 				else
