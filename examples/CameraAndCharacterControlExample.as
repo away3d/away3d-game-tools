@@ -39,6 +39,7 @@ package
 
 	import agt.controllers.IController;
 	import agt.controllers.camera.OrbitCameraController;
+	import agt.controllers.camera.ThirdPersonCameraController;
 	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 
 	import agt.debug.DebugMaterialLibrary;
@@ -239,7 +240,8 @@ package
 			setupCollideBoxes();
 
 			// camera control
-			cameraController = new OrbitCameraController(view.camera, player.container);
+//			cameraController = new OrbitCameraController(view.camera, player.container);
+			cameraController = new ThirdPersonCameraController(view.camera, playerController);
 			cameraController.inputContext = new DefaultMouseKeyboardInputContext(view, stage);
 
 			// start loop
