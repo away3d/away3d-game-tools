@@ -38,18 +38,13 @@ package
 {
 
 	import agt.controllers.IController;
-	import agt.controllers.camera.FreeFlyCameraController;
 	import agt.controllers.camera.OrbitCameraController;
-	import agt.controllers.camera.ThirdPersonCameraController;
 	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 
 	import agt.debug.DebugMaterialLibrary;
-	import agt.input.CompositeInputContext;
 	import agt.input.contexts.DefaultMouseKeyboardInputContext;
 	import agt.input.data.InputType;
 	import agt.input.contexts.KeyboardInputContext;
-	import agt.input.data.MouseAction;
-	import agt.input.contexts.MouseInputContext;
 	import agt.physics.PhysicsScene3D;
 	import agt.physics.entities.CharacterEntity;
 	import agt.physics.entities.DynamicEntity;

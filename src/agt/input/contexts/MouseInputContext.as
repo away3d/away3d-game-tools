@@ -3,7 +3,6 @@ package agt.input.contexts
 
 	import agt.input.*;
 	import agt.input.data.InputType;
-	import agt.input.data.MouseAction;
 
 	import flash.display.Sprite;
 	import flash.display.Stage;
@@ -18,8 +17,11 @@ package agt.input.contexts
 		private var _deltaX:Number;
 		private var _deltaY:Number;
 		private var _deltaWheel:Number;
-		private var _inputMappings:Object;
 		private var _stage:Stage;
+
+		public var dragXMultiplier:Number = -5;
+		public var dragYMultiplier:Number = 5;
+		public var wheelMultiplier:Number = 50;
 
 		public function MouseInputContext(context:Sprite, stage:Stage)
 		{
@@ -32,13 +34,8 @@ package agt.input.contexts
 			_context.addEventListener(MouseEvent.MOUSE_WHEEL, mouseWheelHandler);
 
 			_mousePositionLast = new Vector3D();
-			_inputMappings = new Object();
 
 			_deltaWheel = 0;
-
-			_inputMappings[InputType.TRANSLATE_X] = new MouseMapping(MouseAction.DRAG_X, -5);
-			_inputMappings[InputType.TRANSLATE_Y] = new MouseMapping(MouseAction.DRAG_Y,  5);
-			_inputMappings[InputType.TRANSLATE_Z] = new MouseMapping(MouseAction.WHEEL, 50);
 		}
 
 		public function update():void
@@ -51,26 +48,17 @@ package agt.input.contexts
 
 		public function inputActive(inputType:String):Boolean
 		{
-			if(_inputMappings[inputType])
+			if(inputType == InputType.TRANSLATE_X || inputType == InputType.TRANSLATE_Y || inputType == InputType.TRANSLATE_Z)
 			{
-				var mouseAction:String = _inputMappings[inputType].mouseAction;
 				if(_mouseIsDown)
 				{
-					if(mouseAction == MouseAction.DOWN)
+					if(inputType == InputType.TRANSLATE_X && _deltaX != 0)
 						return true;
-					if(mouseAction == MouseAction.DRAG_X && _deltaX != 0)
-						return true;
-					if(mouseAction == MouseAction.DRAG_Y && _deltaY != 0)
+					if(inputType == InputType.TRANSLATE_Y && _deltaY != 0)
 						return true;
 				}
-				else
-				{
-					if(mouseAction == MouseAction.MOVE_X && _deltaX != 0)
-						return true;
-					if(mouseAction == MouseAction.MOVE_Y && _deltaY != 0)
-						return true;
-				}
-				if(mouseAction == MouseAction.WHEEL && _deltaWheel != 0)
+
+				if(inputType == InputType.TRANSLATE_Z && _deltaWheel != 0)
 					return true;
 			}
 
@@ -79,26 +67,19 @@ package agt.input.contexts
 
 		public function inputAmount(inputType:String):Number
 		{
-			if(_inputMappings[inputType])
+			if(inputType == InputType.TRANSLATE_X || inputType == InputType.TRANSLATE_Y || inputType == InputType.TRANSLATE_Z)
 			{
-				var mouseAction:String = _inputMappings[inputType].mouseAction;
 				if(_mouseIsDown)
 				{
-					if(mouseAction == MouseAction.DRAG_X && _deltaX != 0)
-						return _deltaX * _inputMappings[inputType].multiplier;
-					if(mouseAction == MouseAction.DRAG_Y && _deltaY != 0)
-						return _deltaY * _inputMappings[inputType].multiplier;
+					if(inputType == InputType.TRANSLATE_X && _deltaX != 0)
+						return _deltaX * dragXMultiplier;
+					if(inputType == InputType.TRANSLATE_Y && _deltaY != 0)
+						return _deltaY * dragYMultiplier;
 				}
-				else
+
+				if(inputType == InputType.TRANSLATE_Z && _deltaWheel != 0)
 				{
-					if(mouseAction == MouseAction.MOVE_X && _deltaX != 0)
-						return _deltaX * _inputMappings[inputType].multiplier;
-					if(mouseAction == MouseAction.MOVE_Y && _deltaY != 0)
-						return _deltaY * _inputMappings[inputType].multiplier;
-				}
-				if(mouseAction == MouseAction.WHEEL && _deltaWheel != 0)
-				{
-					var delta:Number = _deltaWheel * _inputMappings[inputType].multiplier;
+					var delta:Number = _deltaWheel * wheelMultiplier;
 					_deltaWheel = 0;
 					return delta;
 				}
@@ -123,17 +104,5 @@ package agt.input.contexts
 		{
 			_deltaWheel = evt.delta;
 		}
-	}
-}
-
-class MouseMapping
-{
-	public var mouseAction:String;
-	public var multiplier:Number;
-
-	public function MouseMapping(mouseAction:String, multiplier:Number)
-	{
-		this.mouseAction = mouseAction;
-		this.multiplier = multiplier;
 	}
 }
