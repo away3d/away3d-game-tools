@@ -238,11 +238,14 @@ package
 			view.scene.addChild(light);
 			DebugMaterialLibrary.instance.lights = [light];
 
-			// level, player and camera control
+			// level and player
 			setupLevel();
 			setupPlayer();
 			setupCollideBoxes();
-			setupCameraControl();
+
+			// camera control
+			cameraController = new OrbitCameraController(view.camera, player.container);
+			cameraController.inputContext = new DefaultMouseKeyboardInputContext(view, stage);
 
 			// start loop
 			addEventListener(Event.ENTER_FRAME, enterframeHandler);
@@ -364,13 +367,6 @@ package
 					playerController.playAnimation("hit", true);
 				}
 			}
-		}
-
-		private function setupCameraControl():void
-		{
-			// camera controller (choose one)
-			cameraController = new OrbitCameraController(view.camera, player.container);
-			cameraController.inputContext = new DefaultMouseKeyboardInputContext(view, stage);
 		}
 
 		private function enterframeHandler(evt:Event):void
