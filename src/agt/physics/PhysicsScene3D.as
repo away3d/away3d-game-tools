@@ -47,6 +47,7 @@ package agt.physics
 		public function addRigidBody(body:AWPRigidBody):void
 		{
 			_physics.addRigidBodyWithGroup(body, _sceneObjectsCollisionGroup, _allObjectsCollisionGroup | _characterDynamicObjectsCollisionGroup);
+//			_physics.addRigidBody(body);
 		}
 
 		public function removeRigidBody(body:AWPRigidBody):void
@@ -54,6 +55,15 @@ package agt.physics
 			_physics.removeRigidBody(body);
 		}
 
+		// TODO: deprecate this function
+		/*
+			Implications:
+			- PhysicsScene3D.as would not need to manage collision groups.
+			- PhysicsScene3D.as would not depend on AGT, hence it could be migrated to AWP later on.
+			- CharacterEntities would need to find an alternative way of avoiding internal collision between dynamic and kinematic bodies,
+			  which is not currently possible with AWP, or the dynamic/kinematic body approach of CharacterEntity.as would have to be dumped,
+			  finding an alternative method of having a kinematic character that causes good dynamic interaction with the world.
+		 */
 		public function addCharacterEntity(entity:CharacterEntity):void
 		{
 			// add physics kinematics part
@@ -62,6 +72,7 @@ package agt.physics
 
 			// add physics dynamics part
 			_physics.addRigidBodyWithGroup(entity.dynamicBody, _characterDynamicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+//			_physics.addRigidBody(entity.dynamicBody);
 
 			// register player
 			_characterEntities.push(entity);

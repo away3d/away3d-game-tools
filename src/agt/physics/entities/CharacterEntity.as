@@ -5,6 +5,7 @@ package agt.physics.entities
 
 	import awayphysics.collision.dispatch.AWPGhostObject;
 	import awayphysics.collision.shapes.AWPCapsuleShape;
+	import awayphysics.collision.shapes.AWPCompoundShape;
 	import awayphysics.data.AWPCollisionFlags;
 	import awayphysics.dynamics.AWPRigidBody;
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
@@ -31,14 +32,17 @@ package agt.physics.entities
 		// force strength exerted on dynamic objects
 		public function CharacterEntity(capsuleRadius:Number, capsuleHeight:Number)
 		{
-			// build kinematic entity
+			var dynamicOffset:Number = 1.1; // TODO: Make settable
+			var dynamicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius * dynamicOffset, capsuleHeight);
 			var kinematicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius, capsuleHeight);
+
+//			var compoundShape:AWPCompoundShape = new AWPCompoundShape(); // TODO: any way to use this instead of collision groups to avoid internal collision?
+//			compoundShape.addChildShape(kinematicShape);
+//			compoundShape.addChildShape(dynamicShape);
+
 			_kinematicBody = new AWPGhostObject( kinematicShape );
 			_kinematicBody.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
 
-			// build dynamic entity
-			var dynamicOffset:Number = 1.1; // TODO: Make settable
-			var dynamicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius * dynamicOffset, capsuleHeight);
 			_dynamicBody = new AWPRigidBody( dynamicShape );
 			_dynamicBody.angularFactor = new Vector3D(0, 1, 0);
 			_dynamicBody.friction = 0.9;

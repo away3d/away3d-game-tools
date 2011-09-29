@@ -311,7 +311,7 @@ package
 			player.skin = playerMesh;
 			player.collideStrength *= 10;
 			player.characterController.jumpSpeed = 2000;
-			player.position = new Vector3D(0, 500 + 500 * playerMesh.scaleX - 150 * playerMesh.scaleX, -1700);
+			player.position = new Vector3D(0, 1000 + 500 * playerMesh.scaleX - 150 * playerMesh.scaleX, -1700);
 			scene.addCharacterEntity(player);
 
 			// player input context
