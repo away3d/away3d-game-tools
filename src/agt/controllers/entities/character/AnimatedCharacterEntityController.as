@@ -64,10 +64,10 @@ package agt.controllers.entities.character
 				var run:Boolean = _inputContext.inputActive(InputType.RUN);
 				if( walk || run )
 				{
-					if(walk)
-						moveZ();
-					else if(run)
+					if(run)
 						moveZ(true);
+					else if(walk)
+						moveZ();
 				}
 				else
 					stop();
@@ -122,9 +122,11 @@ package agt.controllers.entities.character
 
 		public function stop():void
 		{
+			trace('stop');
 			if(!_jumping)
 			{
 				var speed:Number = _animator.rootDelta.length;
+				trace('speed', speed);
 
 				if(speed > 0)
 				{
