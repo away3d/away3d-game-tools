@@ -48,13 +48,13 @@ package agt.input.contexts
 
 		public function inputActive(inputType:String):Boolean
 		{
-			if(inputType == InputType.TRANSLATE_X || inputType == InputType.TRANSLATE_Y || inputType == InputType.TRANSLATE_Z)
+			if(inputType == InputType.ROTATE_Y || inputType == InputType.ROTATE_X || inputType == InputType.TRANSLATE_Z)
 			{
 				if(_mouseIsDown)
 				{
-					if(inputType == InputType.TRANSLATE_X && _deltaX != 0)
+					if(inputType == InputType.ROTATE_Y && _deltaX != 0)
 						return true;
-					if(inputType == InputType.TRANSLATE_Y && _deltaY != 0)
+					if(inputType == InputType.ROTATE_X && _deltaY != 0)
 						return true;
 				}
 
@@ -67,13 +67,13 @@ package agt.input.contexts
 
 		public function inputAmount(inputType:String):Number
 		{
-			if(inputType == InputType.TRANSLATE_X || inputType == InputType.TRANSLATE_Y || inputType == InputType.TRANSLATE_Z)
+			if(inputType == InputType.ROTATE_Y || inputType == InputType.ROTATE_X || inputType == InputType.TRANSLATE_Z)
 			{
 				if(_mouseIsDown)
 				{
-					if(inputType == InputType.TRANSLATE_X && _deltaX != 0)
+					if(inputType == InputType.ROTATE_Y && _deltaX != 0)
 						return _deltaX * dragXMultiplier;
-					if(inputType == InputType.TRANSLATE_Y && _deltaY != 0)
+					if(inputType == InputType.ROTATE_X && _deltaY != 0)
 						return _deltaY * dragYMultiplier;
 				}
 

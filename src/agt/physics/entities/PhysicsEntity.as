@@ -14,6 +14,9 @@ package agt.physics.entities
 		{
 			_shape = shape;
 			_container = container;
+			
+			if (_container==null)
+				trace('null!');
 		}
 
 		public function get shape():AWPCollisionShape

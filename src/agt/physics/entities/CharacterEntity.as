@@ -2,18 +2,20 @@ package agt.physics.entities
 {
 
 	import agt.debug.DebugMaterialLibrary;
-
+	
 	import away3d.containers.ObjectContainer3D;
 	import away3d.entities.Mesh;
 	import away3d.primitives.Capsule;
-
+	
 	import awayphysics.collision.dispatch.AWPGhostObject;
+	import awayphysics.collision.shapes.AWPBoxShape;
 	import awayphysics.collision.shapes.AWPCapsuleShape;
+	import awayphysics.collision.shapes.AWPSphereShape;
 	import awayphysics.data.AWPCollisionFlags;
 	import awayphysics.dynamics.AWPRigidBody;
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
 	import awayphysics.events.AWPCollisionEvent;
-
+	
 	import flash.geom.Vector3D;
 	import flash.utils.Dictionary;
 

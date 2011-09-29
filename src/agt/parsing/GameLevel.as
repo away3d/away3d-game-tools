@@ -180,7 +180,7 @@ package agt.parsing
 					break;
 
 				case 'mesh':
-					shape = new AWPBvhTriangleMeshShape(mesh);
+					shape = new AWPBvhTriangleMeshShape(mesh.geometry);
 					mesh.material = DebugMaterialLibrary.instance.greenMaterial;
 					break;
 
