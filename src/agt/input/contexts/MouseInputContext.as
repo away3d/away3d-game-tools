@@ -23,7 +23,10 @@ package agt.input.contexts
 		public var dragYMultiplier:Number = 5;
 		public var wheelMultiplier:Number = 50;
 
-		public function MouseInputContext(context:Sprite, stage:Stage)
+		private var _inputMethodX:String;
+		private var _inputMethodY:String;
+
+		public function MouseInputContext(context:Sprite, stage:Stage, translational:Boolean = false)
 		{
 			super();
 
@@ -36,6 +39,17 @@ package agt.input.contexts
 			_mousePositionLast = new Vector3D();
 
 			_deltaWheel = 0;
+
+			if(translational)
+			{
+				_inputMethodX = InputType.TRANSLATE_X;
+				_inputMethodY = InputType.TRANSLATE_Y;
+			}
+			else
+			{
+				_inputMethodX = InputType.ROTATE_X;
+				_inputMethodY = InputType.ROTATE_Y;
+			}
 		}
 
 		public function update():void
@@ -48,13 +62,13 @@ package agt.input.contexts
 
 		public function inputActive(inputType:String):Boolean
 		{
-			if(inputType == InputType.ROTATE_Y || inputType == InputType.ROTATE_X || inputType == InputType.TRANSLATE_Z)
+			if(inputType == _inputMethodY || inputType == _inputMethodX || inputType == InputType.TRANSLATE_Z)
 			{
 				if(_mouseIsDown)
 				{
-					if(inputType == InputType.ROTATE_Y && _deltaX != 0)
+					if(inputType == _inputMethodY && _deltaX != 0)
 						return true;
-					if(inputType == InputType.ROTATE_X && _deltaY != 0)
+					if(inputType == _inputMethodX && _deltaY != 0)
 						return true;
 				}
 
@@ -67,13 +81,13 @@ package agt.input.contexts
 
 		public function inputAmount(inputType:String):Number
 		{
-			if(inputType == InputType.ROTATE_Y || inputType == InputType.ROTATE_X || inputType == InputType.TRANSLATE_Z)
+			if(inputType == _inputMethodY || inputType == _inputMethodX || inputType == InputType.TRANSLATE_Z)
 			{
 				if(_mouseIsDown)
 				{
-					if(inputType == InputType.ROTATE_Y && _deltaX != 0)
+					if(inputType == _inputMethodY && _deltaX != 0)
 						return _deltaX * dragXMultiplier;
-					if(inputType == InputType.ROTATE_X && _deltaY != 0)
+					if(inputType == _inputMethodX && _deltaY != 0)
 						return _deltaY * dragYMultiplier;
 				}
 

@@ -77,7 +77,7 @@ package agt.controllers.entities.character
 			}
 
 			// update ground contact
-			_onGround = _entity.character.onGround();
+			_onGround = _entity.characterController.onGround();
 
 			// end of jump?
 			if(_jumping && _onGround)
@@ -102,7 +102,7 @@ package agt.controllers.entities.character
 				_rotationMatrix.identity();
 				_rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
 				_walkDirection = _rotationMatrix.transformVector(_walkDirection);
-				_entity.character.setWalkDirection(_walkDirection);
+				_entity.characterController.setWalkDirection(_walkDirection);
 			}
 
 			if(_onGround && !_jumping)
@@ -122,11 +122,11 @@ package agt.controllers.entities.character
 
 		public function stop():void
 		{
-			trace('stop');
+//			trace('stop');
 			if(!_jumping)
 			{
 				var speed:Number = _animator.rootDelta.length;
-				trace('speed', speed);
+//				trace('speed', speed);
 
 				if(speed > 0)
 				{
@@ -136,7 +136,7 @@ package agt.controllers.entities.character
 				_walkDirection.x = 0;
 				_walkDirection.y = 0;
 				_walkDirection.z = 0;
-				_entity.character.setWalkDirection(_walkDirection);
+				_entity.characterController.setWalkDirection(_walkDirection);
 			}
 		}
 
@@ -146,7 +146,7 @@ package agt.controllers.entities.character
 			{
 				playAnimation(jumpAnimationName);
 				_jumping = true;
-				_entity.character.jump();
+				_entity.characterController.jump();
 			}
 		}
 
@@ -156,7 +156,7 @@ package agt.controllers.entities.character
 
 			var rotationMatrix:Matrix3D = new Matrix3D(); // TODO: Optimize.
 			rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
-			_entity.ghost.rotation = rotationMatrix;
+			_entity.kinematicBody.rotation = rotationMatrix;
 		}
 
 		public function get rotationY():Number

@@ -2,11 +2,11 @@ package agt.physics
 {
 
 	import agt.physics.entities.CharacterEntity;
-	import agt.physics.entities.DynamicEntity;
 
 	import away3d.containers.Scene3D;
 
 	import awayphysics.dynamics.AWPDynamicsWorld;
+	import awayphysics.dynamics.AWPRigidBody;
 
 	import flash.geom.Vector3D;
 	import flash.utils.getTimer;
@@ -44,36 +44,24 @@ package agt.physics
 			_physics.gravity = new Vector3D(0, -10, 0);
 		}
 
-		public function addDynamicEntity(entity:DynamicEntity):void
+		public function addRigidBody(body:AWPRigidBody):void
 		{
-			// add visual part
-			addChild(entity.container);
-
-			// add physics part
-			_physics.addRigidBodyWithGroup(entity.body, _sceneObjectsCollisionGroup, _allObjectsCollisionGroup | _characterDynamicObjectsCollisionGroup);
+			_physics.addRigidBodyWithGroup(body, _sceneObjectsCollisionGroup, _allObjectsCollisionGroup | _characterDynamicObjectsCollisionGroup);
 		}
 
-		public function removeDynamicEntity(entity:DynamicEntity):void
+		public function removeRigidBody(body:AWPRigidBody):void
 		{
-			// remove physics part
-			_physics.removeRigidBody(entity.body);
-
-			// remove visual part
-			removeChild(entity.container);
+			_physics.removeRigidBody(body);
 		}
 
 		public function addCharacterEntity(entity:CharacterEntity):void
 		{
-			// add visual part
-			addChild(entity.container);
-			addChild(entity.dynamicCapsuleMesh);
-
 			// add physics kinematics part
-			_physics.addCharacter(entity.character, _characterKinematicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
-			entity.character.gravity = -_physics.gravity.y * _physics.scaling * 2.9;
+			_physics.addCharacter(entity.characterController, _characterKinematicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+			entity.characterController.gravity = -_physics.gravity.y * _physics.scaling * 2.9;
 
 			// add physics dynamics part
-			_physics.addRigidBodyWithGroup(entity.body, _characterDynamicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
+			_physics.addRigidBodyWithGroup(entity.dynamicBody, _characterDynamicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
 
 			// register player
 			_characterEntities.push(entity);
@@ -97,7 +85,7 @@ package agt.physics
 		{
 			_physics.gravity = value;
 			for(var i:uint; i < _characterEntities.length; ++i)
-				_characterEntities[i].character.gravity = -_physics.gravity.y * _physics.scaling * 2.9;
+				_characterEntities[i].characterController.gravity = -_physics.gravity.y * _physics.scaling * 2.9;
 		}
 		public function get gravity():Vector3D
 		{

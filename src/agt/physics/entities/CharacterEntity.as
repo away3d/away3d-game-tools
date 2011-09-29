@@ -1,78 +1,73 @@
 package agt.physics.entities
 {
 
-	import agt.debug.DebugMaterialLibrary;
-	
 	import away3d.containers.ObjectContainer3D;
-	import away3d.entities.Mesh;
-	import away3d.primitives.Capsule;
-	
+
 	import awayphysics.collision.dispatch.AWPGhostObject;
-	import awayphysics.collision.shapes.AWPBoxShape;
 	import awayphysics.collision.shapes.AWPCapsuleShape;
-	import awayphysics.collision.shapes.AWPSphereShape;
 	import awayphysics.data.AWPCollisionFlags;
 	import awayphysics.dynamics.AWPRigidBody;
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
 	import awayphysics.events.AWPCollisionEvent;
-	
+
+	import flash.geom.Matrix3D;
+
 	import flash.geom.Vector3D;
 	import flash.utils.Dictionary;
 
 	/*
-		Associates a mesh with a kinematic entity, a dynamic entity and a kinematic character controller.
+		Associates a mesh with a kinematic body, a dynamic body and a character controller.
 	 */
-	public class CharacterEntity extends PhysicsEntity
+	public class CharacterEntity
 	{
-
-		private var _kinematicCapsuleMesh:Capsule;
-		private var _dynamicCapsuleMesh:Mesh;
-		private var _character:AWPKinematicCharacterController;
-		private var _body:AWPRigidBody;
-		private var _ghost:AWPGhostObject;
-
+		private var _characterController:AWPKinematicCharacterController;
+		private var _dynamicBody:AWPRigidBody;
+		private var _kinematicBody:AWPGhostObject;
+		private var _collisionNotifications:Dictionary;
+		private var _skin:ObjectContainer3D;
 		private var _collideStrength:Number = 1000;
 		private var _jumpStrength:Number;
 
 		// force strength exerted on dynamic objects
-		public function CharacterEntity(container:ObjectContainer3D, capsuleRadius:Number, capsuleHeight:Number)
+		public function CharacterEntity(capsuleRadius:Number, capsuleHeight:Number)
 		{
 			// build kinematic entity
 			var kinematicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius, capsuleHeight);
-			_kinematicCapsuleMesh = new Capsule(DebugMaterialLibrary.instance.transparentGreenMaterial, capsuleRadius, capsuleHeight);
-			_kinematicCapsuleMesh.visible = false;
-			container.addChild(_kinematicCapsuleMesh);
-			var kinematicEntity:KinematicEntity = new KinematicEntity(kinematicShape, container);
-			_ghost = kinematicEntity.ghost;
-			_ghost.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
+			_kinematicBody = new AWPGhostObject( kinematicShape );
+			_kinematicBody.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT;
 
 			// build dynamic entity
 			var dynamicOffset:Number = 1.1; // TODO: Make settable
 			var dynamicShape:AWPCapsuleShape = new AWPCapsuleShape(capsuleRadius * dynamicOffset, capsuleHeight);
-			_dynamicCapsuleMesh = new Capsule(DebugMaterialLibrary.instance.transparentRedMaterial, capsuleRadius * dynamicOffset, capsuleHeight);
-			_dynamicCapsuleMesh.visible = false;
-			var dynamicEntity:DynamicEntity = new DynamicEntity(dynamicShape, _dynamicCapsuleMesh, 1);
-			_body = dynamicEntity.body;
-			_body.angularFactor = new Vector3D(0, 1, 0);
-			_body.friction = 0.9;
+			_dynamicBody = new AWPRigidBody( dynamicShape );
+			_dynamicBody.angularFactor = new Vector3D(0, 1, 0);
+			_dynamicBody.friction = 0.9;
 
 			// build character controller
-			_character = new AWPKinematicCharacterController(kinematicEntity.ghost, kinematicShape, 0.1);
-			_jumpStrength = _character.jumpSpeed;
-
-			super(kinematicEntity.shape, container);
+			_characterController = new AWPKinematicCharacterController( _kinematicBody, kinematicShape, 0.1 );
+			_jumpStrength = _characterController.jumpSpeed;
 		}
 
-		private var _collisionNotifications:Dictionary;
-		public function addNotifyOnCollision(entity:DynamicEntity, action:Function):void
+		public function get skin():ObjectContainer3D
+		{
+			return _skin;
+		}
+
+		public function set skin(value:ObjectContainer3D):void
+		{
+			_skin = value;
+			_kinematicBody.skin = _skin;
+		}
+
+		public function addNotifyOnCollision(body:AWPRigidBody, action:Function):void
 		{
 	   		if(!_collisionNotifications)
 				_collisionNotifications = new Dictionary();
 
-			if(!_ghost.hasEventListener(AWPCollisionEvent.COLLISION_ADDED))
-				_ghost.addEventListener(AWPCollisionEvent.COLLISION_ADDED, collisionAddedHandler);
+			if(!_kinematicBody.hasEventListener(AWPCollisionEvent.COLLISION_ADDED))
+				_kinematicBody.addEventListener(AWPCollisionEvent.COLLISION_ADDED, collisionAddedHandler);
 
-			_collisionNotifications[entity.body] = action;
+			_collisionNotifications[body] = action;
 		}
 
 		public function removeNotifyOnCollision():void
@@ -90,41 +85,40 @@ package agt.physics.entities
 		public function update():void
 		{
 			// apply ghost position and 'velocity' to rigid body
-			var vel:Vector3D = character.walkDirection;
+			var vel:Vector3D = characterController.walkDirection;
 			vel.scaleBy(_collideStrength);
-			_body.linearVelocity = vel;
-			_body.position = _ghost.position;
+			_dynamicBody.linearVelocity = vel;
+			_dynamicBody.position = _kinematicBody.position;
+		}
+
+		public function get position():Vector3D
+		{
+			return _kinematicBody.position;
 		}
 
 		public function set position(value:Vector3D):void
 		{
-			_container.position = value;
-			_character.warp(value);
+			_characterController.warp(value);
 		}
 
-		public function get character():AWPKinematicCharacterController
+		public function get rotationMatrix():Matrix3D
 		{
-			return _character;
+			return _kinematicBody.rotation;
 		}
 
-		public function get body():AWPRigidBody
+		public function get characterController():AWPKinematicCharacterController
 		{
-			return _body;
+			return _characterController;
 		}
 
-		public function get ghost():AWPGhostObject
+		public function get dynamicBody():AWPRigidBody
 		{
-			return _ghost;
+			return _dynamicBody;
 		}
 
-		public function get kinematicCapsuleMesh():Capsule
+		public function get kinematicBody():AWPGhostObject
 		{
-			return _kinematicCapsuleMesh;
-		}
-
-		public function get dynamicCapsuleMesh():Mesh
-		{
-			return _dynamicCapsuleMesh;
+			return _kinematicBody;
 		}
 
 		public function get jumpStrength():Number
@@ -135,7 +129,7 @@ package agt.physics.entities
 		public function set jumpStrength(value:Number):void
 		{
 			_jumpStrength = value;
-			_character.jumpSpeed = value;
+			_characterController.jumpSpeed = value;
 		}
 
 		public function get collideStrength():Number

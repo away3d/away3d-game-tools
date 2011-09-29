@@ -39,7 +39,6 @@ package
 
 	import agt.controllers.IController;
 	import agt.controllers.camera.OrbitCameraController;
-	import agt.controllers.camera.ThirdPersonCameraController;
 	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 
 	import agt.debug.DebugMaterialLibrary;
@@ -48,11 +47,9 @@ package
 	import agt.input.contexts.KeyboardInputContext;
 	import agt.physics.PhysicsScene3D;
 	import agt.physics.entities.CharacterEntity;
-	import agt.physics.entities.DynamicEntity;
 
 	import away3d.animators.data.SkeletonAnimationSequence;
 	import away3d.animators.data.SkeletonAnimationState;
-	import away3d.containers.ObjectContainer3D;
 	import away3d.containers.View3D;
 	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
@@ -70,6 +67,7 @@ package
 	import awayphysics.collision.shapes.AWPBoxShape;
 
 	import awayphysics.collision.shapes.AWPStaticPlaneShape;
+	import awayphysics.dynamics.AWPRigidBody;
 
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -110,8 +108,11 @@ package
 		public var cameraController:IController;
 		public var player:CharacterEntity;
 		public var playerController:AnimatedCharacterEntityController;
-		public var collideBox:DynamicEntity;
-		public var collideBox1:DynamicEntity;
+//		public var collideBox:DynamicEntity;
+//		public var collideBox1:DynamicEntity;
+		public var redBox:AWPRigidBody;
+		public var greenBox:AWPRigidBody;
+		public var playerMesh:Mesh;
 
 		public function CameraAndCharacterControlExample()
 		{
@@ -240,8 +241,8 @@ package
 			setupCollideBoxes();
 
 			// camera control
-//			cameraController = new OrbitCameraController(view.camera, player.container);
-			cameraController = new ThirdPersonCameraController(view.camera, playerController);
+			cameraController = new OrbitCameraController(view.camera, playerMesh);
+//			cameraController = new ThirdPersonCameraController(view.camera, playerController);
 			cameraController.inputContext = new DefaultMouseKeyboardInputContext(view, stage);
 
 			// start loop
@@ -253,8 +254,10 @@ package
 			// floor
 			var floorMesh:Plane = new Plane(DebugMaterialLibrary.instance.noiseMaterial);
 			floorMesh.width = floorMesh.height = 15000;
-			var floor:DynamicEntity = new DynamicEntity(new AWPStaticPlaneShape(), floorMesh);
-			scene.addDynamicEntity(floor);
+			scene.addChild(floorMesh);
+			scene.addRigidBody( new AWPRigidBody( new AWPStaticPlaneShape() ) );
+//			var floor:DynamicEntity = new DynamicEntity(new AWPStaticPlaneShape(), floorMesh);
+//			scene.addDynamicEntity(floor);
 
 			// boxes
 			var boxMesh:Cube = new Cube(boxMaterial, 200, 200, 200);
@@ -274,13 +277,18 @@ package
 
 					for(var k:int = 0; k < numY; k++)
 					{
+						// add mesh
+						var mesh:Mesh = boxMesh.clone() as Mesh;
+						scene.addChild(mesh);
+
+						// add body
+						var body:AWPRigidBody = new AWPRigidBody(boxShape, mesh, 0.5);
 						var y:Number = 100 + k * 200;
-						var box:DynamicEntity = new DynamicEntity(boxShape, boxMesh.clone() as ObjectContainer3D, 0.5);
-						box.body.friction = 0.9;
-						box.body.linearDamping = 0.03;
-						box.body.angularDamping = 0.03;
-						box.body.position = new Vector3D(x, y, z);
-						scene.addDynamicEntity(box);
+						body.friction = 0.9;
+						body.linearDamping = 0.03;
+						body.angularDamping = 0.03;
+						body.position = new Vector3D(x, y, z);
+						scene.addRigidBody(body);
 					}
 				}
 			}
@@ -295,14 +303,15 @@ package
 			middleMesh.scale(6);
 			middleMesh.moveTo(0, -400, 20);
 			middleMesh.addChild(hellKnightMesh);
-			var playerMesh:Mesh = new Mesh();
+			playerMesh = new Mesh();
 			playerMesh.addChild(middleMesh);
-			player = new CharacterEntity(playerMesh, 150 * playerMesh.scaleX, 500 * playerMesh.scaleX);
+			view.scene.addChild(playerMesh);
+
+			player = new CharacterEntity(150 * playerMesh.scaleX, 500 * playerMesh.scaleX);
+			player.skin = playerMesh;
 			player.collideStrength *= 10;
-			player.character.jumpSpeed = 2000;
+			player.characterController.jumpSpeed = 2000;
 			player.position = new Vector3D(0, 500 + 500 * playerMesh.scaleX - 150 * playerMesh.scaleX, -1700);
-//			player.kinematicCapsuleMesh.visible = true;
-//			player.dynamicCapsuleMesh.visible = true;
 			scene.addCharacterEntity(player);
 
 			// player input context
@@ -328,20 +337,22 @@ package
 		private function setupCollideBoxes():void
 		{
 			// Red box
-			var mesh:Cube = new Cube(DebugMaterialLibrary.instance.redMaterial, 500, 500, 500);
-			var shape:AWPBoxShape = new AWPBoxShape(mesh.width, mesh.height, mesh.depth);
-			collideBox = new DynamicEntity(shape, mesh);
-			collideBox.body.position = new Vector3D(0, mesh.height/2, -600);
-			scene.addDynamicEntity(collideBox);
-			player.addNotifyOnCollision(collideBox, onPlayerRedBoxCollision);
+			var redBoxMesh:Cube = new Cube(DebugMaterialLibrary.instance.redMaterial, 500, 500, 500);
+			scene.addChild(redBoxMesh);
+			var redBoxShape:AWPBoxShape = new AWPBoxShape(redBoxMesh.width, redBoxMesh.height, redBoxMesh.depth);
+			redBox = new AWPRigidBody( redBoxShape, redBoxMesh );
+			redBox.position = new Vector3D(0, redBoxMesh.height/2, -600);
+			scene.addRigidBody( redBox );
+			player.addNotifyOnCollision(redBox, onPlayerRedBoxCollision);
 
 			// Green box
-			var mesh1:Cube = new Cube(DebugMaterialLibrary.instance.greenMaterial, 3000, 25, 3000);
-			var shape1:AWPBoxShape = new AWPBoxShape(mesh1.width, mesh1.height, mesh1.depth);
-			collideBox1 = new DynamicEntity(shape1, mesh1);
-			collideBox1.body.position = new Vector3D(0, 0, 2000);
-			scene.addDynamicEntity(collideBox1);
-			player.addNotifyOnCollision(collideBox1, onPlayerGreenBoxCollision);
+			var greenBoxMesh:Cube = new Cube(DebugMaterialLibrary.instance.greenMaterial, 3000, 25, 3000);
+			scene.addChild(greenBoxMesh);
+			var greenBoxShape:AWPBoxShape = new AWPBoxShape(greenBoxMesh.width, greenBoxMesh.height, greenBoxMesh.depth);
+			greenBox = new AWPRigidBody( greenBoxShape, greenBoxMesh )
+			greenBox.position = new Vector3D(0, 0, 2000);
+			scene.addRigidBody( greenBox );
+			player.addNotifyOnCollision(greenBox, onPlayerGreenBoxCollision);
 		}
 
 		public function onPlayerGreenBoxCollision():void
@@ -352,13 +363,13 @@ package
 		public function onPlayerRedBoxCollision():void
 		{
 			// eval character speed
-			var speed:Number = player.character.walkDirection.length;
+			var speed:Number = player.characterController.walkDirection.length;
 			if(speed > 0) // if moving
 			{
-				var playerToObject:Vector3D = collideBox.body.position;
-				playerToObject = playerToObject.subtract(player.ghost.position);
+				var playerToObject:Vector3D = redBox.position;
+				playerToObject = playerToObject.subtract(player.kinematicBody.position);
 				playerToObject.normalize();
-				var comp:Number = player.character.walkDirection.dotProduct(playerToObject);
+				var comp:Number = player.characterController.walkDirection.dotProduct(playerToObject);
 				if(comp > 0.1) // if moving towards the box
 				{
 					playerController.playAnimation("hit", true);

@@ -3,7 +3,7 @@ package agt.parsing
 
 	import agt.debug.DebugMaterialLibrary;
 	import agt.physics.PhysicsScene3D;
-	import agt.physics.entities.DynamicEntity;
+	import agt.utils.PhysicsUtils;
 
 	import away3d.bounds.AxisAlignedBoundingBox;
 
@@ -22,6 +22,7 @@ package agt.parsing
 
 	import awayphysics.collision.shapes.AWPSphereShape;
 	import awayphysics.collision.shapes.AWPStaticPlaneShape;
+	import awayphysics.dynamics.AWPRigidBody;
 
 	import flash.geom.Vector3D;
 
@@ -195,13 +196,15 @@ package agt.parsing
 			friction = mesh.extra.hasOwnProperty('friction') ? parseFloat(mesh.extra["friction"]) : _defFriction;
 			mass = mesh.extra.hasOwnProperty('mass') ? parseFloat(mesh.extra["mass"]) : _defMass;
 
-			var entity:DynamicEntity = new DynamicEntity(shape, mesh, mass, true, 1); // TODO: add scaling options
-			entity.body.friction = friction;
+			var body:AWPRigidBody = new AWPRigidBody( shape, mesh, mass );
+			body.friction = friction;
+			PhysicsUtils.applyObjectTransformToBodyTransform(mesh, body);
 
 			mesh.visible = false;
 			_colliderMeshes.push(mesh);
 
-			_scene.addDynamicEntity(entity);
+			_scene.addChild( mesh );
+			_scene.addRigidBody(body);
 		}
 
 		public function get debugColliders():Boolean

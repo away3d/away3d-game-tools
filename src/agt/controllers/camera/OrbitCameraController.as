@@ -32,8 +32,8 @@ package agt.controllers.camera
 			// update input from context?
 			if(_inputContext)
 			{
-				moveAzimuth(_inputContext.inputAmount(InputType.TRANSLATE_X));
-				moveElevation(_inputContext.inputAmount(InputType.TRANSLATE_Y));
+				moveAzimuth(_inputContext.inputAmount(InputType.ROTATE_Y));
+				moveElevation(_inputContext.inputAmount(InputType.ROTATE_X));
 				moveRadius(_inputContext.inputAmount(InputType.TRANSLATE_Z));
 			}
 

@@ -1,40 +1,17 @@
-package agt.physics.entities
+package agt.utils
 {
 
 	import away3d.containers.ObjectContainer3D;
 
-	import awayphysics.collision.shapes.AWPCollisionShape;
-
 	import awayphysics.dynamics.AWPRigidBody;
-	import awayphysics.events.AWPCollisionEvent;
 
 	import flash.geom.Matrix3D;
 
 	import flash.geom.Vector3D;
-	import flash.utils.Dictionary;
 
-	public class DynamicEntity extends PhysicsEntity
+	public class PhysicsUtils
 	{
-		private var _body:AWPRigidBody;
-		private var _scale:Number;
-
-		public function DynamicEntity(shape:AWPCollisionShape, container:ObjectContainer3D, mass:Number = 0, alterTransform:Boolean = true, scale:Number = 1)
-		{
-			super(shape, container);
-
-			_scale = scale;
-			_body = new AWPRigidBody(_shape, _container, mass);
-
-			if(alterTransform)
-				objTransformToBodyTransform(_container, _body);
-		}
-
-		public function get body():AWPRigidBody
-		{
-			return _body;
-		}
-
-		private function objTransformToBodyTransform(obj:ObjectContainer3D, body:AWPRigidBody):void
+		public static function applyObjectTransformToBodyTransform(obj:ObjectContainer3D, body:AWPRigidBody):void
 	    {
 			const TO_DEGS:Number = 180/Math.PI;
 

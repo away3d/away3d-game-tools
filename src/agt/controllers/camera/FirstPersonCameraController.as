@@ -38,10 +38,7 @@ package agt.controllers.camera
 			}
 
 			// set camera position equal to entity, with offset
-			var pos:Vector3D = _targetController.entity.container.transform.transformVector(_cameraOffset);
-			_camera.x = pos.x;
-			_camera.y = pos.y;
-			_camera.z = pos.z;
+			_camera.position = _targetController.entity.position.add(_cameraOffset);
 
 			// ease orientation
 			var dx:Number = _cameraDummy.rotationX - _camera.rotationX;
@@ -79,8 +76,8 @@ package agt.controllers.camera
 		{
 			super.camera = value;
 
-			_camera.transform = CharacterEntity(_targetController.entity).container.transform.clone();
-			_cameraDummy.transform = _camera.transform.clone();
+			_camera.position = _targetController.entity.position; // TODO: also apply rotation
+			_cameraDummy.position = _camera.position;
 
 			// TODO: Not sure why, but if this isn't done, Y rotation is inverted some times
 			// Happens after coming from an orbit camera and being at certain rotations

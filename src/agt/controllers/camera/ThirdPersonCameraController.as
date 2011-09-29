@@ -9,10 +9,11 @@ package agt.controllers.camera
 
 	import flash.geom.Vector3D;
 
+	import flash.geom.Vector3D;
+
 	// TODO: Very similar to orbit camera controller, extend?
 	public class ThirdPersonCameraController extends CameraControllerBase implements IController
 	{
-		private var _target:ObjectContainer3D;
 		private var _targetSphericalCoordinates:Vector3D;
 		private var _currentSphericalCoordinates:Vector3D;
 
@@ -27,7 +28,6 @@ package agt.controllers.camera
 		public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:AnimatedCharacterEntityController)
 		{
 			_targetController = targetController;
-			this.target = targetController.entity.container;
 			super(camera);
 		}
 
@@ -51,14 +51,15 @@ package agt.controllers.camera
 			// mimic character direction with camera (to see faster where the character is going)
 			if(!_free && _directionEnforcement != 0)
 			{
-				var targetForward:Vector3D = target.transform.deltaTransformVector(Vector3D.X_AXIS);
+				var targetForward:Vector3D = Vector3D.X_AXIS;
+				targetForward = _targetController.entity.rotationMatrix.transformVector(targetForward);
 				targetForward.normalize();
 				targetForward.y = 0;
 				var cameraRight:Vector3D = _camera.transform.deltaTransformVector(Vector3D.Z_AXIS);
 				cameraRight.normalize();
 				cameraRight.y = 0;
 				var proj:Number = targetForward.dotProduct(cameraRight);
-				var speed:Number = _targetController.entity.character.walkDirection.length;
+				var speed:Number = _targetController.entity.characterController.walkDirection.length;
 				var enforcement:Number = _directionEnforcement * proj * speed;
 				moveAzimuth(enforcement);
 			}
@@ -75,7 +76,7 @@ package agt.controllers.camera
 			_currentSphericalCoordinates.y += dy * angularEase;
 			_currentSphericalCoordinates.z += dz * linearEase;
 			_camera.position = sphericalToCartesian(_currentSphericalCoordinates);
-			_camera.lookAt(_target.position);
+			_camera.lookAt(_targetController.entity.position);
 		}
 
 		public function moveAzimuth(amount:Number):void
@@ -103,33 +104,23 @@ package agt.controllers.camera
 				return value;
 		}
 
-		public function get target():ObjectContainer3D
-		{
-			return _target;
-		}
-
-		public function set target(value:ObjectContainer3D):void
-		{
-			_target = value;
-		}
-
 		private function sphericalToCartesian(sphericalCoords:Vector3D):Vector3D
 		{
 			var cartesianCoords:Vector3D = new Vector3D();
 			var r:Number = sphericalCoords.z;
-			cartesianCoords.y = _target.y + r * Math.sin(-sphericalCoords.y);
+			cartesianCoords.y = _targetController.entity.position.y + r * Math.sin(-sphericalCoords.y);
 			var cosE:Number = Math.cos(-sphericalCoords.y);
-			cartesianCoords.x = _target.x + r * cosE * Math.sin(sphericalCoords.x);
-			cartesianCoords.z = _target.z + r * cosE * Math.cos(sphericalCoords.x);
+			cartesianCoords.x = _targetController.entity.position.x + r * cosE * Math.sin(sphericalCoords.x);
+			cartesianCoords.z = _targetController.entity.position.z + r * cosE * Math.cos(sphericalCoords.x);
 			return cartesianCoords;
 		}
 
 		private function cartesianToSpherical(cartesianCoords:Vector3D):Vector3D
 		{
 			var cartesianFromCenter:Vector3D = new Vector3D();
-			cartesianFromCenter.x = cartesianCoords.x - _target.x;
-			cartesianFromCenter.y = cartesianCoords.y - _target.y;
-			cartesianFromCenter.z = cartesianCoords.z - _target.z;
+			cartesianFromCenter.x = cartesianCoords.x - _targetController.entity.position.x;
+			cartesianFromCenter.y = cartesianCoords.y - _targetController.entity.position.y;
+			cartesianFromCenter.z = cartesianCoords.z - _targetController.entity.position.z;
 			var sphericalCoords:Vector3D = new Vector3D();
 			sphericalCoords.z = cartesianFromCenter.length;
 			sphericalCoords.x = Math.atan2(cartesianFromCenter.x, cartesianFromCenter.z);
