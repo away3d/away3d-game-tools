@@ -76,6 +76,9 @@ package agt.parsing
 					rbody_vo.mass = parseFloat(obj.extra['agt_phys_rbody_mass']);
 					rbody_vo.friction = parseFloat(obj.extra['agt_phys_rbody_friction']);
 					
+					if (isNaN(rbody_vo.mass)) rbody_vo.mass = 0.0;
+					if (isNaN(rbody_vo.friction)) rbody_vo.friction = 0.0;
+					
 					_delegate.handleRigidBody(rbody_vo);
 					break;
 			}
