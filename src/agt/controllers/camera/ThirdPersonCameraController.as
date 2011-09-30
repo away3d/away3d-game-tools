@@ -42,10 +42,7 @@ package agt.controllers.camera
 				moveElevation(_inputContext.inputAmount(InputType.TRANSLATE_Y));
 				moveRadius(_inputContext.inputAmount(InputType.TRANSLATE_Z));
 
-				if(_inputContext.inputActive(InputType.RELEASE))
-					_free = true;
-				else
-					_free = false;
+				_free = _inputContext.inputActive(InputType.RELEASE);
 			}
 
 			// mimic character direction with camera (to see faster where the character is going)

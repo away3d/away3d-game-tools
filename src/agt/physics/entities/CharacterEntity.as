@@ -48,7 +48,7 @@ package agt.physics.entities
 			_dynamicBody.friction = 0.9;
 
 			// build character controller
-			_characterController = new AWPKinematicCharacterController( _kinematicBody, kinematicShape, 0.1 );
+			_characterController = new AWPKinematicCharacterController( _kinematicBody, kinematicShape, 0.9 );
 			_jumpStrength = _characterController.jumpSpeed;
 		}
 
