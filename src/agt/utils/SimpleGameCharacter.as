@@ -13,10 +13,10 @@ agt.utils{
 
 	public class SimpleGameCharacter
 	{
-		public var mesh:Mesh;
+		public var baseMesh:Mesh;
 		public var entity:CharacterEntity;
 		public var controller:AnimatedCharacterEntityController;
-		public var wrapperMesh:Mesh;
+		public var skin:Mesh;
 
 		public function SimpleGameCharacter(mesh:Mesh, 
 									  idleAnimation:SkeletonAnimationSequence, 
@@ -27,20 +27,20 @@ agt.utils{
 									  speedFactor : Number = 1.2)
 		{
 			// get mesh and wrap it to apply transform offsets
-			this.mesh = mesh;
+			this.baseMesh = mesh;
 			var middleMesh:Mesh = new Mesh();
 			middleMesh.scale(12);
 			middleMesh.rotationY = 180;
 			middleMesh.position = new Vector3D(0, -63, 0);
 			middleMesh.addChild(mesh);
-			wrapperMesh = new Mesh();
-			wrapperMesh.addChild(middleMesh);
+			skin = new Mesh();
+			skin.addChild(middleMesh);
 
 			// setup entity
 			var width:Number = (mesh.maxX - mesh.minX) * middleMesh.scaleX;
 			var height:Number = (mesh.maxY - mesh.minY) * middleMesh.scaleX;
 			entity = new CharacterEntity(width, height * 0.01);
-			entity.skin = wrapperMesh;
+			entity.skin = skin;
 			entity.characterController.jumpSpeed = 500;
 
 			// animation and motion controller
