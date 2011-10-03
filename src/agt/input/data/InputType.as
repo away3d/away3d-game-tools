@@ -12,6 +12,6 @@ package agt.input.data
 		public static const WALK:String = 'walk';
 		public static const RUN:String = 'run';
 		public static const JUMP:String = 'jump';
-		public static const RELEASE:String = 'release';
+		public static const PRESS:String = 'press';
 	}
 }

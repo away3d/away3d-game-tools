@@ -7,6 +7,7 @@ package agt.physics
 
 	import awayphysics.dynamics.AWPDynamicsWorld;
 	import awayphysics.dynamics.AWPRigidBody;
+	import awayphysics.dynamics.character.AWPKinematicCharacterController;
 
 	import flash.geom.Vector3D;
 	import flash.utils.getTimer;
@@ -53,6 +54,16 @@ package agt.physics
 		public function removeRigidBody(body:AWPRigidBody):void
 		{
 			_physics.removeRigidBody(body);
+		}
+
+		public function addCharacter(character:AWPKinematicCharacterController):void
+		{
+			_physics.addCharacter(character);
+		}
+
+		public function removeCharacter(character:AWPKinematicCharacterController):void
+		{
+			_physics.removeCharacter(character);
 		}
 
 		// TODO: deprecate this function

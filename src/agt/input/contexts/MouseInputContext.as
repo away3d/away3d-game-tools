@@ -62,41 +62,43 @@ package agt.input.contexts
 
 		public function inputActive(inputType:String):Boolean
 		{
-			if(inputType == _inputMethodY || inputType == _inputMethodX || inputType == InputType.TRANSLATE_Z)
-			{
-				if(_mouseIsDown)
-				{
-					if(inputType == _inputMethodY && _deltaX != 0)
-						return true;
-					if(inputType == _inputMethodX && _deltaY != 0)
-						return true;
-				}
+			if( inputType != _inputMethodY && inputType != _inputMethodX && inputType != InputType.TRANSLATE_Z && inputType != InputType.PRESS )
+				return false;
 
-				if(inputType == InputType.TRANSLATE_Z && _deltaWheel != 0)
+			if(_mouseIsDown)
+			{
+				if(inputType == _inputMethodY && _deltaX != 0)
+					return true;
+				if(inputType == _inputMethodX && _deltaY != 0)
+					return true;
+				if(inputType == InputType.PRESS)
 					return true;
 			}
+
+			if(inputType == InputType.TRANSLATE_Z && _deltaWheel != 0)
+				return true;
 
 			return false;
 		}
 
 		public function inputAmount(inputType:String):Number
 		{
-			if(inputType == _inputMethodY || inputType == _inputMethodX || inputType == InputType.TRANSLATE_Z)
-			{
-				if(_mouseIsDown)
-				{
-					if(inputType == _inputMethodY && _deltaX != 0)
-						return _deltaX * dragXMultiplier;
-					if(inputType == _inputMethodX && _deltaY != 0)
-						return _deltaY * dragYMultiplier;
-				}
+			if( inputType != _inputMethodY && inputType != _inputMethodX && inputType != InputType.TRANSLATE_Z && inputType != InputType.PRESS )
+				return 0;
 
-				if(inputType == InputType.TRANSLATE_Z && _deltaWheel != 0)
-				{
-					var delta:Number = _deltaWheel * wheelMultiplier;
-					_deltaWheel = 0;
-					return delta;
-				}
+			if(_mouseIsDown)
+			{
+				if(inputType == _inputMethodY && _deltaX != 0)
+					return _deltaX * dragXMultiplier;
+				if(inputType == _inputMethodX && _deltaY != 0)
+					return _deltaY * dragYMultiplier;
+			}
+
+			if(inputType == InputType.TRANSLATE_Z && _deltaWheel != 0)
+			{
+				var delta:Number = _deltaWheel * wheelMultiplier;
+				_deltaWheel = 0;
+				return delta;
 			}
 
 			return 0;

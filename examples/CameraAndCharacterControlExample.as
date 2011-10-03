@@ -39,6 +39,7 @@ package
 
 	import agt.controllers.IController;
 	import agt.controllers.camera.OrbitCameraController;
+	import agt.controllers.camera.ThirdPersonCameraController;
 	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 
 	import agt.debug.DebugMaterialLibrary;
@@ -63,6 +64,7 @@ package
 	import away3d.materials.ColorMaterial;
 	import away3d.primitives.Cube;
 	import away3d.primitives.Plane;
+	import away3d.primitives.Sphere;
 
 	import awayphysics.collision.shapes.AWPBoxShape;
 
@@ -134,7 +136,7 @@ package
 		{
 			// (1) retrieve hell knight mesh
 			var loader:Loader3D = new Loader3D();
-			loader.loadData(new HellKnightMesh(), new MD5MeshParser());
+			loader.parse(new HellKnightMesh(), new MD5MeshParser());
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load1);
 		}
 
@@ -155,7 +157,7 @@ package
 			// (2) retrieve hell knight idle animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load2);
-			loader.loadData(new HellKnightIdleAnimation(), new MD5AnimParser());
+			loader.parse(new HellKnightIdleAnimation(), new MD5AnimParser());
 		}
 
 		private function load2(evt:AssetEvent):void
@@ -167,7 +169,7 @@ package
 			// (3) retrieve hell knight walk animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load3);
-			loader.loadData(new HellKnightWalkAnimation(), new MD5AnimParser());
+			loader.parse(new HellKnightWalkAnimation(), new MD5AnimParser());
 		}
 
 		private function load3(evt:AssetEvent):void
@@ -179,7 +181,7 @@ package
 			// (4) retrieve hell knight walk animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load4);
-			loader.loadData(new HellKnightJumpAnimation(), new MD5AnimParser());
+			loader.parse(new HellKnightJumpAnimation(), new MD5AnimParser());
 		}
 
 		private function load4(evt:AssetEvent):void
@@ -191,7 +193,7 @@ package
 			// (5) retrieve hell knight walk animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load5);
-			loader.loadData(new HellKnightHitAnimation(), new MD5AnimParser());
+			loader.parse(new HellKnightHitAnimation(), new MD5AnimParser());
 		}
 
 		private function load5(evt:AssetEvent):void
@@ -241,14 +243,17 @@ package
 			setupCollideBoxes();
 
 			// camera control
-			cameraController = new OrbitCameraController(view.camera, playerMesh);
-//			cameraController = new ThirdPersonCameraController(view.camera, playerController);
+//			cameraController = new OrbitCameraController(view.camera, playerMesh);
+			cameraController = new ThirdPersonCameraController(view.camera, playerController);
+			scene.addCharacter( ThirdPersonCameraController(cameraController).initializeCollider() );
+			ThirdPersonCameraController(cameraController).maxElevation = 0;
 			cameraController.inputContext = new DefaultMouseKeyboardInputContext(view, stage);
 
 			// start loop
 			addEventListener(Event.ENTER_FRAME, enterframeHandler);
 		}
 
+		private var _tracer:Sphere;
 		private function setupLevel():void
 		{
 			// floor
@@ -256,8 +261,6 @@ package
 			floorMesh.width = floorMesh.height = 15000;
 			scene.addChild(floorMesh);
 			scene.addRigidBody( new AWPRigidBody( new AWPStaticPlaneShape() ) );
-//			var floor:DynamicEntity = new DynamicEntity(new AWPStaticPlaneShape(), floorMesh);
-//			scene.addDynamicEntity(floor);
 
 			// boxes
 			var boxMesh:Cube = new Cube(boxMaterial, 200, 200, 200);
@@ -292,6 +295,26 @@ package
 					}
 				}
 			}
+
+			// static elements
+			var wallMaterial:ColorMaterial = new ColorMaterial( 0xFFFFFF );
+			wallMaterial.lights = [light];
+			addStaticWall( new Vector3D( 3500, 2500, 0 ), new Vector3D( 100, 5000, 10000 ), wallMaterial );
+			addStaticWall( new Vector3D( 2000, 2500, 5000 ), new Vector3D( 100, 5000, 10000 ), wallMaterial );
+			addStaticWall( new Vector3D( 2000, 2000, 5000 ), new Vector3D( 5000, 100, 10000 ), wallMaterial );
+
+			_tracer = new Sphere(new ColorMaterial(0xFF0000));
+			scene.addChild(_tracer);
+		}
+
+		private function addStaticWall( position:Vector3D, dimensions:Vector3D, material:ColorMaterial ):void
+		{
+			var mesh:Cube = new Cube(material, dimensions.x, dimensions.y, dimensions.z);
+			var shape:AWPBoxShape = new AWPBoxShape( dimensions.x, dimensions.y, dimensions.z );
+			var body:AWPRigidBody = new AWPRigidBody( shape, mesh );
+			scene.addChild(mesh);
+			scene.addRigidBody(body);
+			body.position = position;
 		}
 
 		private function setupPlayer():void
@@ -385,6 +408,8 @@ package
 			cameraController.update();
 			light.transform = view.camera.transform.clone();
 			view.render();
+
+			_tracer.position = ThirdPersonCameraController( cameraController ).collisionPoint;
 		}
 	}
 }
