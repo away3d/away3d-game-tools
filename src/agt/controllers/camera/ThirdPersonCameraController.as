@@ -27,9 +27,9 @@ package agt.controllers.camera
 
 		private var _minElevation:Number = - 0.9 * Math.PI / 2;
 		private var _maxElevation:Number = 0.9 * Math.PI / 2;
-		private var _minRadius:Number = 700;
+		private var _minRadius:Number = 0;
 		private var _maxRadius:Number = Number.MAX_VALUE;
-		private var _directionEnforcement:Number = 700;
+		private var _directionEnforcement:Number = 1000;
 		private var _targetController:AnimatedCharacterEntityController;
 		private var _collider:AWPKinematicCharacterController;
 		private var _colliding:Boolean;
@@ -55,7 +55,7 @@ package agt.controllers.camera
 			var colliderShape:AWPCapsuleShape = new AWPCapsuleShape(width, height);
 			var ghostObject:AWPGhostObject = new AWPGhostObject(colliderShape);
 			ghostObject.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT | AWPCollisionFlags.CF_NO_CONTACT_RESPONSE;
-			_collider = new AWPKinematicCharacterController(ghostObject, colliderShape, 0.5);
+			_collider = new AWPKinematicCharacterController(ghostObject, colliderShape, 0.1);
 
 			_collider.warp(_camera.position);
 

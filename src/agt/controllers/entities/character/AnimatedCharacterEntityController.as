@@ -34,6 +34,7 @@ package agt.controllers.entities.character
 		protected var _rotationMatrix:Matrix3D;
 
 		public var speedFactor:Number = 1;
+		public var runTimeScaleFactor:Number = 1;
 
 		public function AnimatedCharacterEntityController(entity:CharacterEntity, animationState:SkeletonAnimationState)
 		{
@@ -105,7 +106,8 @@ package agt.controllers.entities.character
 				_entity.characterController.setWalkDirection(_walkDirection);
 			}
 
-			_animator.timeScale = _rootTimeScale;
+			if(runTimeScaleFactor != 1)
+				_animator.timeScale = _rootTimeScale;
 
 			if(_onGround && !_jumping)
 			{
@@ -114,14 +116,13 @@ package agt.controllers.entities.character
 					if(_activeAnimationName != "run")
 						playAnimation(runAnimationName);
 
-					_animator.timeScale = 2 * _rootTimeScale; // TODO: make param and as an option?
+					if(runTimeScaleFactor != 1)
+						_animator.timeScale = 2 * _rootTimeScale;
 				}
 				else
 				{
 					if(_activeAnimationName != "walk")
 						playAnimation(walkAnimationName);
-
-//					_animator.timeScale = _rootTimeScale;
 				}
 			}
 		}

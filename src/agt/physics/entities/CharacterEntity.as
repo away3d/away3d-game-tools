@@ -52,6 +52,16 @@ package agt.physics.entities
 			_jumpStrength = _characterController.jumpSpeed;
 		}
 
+		public function set jumpSpeed(value:Number):void
+		{
+			_characterController.jumpSpeed = value;
+		}
+
+		public function get jumpSpeed():Number
+		{
+			return _characterController.jumpSpeed;
+		}
+
 		public function get skin():ObjectContainer3D
 		{
 			return _skin;
