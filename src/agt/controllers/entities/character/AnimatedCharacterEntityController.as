@@ -105,17 +105,23 @@ package agt.controllers.entities.character
 				_entity.characterController.setWalkDirection(_walkDirection);
 			}
 
+			_animator.timeScale = _rootTimeScale;
+
 			if(_onGround && !_jumping)
 			{
 				if( run )
 				{
 					if(_activeAnimationName != "run")
 						playAnimation(runAnimationName);
+
+					_animator.timeScale = 2 * _rootTimeScale; // TODO: make param and as an option?
 				}
 				else
 				{
 					if(_activeAnimationName != "walk")
 						playAnimation(walkAnimationName);
+
+//					_animator.timeScale = _rootTimeScale;
 				}
 			}
 		}
@@ -195,9 +201,11 @@ package agt.controllers.entities.character
 			_activeAnimationName = "";
 		}
 
+		private var _rootTimeScale:Number = 1;
 		public function set timeScale(value:Number):void
 		{
 			_animator.timeScale = value;
+			_rootTimeScale = value;
 		}
 
 		public function get timeScale():Number

@@ -10,15 +10,12 @@ package agt.controllers.camera
 	import awayphysics.collision.dispatch.AWPCollisionObject;
 
 	import awayphysics.collision.dispatch.AWPGhostObject;
+	import awayphysics.collision.shapes.AWPCapsuleShape;
 
-	import awayphysics.collision.shapes.AWPSphereShape;
 	import awayphysics.data.AWPCollisionFlags;
 
-	import awayphysics.dynamics.AWPRigidBody;
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
 	import awayphysics.events.AWPCollisionEvent;
-
-	import flash.geom.Vector3D;
 
 	import flash.geom.Vector3D;
 
@@ -36,7 +33,10 @@ package agt.controllers.camera
 		private var _targetController:AnimatedCharacterEntityController;
 		private var _collider:AWPKinematicCharacterController;
 		private var _colliding:Boolean;
-		private var _responseFactor:Number = 5;
+		private var _collisionRelease:Number = 1;
+
+		public var angularCollisionResponseFactor:Number = 1;
+		public var linearCollisionResponseFactor:Number = 1;
 
 		public function ThirdPersonCameraController(camera:ObjectContainer3D, targetController:AnimatedCharacterEntityController)
 		{
@@ -44,7 +44,7 @@ package agt.controllers.camera
 			super(camera);
 		}
 
-		public function initializeCollider(sphereRadius:Number = 50):AWPKinematicCharacterController
+		public function initializeCollider(width:Number = 50, height:Number = 50):AWPKinematicCharacterController
 		{
 			if(_collider)
 			{
@@ -52,7 +52,7 @@ package agt.controllers.camera
 					_collider.ghostObject.removeEventListener(AWPCollisionEvent.COLLISION_ADDED, colliderCollisionAddedHandler);
 			}
 
-			var colliderShape:AWPSphereShape = new AWPSphereShape(sphereRadius);
+			var colliderShape:AWPCapsuleShape = new AWPCapsuleShape(width, height);
 			var ghostObject:AWPGhostObject = new AWPGhostObject(colliderShape);
 			ghostObject.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT | AWPCollisionFlags.CF_NO_CONTACT_RESPONSE;
 			_collider = new AWPKinematicCharacterController(ghostObject, colliderShape, 0.5);
@@ -69,12 +69,24 @@ package agt.controllers.camera
 		private function colliderCollisionAddedHandler( evt:AWPCollisionEvent ):void
 		{
 			var collisionObj:AWPCollisionObject = evt.collisionObject;
+
 			_collisionPoint = evt.manifoldPoint.localPointB;
-			_collisionPoint = _collisionPoint.add( collisionObj.position );
+			if( collisionObj.skin )
+				_collisionPoint = collisionObj.skin.transform.transformVector( _collisionPoint );
+
+			var collisionPointB:Vector3D = evt.manifoldPoint.localPointA;
+			collisionPointB = collisionPointB.add( _collider.ghostObject.position );
+
+			var delta:Vector3D = collisionPointB.subtract(_collisionPoint);
+			var dis:Number = delta.length || 1;
+			if( isNaN(dis) )
+				dis = 1;
+			if( dis < 1 )
+				dis = 1;
 
 			_collisionNormal = evt.manifoldPoint.normalWorldOnB;
 			_collisionNormal.normalize();
-			_collisionNormal.scaleBy( _responseFactor );
+			_collisionNormal.scaleBy( dis );
 
 			_colliding = true;
 		}
@@ -88,57 +100,56 @@ package agt.controllers.camera
 			var dz:Number;
 			var underInput:Boolean;
 
-			if( !_colliding )
-			{ // update input from context?
-				if( _inputContext )
-				{
-					moveAzimuth( _inputContext.inputAmount( InputType.ROTATE_Y ) );
-					moveElevation( _inputContext.inputAmount( InputType.ROTATE_X ) );
-					moveRadius( _inputContext.inputAmount( InputType.TRANSLATE_Z ) );
+			// update input from context?
+			if( _inputContext )
+			{
+				moveAzimuth( _inputContext.inputAmount( InputType.ROTATE_Y ) );
+				moveElevation( _inputContext.inputAmount( InputType.ROTATE_X ) );
+				moveRadius( _inputContext.inputAmount( InputType.TRANSLATE_Z ) );
 
-					underInput = _inputContext.inputActive( InputType.PRESS ) || _inputContext.inputActive(InputType.ROTATE_Y) ||
-								  _inputContext.inputActive(InputType.ROTATE_X) || _inputContext.inputActive(InputType.TRANSLATE_Z);
-				}
+				underInput = _inputContext.inputActive( InputType.PRESS ) || _inputContext.inputActive(InputType.ROTATE_Y) ||
+							  _inputContext.inputActive(InputType.ROTATE_X) || _inputContext.inputActive(InputType.TRANSLATE_Z);
+			}
 
-				// mimic character direction with camera (to see faster where the character is going)
-				// runs only when there is no input from the user
-				if( !underInput && _directionEnforcement != 0 )
-				{
-					var targetForward:Vector3D = Vector3D.X_AXIS;
-					targetForward = _targetController.entity.rotationMatrix.transformVector( targetForward );
-					targetForward.normalize();
-					targetForward.y = 0;
-					var cameraRight:Vector3D = _camera.transform.deltaTransformVector( Vector3D.Z_AXIS );
-					cameraRight.normalize();
-					cameraRight.y = 0;
-					var proj:Number = targetForward.dotProduct( cameraRight );
-					var speed:Number = _targetController.entity.characterController.walkDirection.length;
-					var enforcement:Number = _directionEnforcement * proj * speed;
-					moveAzimuth( enforcement );
-				}
+			// mimic character direction with camera (to see faster where the character is going)
+			// runs only when there is no input from the user
+			if( !underInput && _directionEnforcement != 0 && !_colliding)
+			{
+				var targetForward:Vector3D = Vector3D.X_AXIS;
+				targetForward = _targetController.entity.rotationMatrix.transformVector( targetForward );
+				targetForward.normalize();
+				targetForward.y = 0;
+				var cameraRight:Vector3D = _camera.transform.deltaTransformVector( Vector3D.Z_AXIS );
+				cameraRight.normalize();
+				cameraRight.y = 0;
+				var proj:Number = targetForward.dotProduct( cameraRight );
+				var speed:Number = _targetController.entity.characterController.walkDirection.length;
+				var enforcement:Number = _collisionRelease * _directionEnforcement * proj * speed;
+				moveAzimuth( enforcement );
 			}
 
 			// respond to collision
 			if( _collider && _colliding )
 			{
 				// evaluate responses
-				var collisionVector:Vector3D = _collisionPoint.add( _collisionNormal );
-				var collisionVectorSpherical:Vector3D = cartesianToSpherical( collisionVector );
-				dx = collisionVectorSpherical.x - _targetSphericalCoordinates.x;
-				dy = collisionVectorSpherical.y - _targetSphericalCoordinates.y;
-				dz = collisionVectorSpherical.z - _targetSphericalCoordinates.z;
+				var resolvePosition:Vector3D = _camera.position.add( _collisionNormal );
+				var resolvePositionSpherical:Vector3D = cartesianToSpherical( resolvePosition );
+				dx = resolvePositionSpherical.x - _currentSphericalCoordinates.x;
+				dy = resolvePositionSpherical.y - _currentSphericalCoordinates.y;
+				dz = resolvePositionSpherical.z - _currentSphericalCoordinates.z;
 
 				// avoid too large response
-				dx = removeRedundantAngle( dx );
-				dy = removeRedundantAngle( dy );
 				dx = containValue( dx, -0.05, 0.05 );
 				dy = containValue( dy, -0.05, 0.05 );
 
-				// apply responses
-				_targetSphericalCoordinates.x -= dx * 1;
-				_targetSphericalCoordinates.y -= dy * 1;
-//				if(dz < 0)
-					_targetSphericalCoordinates.z += dz * 1;
+				// ease response on spherical domain
+				_targetSphericalCoordinates.x += dx * angularCollisionResponseFactor;
+				_targetSphericalCoordinates.y += dy * angularCollisionResponseFactor;
+				if(dz < 0)
+					_targetSphericalCoordinates.z += dz * linearCollisionResponseFactor;
+
+				// lock motion due to collision
+				_collisionRelease = 0;
 			}
 
 			// contain elevation and radius
@@ -161,35 +172,24 @@ package agt.controllers.camera
 			}
 
 			_colliding = false;
-		}
 
-		private function removeRedundantAngle( angle:Number ):Number
-		{
-			var twoPi:Number = 2 * Math.PI;
-			var abs:Number = Math.abs( angle );
-			var sign:Number = angle > 0 ? 1 : -1;
-			while( angle > twoPi )
-			{
-				angle -= sign * twoPi;
-				abs = Math.abs( angle );
-			}
-
-			return angle;
+			if( _collisionRelease < 1 )
+				_collisionRelease += 0.01;
 		}
 
 		public function moveAzimuth(amount:Number):void
 		{
-			_targetSphericalCoordinates.x -= amount * 0.001;
+			_targetSphericalCoordinates.x -= /*_collisionRelease * */amount * 0.001;
 		}
 
 		public function moveElevation(amount:Number):void
 		{
-			_targetSphericalCoordinates.y -= amount * 0.001;
+			_targetSphericalCoordinates.y -= /*_collisionRelease * */amount * 0.001;
 		}
 
 		public function moveRadius(amount:Number):void
 		{
-			_targetSphericalCoordinates.z -= amount;
+			_targetSphericalCoordinates.z -= /*_collisionRelease * */amount;
 		}
 
 		private function containValue(value:Number, min:Number, max:Number):Number
@@ -286,6 +286,11 @@ package agt.controllers.camera
 		public function get collisionPoint():Vector3D
 		{
 			return _collisionPoint;
+		}
+
+		public function get collisionNormal():Vector3D
+		{
+			return _collisionNormal;
 		}
 	}
 }

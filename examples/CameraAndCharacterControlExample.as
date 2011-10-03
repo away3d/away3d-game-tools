@@ -48,13 +48,16 @@ package
 	import agt.input.contexts.KeyboardInputContext;
 	import agt.physics.PhysicsScene3D;
 	import agt.physics.entities.CharacterEntity;
+	import agt.utils.PhysicsUtils;
 
 	import away3d.animators.data.SkeletonAnimationSequence;
 	import away3d.animators.data.SkeletonAnimationState;
 	import away3d.containers.View3D;
 	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
+	import away3d.entities.SegmentSet;
 	import away3d.events.AssetEvent;
+	import away3d.extrusions.Elevation;
 	import away3d.library.assets.AssetType;
 	import away3d.lights.PointLight;
 	import away3d.loaders.Loader3D;
@@ -63,13 +66,19 @@ package
 	import away3d.materials.BitmapMaterial;
 	import away3d.materials.ColorMaterial;
 	import away3d.primitives.Cube;
+	import away3d.primitives.Cylinder;
+	import away3d.primitives.LineSegment;
 	import away3d.primitives.Plane;
 	import away3d.primitives.Sphere;
 
 	import awayphysics.collision.shapes.AWPBoxShape;
+	import awayphysics.collision.shapes.AWPBvhTriangleMeshShape;
+	import awayphysics.collision.shapes.AWPCylinderShape;
 
 	import awayphysics.collision.shapes.AWPStaticPlaneShape;
 	import awayphysics.dynamics.AWPRigidBody;
+
+	import flash.display.BitmapData;
 
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -222,7 +231,7 @@ package
 			view = new View3D(scene); // use physics
 			addChild(view);
 			view.antiAlias = 4;
-			view.camera.lens.near = 150;
+			view.camera.lens.near = 1;
 			view.camera.lens.far = 50000;
 			view.camera.position = new Vector3D(2000, 2000, -2000);
 			view.camera.lookAt(new Vector3D(0, 0, 0));
@@ -245,7 +254,7 @@ package
 			// camera control
 //			cameraController = new OrbitCameraController(view.camera, playerMesh);
 			cameraController = new ThirdPersonCameraController(view.camera, playerController);
-			scene.addCharacter( ThirdPersonCameraController(cameraController).initializeCollider() );
+			scene.addCharacter( ThirdPersonCameraController(cameraController).initializeCollider( 50, 500 ) );
 			ThirdPersonCameraController(cameraController).maxElevation = 0;
 			cameraController.inputContext = new DefaultMouseKeyboardInputContext(view, stage);
 
@@ -253,14 +262,21 @@ package
 			addEventListener(Event.ENTER_FRAME, enterframeHandler);
 		}
 
-		private var _tracer:Sphere;
+		private var _cameraContactTracer:SegmentSet;
+		private var _floor:Elevation;
+
 		private function setupLevel():void
 		{
 			// floor
-			var floorMesh:Plane = new Plane(DebugMaterialLibrary.instance.noiseMaterial);
-			floorMesh.width = floorMesh.height = 15000;
-			scene.addChild(floorMesh);
-			scene.addRigidBody( new AWPRigidBody( new AWPStaticPlaneShape() ) );
+			var bmd:BitmapData = new BitmapData(2048, 2048, false, 0);
+			bmd.perlinNoise(256, 256, 2, 1, false, true, 7, true);
+			var bitmapMaterial:BitmapMaterial = new BitmapMaterial(bmd);
+			bitmapMaterial.lights = [light];
+			_floor = new Elevation(bitmapMaterial, bmd,
+													25000, 1500, 25000, 30, 30);
+			scene.addChild(_floor);
+			var floorBody:AWPRigidBody = new AWPRigidBody( new AWPBvhTriangleMeshShape( _floor.geometry ) );
+			scene.addRigidBody( floorBody );
 
 			// boxes
 			var boxMesh:Cube = new Cube(boxMaterial, 200, 200, 200);
@@ -286,7 +302,7 @@ package
 
 						// add body
 						var body:AWPRigidBody = new AWPRigidBody(boxShape, mesh, 0.5);
-						var y:Number = 100 + k * 200;
+						var y:Number = 1500 + 100 + k * 200;
 						body.friction = 0.9;
 						body.linearDamping = 0.03;
 						body.angularDamping = 0.03;
@@ -296,25 +312,56 @@ package
 				}
 			}
 
-			// static elements
+			// pillars
 			var wallMaterial:ColorMaterial = new ColorMaterial( 0xFFFFFF );
 			wallMaterial.lights = [light];
-			addStaticWall( new Vector3D( 3500, 2500, 0 ), new Vector3D( 100, 5000, 10000 ), wallMaterial );
-			addStaticWall( new Vector3D( 2000, 2500, 5000 ), new Vector3D( 100, 5000, 10000 ), wallMaterial );
-			addStaticWall( new Vector3D( 2000, 2000, 5000 ), new Vector3D( 5000, 100, 10000 ), wallMaterial );
-
-			_tracer = new Sphere(new ColorMaterial(0xFF0000));
-			scene.addChild(_tracer);
+			_cameraContactTracer = new SegmentSet();
+			var line:LineSegment = new LineSegment( new Vector3D(), new Vector3D(0, 100, 0), 0xFF0000, 0xFF0000, 10 );
+			_cameraContactTracer.addSegment(line);
+			scene.addChild(_cameraContactTracer);
+			for(i = 0; i < 50; ++i)
+				addPillar( rand(-10000, 10000), rand( -10000, 10000 ), rand( 100, 1000 ), wallMaterial );
 		}
 
-		private function addStaticWall( position:Vector3D, dimensions:Vector3D, material:ColorMaterial ):void
+		private function addPillar( px:Number, pz:Number, radius:Number, material:ColorMaterial  ):void
 		{
-			var mesh:Cube = new Cube(material, dimensions.x, dimensions.y, dimensions.z);
-			var shape:AWPBoxShape = new AWPBoxShape( dimensions.x, dimensions.y, dimensions.z );
+			var mesh:Cylinder = new Cylinder(material, radius, radius, 2000);
+			mesh.x = px;
+			mesh.y = 1500;
+			mesh.z = pz;
+			view.scene.addChild(mesh);
+
+			var shape:AWPCylinderShape = new AWPCylinderShape( radius, 2000 );
 			var body:AWPRigidBody = new AWPRigidBody( shape, mesh );
+			PhysicsUtils.applyObjectTransformToBodyTransform(mesh, body);
 			scene.addChild(mesh);
 			scene.addRigidBody(body);
-			body.position = position;
+		}
+
+		private function setupCollideBoxes():void
+		{
+			// Red box
+			var redBoxMesh:Cube = new Cube(DebugMaterialLibrary.instance.redMaterial, 500, 500, 500);
+			scene.addChild(redBoxMesh);
+			var redBoxShape:AWPBoxShape = new AWPBoxShape(redBoxMesh.width, redBoxMesh.height, redBoxMesh.depth);
+			redBox = new AWPRigidBody( redBoxShape, redBoxMesh );
+			redBox.position = new Vector3D(0, 500 + redBoxMesh.height/2, -600);
+			scene.addRigidBody( redBox );
+			player.addNotifyOnCollision(redBox, onPlayerRedBoxCollision);
+
+			// Green box
+			var greenBoxMesh:Cube = new Cube(DebugMaterialLibrary.instance.greenMaterial, 500, 25, 1000);
+			scene.addChild(greenBoxMesh);
+			var greenBoxShape:AWPBoxShape = new AWPBoxShape(greenBoxMesh.width, greenBoxMesh.height, greenBoxMesh.depth);
+			greenBox = new AWPRigidBody( greenBoxShape, greenBoxMesh )
+			greenBox.position = new Vector3D(0, 1000, 2000);
+			scene.addRigidBody( greenBox );
+			player.addNotifyOnCollision(greenBox, onPlayerGreenBoxCollision);
+		}
+
+		private function rand(min:Number, max:Number):Number
+		{
+		    return (max - min)*Math.random() + min;
 		}
 
 		private function setupPlayer():void
@@ -357,27 +404,6 @@ package
 			playerController.playAnimation(idleAnimation.name);
 		}
 
-		private function setupCollideBoxes():void
-		{
-			// Red box
-			var redBoxMesh:Cube = new Cube(DebugMaterialLibrary.instance.redMaterial, 500, 500, 500);
-			scene.addChild(redBoxMesh);
-			var redBoxShape:AWPBoxShape = new AWPBoxShape(redBoxMesh.width, redBoxMesh.height, redBoxMesh.depth);
-			redBox = new AWPRigidBody( redBoxShape, redBoxMesh );
-			redBox.position = new Vector3D(0, redBoxMesh.height/2, -600);
-			scene.addRigidBody( redBox );
-			player.addNotifyOnCollision(redBox, onPlayerRedBoxCollision);
-
-			// Green box
-			var greenBoxMesh:Cube = new Cube(DebugMaterialLibrary.instance.greenMaterial, 3000, 25, 3000);
-			scene.addChild(greenBoxMesh);
-			var greenBoxShape:AWPBoxShape = new AWPBoxShape(greenBoxMesh.width, greenBoxMesh.height, greenBoxMesh.depth);
-			greenBox = new AWPRigidBody( greenBoxShape, greenBoxMesh )
-			greenBox.position = new Vector3D(0, 0, 2000);
-			scene.addRigidBody( greenBox );
-			player.addNotifyOnCollision(greenBox, onPlayerGreenBoxCollision);
-		}
-
 		public function onPlayerGreenBoxCollision():void
 		{
 			playerController.jump();
@@ -402,14 +428,19 @@ package
 
 		private function enterframeHandler(evt:Event):void
 		{
+			var line:LineSegment = _cameraContactTracer.getSegment(0) as LineSegment;
+			var start:Vector3D = ThirdPersonCameraController( cameraController ).collisionPoint;
+			var end:Vector3D = start.add( ThirdPersonCameraController( cameraController ).collisionNormal );
+			line.start = start;
+			line.end = end;
+//			trace( "start: " + start + ", end: " + end );
+
 			player.update();
 			playerController.update();
 			scene.updatePhysics();
 			cameraController.update();
 			light.transform = view.camera.transform.clone();
 			view.render();
-
-			_tracer.position = ThirdPersonCameraController( cameraController ).collisionPoint;
 		}
 	}
 }
