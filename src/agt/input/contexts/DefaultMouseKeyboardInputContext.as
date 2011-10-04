@@ -10,24 +10,27 @@ package agt.input.contexts
 
 	public class DefaultMouseKeyboardInputContext extends CompositeInputContext
 	{
+		public var mouseInputContext:MouseInputContext;
+		public var keyboardInputContext:KeyboardInputContext;
+
 		public function DefaultMouseKeyboardInputContext(context:Sprite, stage:Stage)
 		{
 			super();
 
 			// mouse input
-			var mouseInput:MouseInputContext = new MouseInputContext(context, stage);
+			mouseInputContext = new MouseInputContext(context, stage);
 
 			// keyboard input
-			var keyboardInput:KeyboardInputContext = new KeyboardInputContext(stage);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_X, 50, Keyboard.RIGHT);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_X, -50, Keyboard.LEFT);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Z, 50, Keyboard.UP);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Z, -50, Keyboard.DOWN);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Y, 50, Keyboard.Z);
-			keyboardInput.mapWithAmount(InputType.TRANSLATE_Y, -50, Keyboard.X);
+			keyboardInputContext = new KeyboardInputContext(stage);
+			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_X, 50, Keyboard.RIGHT);
+			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_X, -50, Keyboard.LEFT);
+			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Z, 50, Keyboard.UP);
+			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Z, -50, Keyboard.DOWN);
+			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Y, 50, Keyboard.Z);
+			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Y, -50, Keyboard.X);
 
-			addContext(mouseInput);
-			addContext(keyboardInput);
+			addContext(mouseInputContext);
+			addContext(keyboardInputContext);
 		}
 	}
 }

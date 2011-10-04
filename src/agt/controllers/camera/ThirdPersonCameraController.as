@@ -34,6 +34,8 @@ package agt.controllers.camera
 		private var _collider:AWPKinematicCharacterController;
 		private var _colliding:Boolean;
 		private var _collisionRelease:Number = 1;
+		private var _collisionNormal:Vector3D = new Vector3D();
+		private var _collisionPoint:Vector3D = new Vector3D();
 
 		public var angularCollisionResponseFactor:Number = 1;
 		public var linearCollisionResponseFactor:Number = 1;
@@ -55,6 +57,8 @@ package agt.controllers.camera
 			var colliderShape:AWPCapsuleShape = new AWPCapsuleShape(width, height);
 			var ghostObject:AWPGhostObject = new AWPGhostObject(colliderShape);
 			ghostObject.collisionFlags = AWPCollisionFlags.CF_CHARACTER_OBJECT | AWPCollisionFlags.CF_NO_CONTACT_RESPONSE;
+			ghostObject.ccdSweptSphereRadius = 0.1; // TODO: not sure if this works with ghost objects
+			ghostObject.ccdMotionThreshold = 1;
 			_collider = new AWPKinematicCharacterController(ghostObject, colliderShape, 0.1);
 
 			_collider.warp(_camera.position);
@@ -64,29 +68,31 @@ package agt.controllers.camera
 			return _collider;
 		}
 
-		private var _collisionNormal:Vector3D = new Vector3D();
-		private var _collisionPoint:Vector3D = new Vector3D();
 		private function colliderCollisionAddedHandler( evt:AWPCollisionEvent ):void
 		{
 			var collisionObj:AWPCollisionObject = evt.collisionObject;
 
 			_collisionPoint = evt.manifoldPoint.localPointB;
 			if( collisionObj.skin )
-				_collisionPoint = collisionObj.skin.transform.transformVector( _collisionPoint );
+			{
+				_collisionPoint = _collisionPoint.add( collisionObj.position );
+				_collisionPoint = collisionObj.rotation.deltaTransformVector(_collisionPoint);
+			}
 
 			var collisionPointB:Vector3D = evt.manifoldPoint.localPointA;
 			collisionPointB = collisionPointB.add( _collider.ghostObject.position );
 
-			var delta:Vector3D = collisionPointB.subtract(_collisionPoint);
-			var dis:Number = delta.length || 1;
-			if( isNaN(dis) )
-				dis = 1;
-			if( dis < 1 )
-				dis = 1;
+			// TODO: Adaptive reaction scale performs worse than fixed
+//			var delta:Vector3D = collisionPointB.subtract(_collisionPoint);
+//			var dis:Number = delta.length || 1;
+//			if( isNaN(dis) )
+//				dis = 1;
+//			if( dis < 50 )
+//				dis = 50;
 
 			_collisionNormal = evt.manifoldPoint.normalWorldOnB;
 			_collisionNormal.normalize();
-			_collisionNormal.scaleBy( dis );
+			_collisionNormal.scaleBy( 200 ); // TODO: expose param for fixed reaction size?
 
 			_colliding = true;
 		}
@@ -139,14 +145,13 @@ package agt.controllers.camera
 				dz = resolvePositionSpherical.z - _currentSphericalCoordinates.z;
 
 				// avoid too large response
-				dx = containValue( dx, -0.05, 0.05 );
-				dy = containValue( dy, -0.05, 0.05 );
+				dx = containValue( dx, -0.1, 0.1 );
+				dy = containValue( dy, -0.1, 0.1 );
 
 				// ease response on spherical domain
 				_targetSphericalCoordinates.x += dx * angularCollisionResponseFactor;
 				_targetSphericalCoordinates.y += dy * angularCollisionResponseFactor;
-				if(dz < 0)
-					_targetSphericalCoordinates.z += dz * linearCollisionResponseFactor;
+				_targetSphericalCoordinates.z += dz * linearCollisionResponseFactor;
 
 				// lock motion due to collision
 				_collisionRelease = 0;
@@ -167,9 +172,7 @@ package agt.controllers.camera
 			_camera.lookAt(_targetController.entity.position);
 
 			if( _collider )
-			{
 				_collider.warp( _camera.position );
-			}
 
 			_colliding = false;
 

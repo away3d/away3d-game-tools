@@ -145,7 +145,7 @@ package
 		{
 			// (1) retrieve hell knight mesh
 			var loader:Loader3D = new Loader3D();
-			loader.parse(new HellKnightMesh(), new MD5MeshParser());
+			loader.loadData(new HellKnightMesh(), new MD5MeshParser());
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load1);
 		}
 
@@ -166,7 +166,7 @@ package
 			// (2) retrieve hell knight idle animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load2);
-			loader.parse(new HellKnightIdleAnimation(), new MD5AnimParser());
+			loader.loadData(new HellKnightIdleAnimation(), new MD5AnimParser());
 		}
 
 		private function load2(evt:AssetEvent):void
@@ -178,7 +178,7 @@ package
 			// (3) retrieve hell knight walk animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load3);
-			loader.parse(new HellKnightWalkAnimation(), new MD5AnimParser());
+			loader.loadData(new HellKnightWalkAnimation(), new MD5AnimParser());
 		}
 
 		private function load3(evt:AssetEvent):void
@@ -190,7 +190,7 @@ package
 			// (4) retrieve hell knight walk animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load4);
-			loader.parse(new HellKnightJumpAnimation(), new MD5AnimParser());
+			loader.loadData(new HellKnightJumpAnimation(), new MD5AnimParser());
 		}
 
 		private function load4(evt:AssetEvent):void
@@ -202,7 +202,7 @@ package
 			// (5) retrieve hell knight walk animation sequence
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(AssetEvent.ASSET_COMPLETE, load5);
-			loader.parse(new HellKnightHitAnimation(), new MD5AnimParser());
+			loader.loadData(new HellKnightHitAnimation(), new MD5AnimParser());
 		}
 
 		private function load5(evt:AssetEvent):void
@@ -315,12 +315,14 @@ package
 			// pillars
 			var wallMaterial:ColorMaterial = new ColorMaterial( 0xFFFFFF );
 			wallMaterial.lights = [light];
+			for(i = 0; i < 50; ++i)
+				addPillar( rand(-10000, 10000), rand( -10000, 10000 ), rand( 100, 1000 ), wallMaterial );
+
+			// trace
 			_cameraContactTracer = new SegmentSet();
 			var line:LineSegment = new LineSegment( new Vector3D(), new Vector3D(0, 100, 0), 0xFF0000, 0xFF0000, 10 );
 			_cameraContactTracer.addSegment(line);
 			scene.addChild(_cameraContactTracer);
-			for(i = 0; i < 50; ++i)
-				addPillar( rand(-10000, 10000), rand( -10000, 10000 ), rand( 100, 1000 ), wallMaterial );
 		}
 
 		private function addPillar( px:Number, pz:Number, radius:Number, material:ColorMaterial  ):void

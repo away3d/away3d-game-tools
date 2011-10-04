@@ -21,6 +21,7 @@ package agt.controllers.entities.character
 		public var idleAnimationName:String = "idle";
 		public var runAnimationName:String = "run";
 		public var jumpAnimationName:String = "jump";
+		public var walkBackAnimationName:String = "walk_back";
 		public var animationCrossFadeTime:Number = 0.25;
 		public var runSpeedThreshold:Number = 1;
 
@@ -32,9 +33,14 @@ package agt.controllers.entities.character
 		protected var _onGround:Boolean;
 		protected var _rotationY:Number = 0;
 		protected var _rotationMatrix:Matrix3D;
+		private var _animationsLocked:Boolean = false;
+		private var _exclusiveSequence:SkeletonAnimationSequence;
 
 		public var speedFactor:Number = 1;
-		public var runTimeScaleFactor:Number = 1;
+
+		public var runTimeScaleFactor:Number = 1; // time re-scaling is off with 1
+		public var walkBackTimeScaleFactor:Number = 1;
+		public var jumpTimeScaleFactor:Number = 1;
 
 		public function AnimatedCharacterEntityController(entity:CharacterEntity, animationState:SkeletonAnimationState)
 		{
@@ -61,14 +67,17 @@ package agt.controllers.entities.character
 			{
 				rotateY(_inputContext.inputAmount(InputType.ROTATE_Y));
 
-				var walk:Boolean = _inputContext.inputActive(InputType.WALK);
-				var run:Boolean = _inputContext.inputActive(InputType.RUN);
-				if( walk || run )
+				var isWalk:Boolean = _inputContext.inputActive(InputType.WALK);
+				var isRun:Boolean = _inputContext.inputActive(InputType.RUN);
+				var isWalkBack:Boolean = _inputContext.inputActive(InputType.WALK_BACKWARDS);
+				if( !_jumping && (isWalk || isRun || isWalkBack) )
 				{
-					if(run)
-						moveZ(true);
-					else if(walk)
-						moveZ();
+					if(isRun)
+						run();
+					else if(isWalk)
+						walk();
+					else if(isWalkBack)
+						walkBack();
 				}
 				else
 					stop();
@@ -82,18 +91,60 @@ package agt.controllers.entities.character
 
 			// end of jump?
 			if(_jumping && _onGround)
+			{
 				_jumping = false;
+				_animator.timeScale = _rootTimeScale;
+			}
 		}
 
-		public function rotateY(value:Number):void
+		public function walk():void
 		{
-			if(value == 0)
-				return;
+			updateWalkingDirection();
 
-			rotationY += value;
+			_animator.timeScale = _rootTimeScale;
+
+			if(_onGround && !_jumping)
+			{
+				if(_activeAnimationName != walkAnimationName)
+					playAnimation(walkAnimationName);
+			}
 		}
 
-		public function moveZ(run:Boolean = false):void
+		public function run():void
+		{
+			updateWalkingDirection();
+
+			if(runTimeScaleFactor != 1)
+				_animator.timeScale = _rootTimeScale;
+
+			if(_onGround && !_jumping)
+			{
+				if(_activeAnimationName != runAnimationName)
+					playAnimation(runAnimationName);
+
+				if(runTimeScaleFactor != 1)
+					_animator.timeScale = runTimeScaleFactor * _rootTimeScale;
+			}
+		}
+
+		public function walkBack():void
+		{
+			updateWalkingDirection();
+
+			if(walkBackTimeScaleFactor != 1)
+				_animator.timeScale = _rootTimeScale;
+
+			if(_onGround && !_jumping)
+			{
+				if(_activeAnimationName != walkBackAnimationName)
+					playAnimation(walkBackAnimationName);
+
+				if(walkBackTimeScaleFactor != 1)
+					_animator.timeScale = walkBackTimeScaleFactor * _rootTimeScale;
+			}
+		}
+
+		private function updateWalkingDirection(  ):void
 		{
 			if(!_jumping)
 			{
@@ -105,38 +156,25 @@ package agt.controllers.entities.character
 				_walkDirection = _rotationMatrix.transformVector(_walkDirection);
 				_entity.characterController.setWalkDirection(_walkDirection);
 			}
+		}
 
-			if(runTimeScaleFactor != 1)
-				_animator.timeScale = _rootTimeScale;
+		public function rotateY(value:Number):void
+		{
+			if(value == 0)
+				return;
 
-			if(_onGround && !_jumping)
-			{
-				if( run )
-				{
-					if(_activeAnimationName != "run")
-						playAnimation(runAnimationName);
-
-					if(runTimeScaleFactor != 1)
-						_animator.timeScale = 2 * _rootTimeScale;
-				}
-				else
-				{
-					if(_activeAnimationName != "walk")
-						playAnimation(walkAnimationName);
-				}
-			}
+			rotationY += value;
 		}
 
 		public function stop():void
 		{
-//			trace('stop');
-			if(!_jumping)
+			if(!_jumping && _onGround)
 			{
 				var speed:Number = _animator.rootDelta.length;
-//				trace('speed', speed);
 
 				if(speed > 0)
 				{
+					_animator.timeScale = _rootTimeScale;
 					playAnimation(idleAnimationName);
 				}
 
@@ -152,6 +190,10 @@ package agt.controllers.entities.character
 			if(_onGround)
 			{
 				playAnimation(jumpAnimationName);
+
+				if(jumpTimeScaleFactor != 1)
+					_animator.timeScale = jumpTimeScaleFactor * _rootTimeScale;
+
 				_jumping = true;
 				_entity.characterController.jump();
 			}
@@ -171,8 +213,6 @@ package agt.controllers.entities.character
 			return _rotationY;
 		}
 
-		private var _animationsLocked:Boolean = false;
-		private var _exclusiveSequence:SkeletonAnimationSequence;
 		public function playAnimation(animationName:String, exclusive:Boolean = false):void
 		{
 			if(_animationsLocked || _activeAnimationName == animationName)

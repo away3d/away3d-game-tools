@@ -19,9 +19,9 @@ package agt.input.contexts
 		private var _deltaWheel:Number;
 		private var _stage:Stage;
 
-		public var dragXMultiplier:Number = -5;
-		public var dragYMultiplier:Number = 5;
-		public var wheelMultiplier:Number = 50;
+		public var dragXMultiplier:Number = -1.25;
+		public var dragYMultiplier:Number = 1.25;
+		public var wheelMultiplier:Number = 5;
 
 		private var _inputMethodX:String;
 		private var _inputMethodY:String;

@@ -10,6 +10,7 @@ package agt.input.data
 		public static const ROTATE_Y:String = 'rotateY';
 		public static const ROTATE_Z:String = 'rotateZ';
 		public static const WALK:String = 'walk';
+		public static const WALK_BACKWARDS:String = 'walk_backwards';
 		public static const RUN:String = 'run';
 		public static const JUMP:String = 'jump';
 		public static const PRESS:String = 'press';
