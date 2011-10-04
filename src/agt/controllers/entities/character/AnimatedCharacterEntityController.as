@@ -79,7 +79,7 @@ package agt.controllers.entities.character
 					else if(isWalkBack)
 						walkBack();
 				}
-				else
+				else if(_onGround)
 					stop();
 
 				if(_inputContext.inputActive(InputType.JUMP))

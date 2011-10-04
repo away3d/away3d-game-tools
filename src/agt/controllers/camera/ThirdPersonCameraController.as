@@ -177,7 +177,7 @@ package agt.controllers.camera
 			_colliding = false;
 
 			if( _collisionRelease < 1 )
-				_collisionRelease += 0.01;
+				_collisionRelease += 0.05;
 		}
 
 		public function moveAzimuth(amount:Number):void
