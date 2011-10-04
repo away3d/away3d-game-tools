@@ -115,7 +115,7 @@ package agt.physics.entities
 			_characterController.warp(value);
 		}
 
-		public function get rotationMatrix():Matrix3D
+		public function get rotation():Vector3D
 		{
 			return _kinematicBody.rotation;
 		}

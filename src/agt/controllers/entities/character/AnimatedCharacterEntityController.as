@@ -35,6 +35,7 @@ package agt.controllers.entities.character
 		protected var _rotationMatrix:Matrix3D;
 		private var _animationsLocked:Boolean = false;
 		private var _exclusiveSequence:SkeletonAnimationSequence;
+		private var _rootTimeScale:Number = 1;
 
 		public var speedFactor:Number = 1;
 
@@ -88,6 +89,13 @@ package agt.controllers.entities.character
 
 			// update ground contact
 			_onGround = _entity.characterController.onGround();
+
+			if(_jumping)
+			{
+				_entity.characterController.setWalkDirection(_walkDirection);
+				_entity.characterController.ghostObject.rotation.y = _rotationY;
+				_entity.characterController.ghostObject.skin.rotationY = _rotationY;
+			}
 
 			// end of jump?
 			if(_jumping && _onGround)
@@ -151,10 +159,13 @@ package agt.controllers.entities.character
 				_walkDirection.x = -_animator.rootDelta.x * speedFactor;
 				_walkDirection.y = -_animator.rootDelta.y * speedFactor;
 				_walkDirection.z = -_animator.rootDelta.z * speedFactor;
+
 				_rotationMatrix.identity();
 				_rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
 				_walkDirection = _rotationMatrix.transformVector(_walkDirection);
 				_entity.characterController.setWalkDirection(_walkDirection);
+				_entity.characterController.ghostObject.rotation.y = _rotationY;
+				_entity.characterController.ghostObject.skin.rotationY = _rotationY;
 			}
 		}
 
@@ -164,6 +175,7 @@ package agt.controllers.entities.character
 				return;
 
 			rotationY += value;
+			updateWalkingDirection();
 		}
 
 		public function stop():void
@@ -182,6 +194,8 @@ package agt.controllers.entities.character
 				_walkDirection.y = 0;
 				_walkDirection.z = 0;
 				_entity.characterController.setWalkDirection(_walkDirection);
+				_entity.characterController.ghostObject.rotation.y = _rotationY;
+				_entity.characterController.ghostObject.skin.rotationY = _rotationY;
 			}
 		}
 
@@ -202,10 +216,7 @@ package agt.controllers.entities.character
 		public function set rotationY(value:Number):void
 		{
 			_rotationY = value;
-
-			var rotationMatrix:Matrix3D = new Matrix3D(); // TODO: Optimize.
-			rotationMatrix.appendRotation(_rotationY, Vector3D.Y_AXIS);
-			_entity.kinematicBody.rotation = rotationMatrix;
+			_entity.kinematicBody.rotation.y = _rotationY;
 		}
 
 		public function get rotationY():Number
@@ -242,7 +253,6 @@ package agt.controllers.entities.character
 			_activeAnimationName = "";
 		}
 
-		private var _rootTimeScale:Number = 1;
 		public function set timeScale(value:Number):void
 		{
 			_animator.timeScale = value;

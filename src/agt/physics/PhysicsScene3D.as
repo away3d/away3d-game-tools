@@ -42,7 +42,7 @@ package agt.physics
 			_physics = AWPDynamicsWorld.getInstance();
 			_physics.initWithDbvtBroadphase();
 			_physics.collisionCallbackOn = true;
-			_physics.gravity = new Vector3D(0, -10, 0);
+			_physics.gravity = new Vector3D(0, -5, 0);
 		}
 
 		public function addRigidBody(body:AWPRigidBody):void
@@ -79,7 +79,7 @@ package agt.physics
 		{
 			// add physics kinematics part
 			_physics.addCharacter(entity.characterController, _characterKinematicObjectsCollisionGroup, _sceneObjectsCollisionGroup);
-			entity.characterController.gravity = -_physics.gravity.y * _physics.scaling * 2.9;
+			entity.characterController.gravity = -_physics.gravity.y * _physics.scaling * 0.1;
 
 			// add physics dynamics part
 			_physics.addRigidBodyWithGroup(entity.dynamicBody, _characterDynamicObjectsCollisionGroup, _sceneObjectsCollisionGroup);

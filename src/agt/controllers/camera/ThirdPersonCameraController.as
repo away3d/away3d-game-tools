@@ -76,7 +76,7 @@ package agt.controllers.camera
 			if( collisionObj.skin )
 			{
 				_collisionPoint = _collisionPoint.add( collisionObj.position );
-				_collisionPoint = collisionObj.rotation.deltaTransformVector(_collisionPoint);
+				_collisionPoint = collisionObj.transform.deltaTransformVector(_collisionPoint);
 			}
 
 			var collisionPointB:Vector3D = evt.manifoldPoint.localPointA;
@@ -122,7 +122,7 @@ package agt.controllers.camera
 			if( !underInput && _directionEnforcement != 0 && !_colliding)
 			{
 				var targetForward:Vector3D = Vector3D.X_AXIS;
-				targetForward = _targetController.entity.rotationMatrix.transformVector( targetForward );
+				targetForward = _targetController.entity.kinematicBody.transform.deltaTransformVector( targetForward );
 				targetForward.normalize();
 				targetForward.y = 0;
 				var cameraRight:Vector3D = _camera.transform.deltaTransformVector( Vector3D.Z_AXIS );
