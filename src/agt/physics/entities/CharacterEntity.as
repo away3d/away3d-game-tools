@@ -9,7 +9,7 @@ package agt.physics.entities
 	import awayphysics.data.AWPCollisionFlags;
 	import awayphysics.dynamics.AWPRigidBody;
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
-	import awayphysics.events.AWPCollisionEvent;
+	import awayphysics.events.AWPEvent;
 
 	import flash.geom.Matrix3D;
 
@@ -78,8 +78,8 @@ package agt.physics.entities
 	   		if(!_collisionNotifications)
 				_collisionNotifications = new Dictionary();
 
-			if(!_kinematicBody.hasEventListener(AWPCollisionEvent.COLLISION_ADDED))
-				_kinematicBody.addEventListener(AWPCollisionEvent.COLLISION_ADDED, collisionAddedHandler);
+			if(!_kinematicBody.hasEventListener(AWPEvent.COLLISION_ADDED))
+				_kinematicBody.addEventListener(AWPEvent.COLLISION_ADDED, collisionAddedHandler);
 
 			_collisionNotifications[body] = action;
 		}
@@ -89,7 +89,7 @@ package agt.physics.entities
 			// TODO.
 		}
 
-		private function collisionAddedHandler(evt:AWPCollisionEvent):void
+		private function collisionAddedHandler(evt:AWPEvent):void
 		{
 			if(_collisionNotifications && _collisionNotifications[AWPRigidBody(evt.collisionObject)])
 				_collisionNotifications[AWPRigidBody(evt.collisionObject)]();

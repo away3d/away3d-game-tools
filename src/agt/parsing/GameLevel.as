@@ -1,14 +1,11 @@
 package agt.parsing
 {
 
-	import agt.debug.DebugMaterialLibrary;
 	import agt.physics.PhysicsScene3D;
 	import agt.utils.PhysicsUtils;
 
 	import away3d.bounds.AxisAlignedBoundingBox;
-
 	import away3d.containers.ObjectContainer3D;
-
 	import away3d.entities.Mesh;
 	import away3d.library.assets.IAsset;
 	import away3d.materials.DefaultMaterialBase;
@@ -16,10 +13,8 @@ package agt.parsing
 	import awayphysics.collision.shapes.AWPBoxShape;
 	import awayphysics.collision.shapes.AWPBvhTriangleMeshShape;
 	import awayphysics.collision.shapes.AWPCollisionShape;
-
 	import awayphysics.collision.shapes.AWPConeShape;
 	import awayphysics.collision.shapes.AWPCylinderShape;
-
 	import awayphysics.collision.shapes.AWPSphereShape;
 	import awayphysics.collision.shapes.AWPStaticPlaneShape;
 	import awayphysics.dynamics.AWPRigidBody;
@@ -148,7 +143,6 @@ package agt.parsing
 		public function parseTypeCollider(obj:ObjectContainer3D):void
 		{
 			var mesh:Mesh = obj as Mesh;
-			mesh.material = DebugMaterialLibrary.instance.redMaterial;
 
 			var aabb:AxisAlignedBoundingBox;
 			var friction:Number;
@@ -182,7 +176,6 @@ package agt.parsing
 
 				case 'mesh':
 					shape = new AWPBvhTriangleMeshShape(mesh.geometry);
-					mesh.material = DebugMaterialLibrary.instance.greenMaterial;
 					break;
 
 				case 'box':

@@ -15,7 +15,7 @@ package agt.controllers.camera
 	import awayphysics.data.AWPCollisionFlags;
 
 	import awayphysics.dynamics.character.AWPKinematicCharacterController;
-	import awayphysics.events.AWPCollisionEvent;
+	import awayphysics.events.AWPEvent;
 
 	import flash.geom.Vector3D;
 
@@ -50,8 +50,8 @@ package agt.controllers.camera
 		{
 			if(_collider)
 			{
-				if(_collider.ghostObject.hasEventListener(AWPCollisionEvent.COLLISION_ADDED))
-					_collider.ghostObject.removeEventListener(AWPCollisionEvent.COLLISION_ADDED, colliderCollisionAddedHandler);
+				if(_collider.ghostObject.hasEventListener(AWPEvent.COLLISION_ADDED))
+					_collider.ghostObject.removeEventListener(AWPEvent.COLLISION_ADDED, colliderCollisionAddedHandler);
 			}
 
 			var colliderShape:AWPCapsuleShape = new AWPCapsuleShape(width, height);
@@ -63,12 +63,12 @@ package agt.controllers.camera
 
 			_collider.warp(_camera.position);
 
-			_collider.ghostObject.addEventListener(AWPCollisionEvent.COLLISION_ADDED, colliderCollisionAddedHandler);
+			_collider.ghostObject.addEventListener(AWPEvent.COLLISION_ADDED, colliderCollisionAddedHandler);
 
 			return _collider;
 		}
 
-		private function colliderCollisionAddedHandler( evt:AWPCollisionEvent ):void
+		private function colliderCollisionAddedHandler( evt:AWPEvent ):void
 		{
 			var collisionObj:AWPCollisionObject = evt.collisionObject;
 
