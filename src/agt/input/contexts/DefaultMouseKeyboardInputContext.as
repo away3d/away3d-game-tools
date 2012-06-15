@@ -13,24 +13,25 @@ package agt.input.contexts
 		public var mouseInputContext:MouseInputContext;
 		public var keyboardInputContext:KeyboardInputContext;
 
-		public function DefaultMouseKeyboardInputContext(context:Sprite, stage:Stage)
-		{
+		public function DefaultMouseKeyboardInputContext( context:Sprite, stage:Stage, translationAmount:Number = 25, rotationAmount:Number = 10 ) {
 			super();
 
 			// mouse input
-			mouseInputContext = new MouseInputContext(context, stage);
+			mouseInputContext = new MouseInputContext( context, stage );
+			mouseInputContext.dragXMultiplier = -rotationAmount;
+			mouseInputContext.dragYMultiplier =  rotationAmount;
 
 			// keyboard input
-			keyboardInputContext = new KeyboardInputContext(stage);
-			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_X, 50, Keyboard.RIGHT);
-			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_X, -50, Keyboard.LEFT);
-			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Z, 50, Keyboard.UP);
-			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Z, -50, Keyboard.DOWN);
-			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Y, 50, Keyboard.Z);
-			keyboardInputContext.mapWithAmount(InputType.TRANSLATE_Y, -50, Keyboard.X);
+			keyboardInputContext = new KeyboardInputContext( stage );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_X,  translationAmount, Keyboard.D );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_X, -translationAmount, Keyboard.A );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Z,  translationAmount, Keyboard.W );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Z, -translationAmount, Keyboard.S );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Y,  translationAmount, Keyboard.Z );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Y, -translationAmount, Keyboard.X );
 
-			addContext(mouseInputContext);
-			addContext(keyboardInputContext);
+			addContext( mouseInputContext );
+			addContext( keyboardInputContext );
 		}
 	}
 }
