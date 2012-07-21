@@ -4,8 +4,8 @@ agt.utils{
 	import agt.controllers.entities.character.AnimatedCharacterEntityController;
 	import agt.physics.entities.CharacterEntity;
 
-	import away3d.animators.data.SkeletonAnimationSequence;
-	import away3d.animators.data.SkeletonAnimationState;
+//	import away3d.animators.data.SkeletonAnimationSequence;
+//	import away3d.animators.data.SkeletonAnimationState;
 
 	import away3d.entities.Mesh;
 
@@ -18,16 +18,16 @@ agt.utils{
 		public var controller:AnimatedCharacterEntityController;
 		public var skin:Mesh;
 
-		public function SimpleGameCharacter(mesh:Mesh, 
-									  idleAnimation:SkeletonAnimationSequence, 
+		public function SimpleGameCharacter(/*mesh:Mesh,
+									  idleAnimation:SkeletonAnimationSequence,
 									  walkAnimation:SkeletonAnimationSequence, 
 									  runAnimation:SkeletonAnimationSequence, 
 									  animationCrossFadeTime:Number = 0.25,
 									  runSpeedThreshold:Number = 3, 
-									  speedFactor : Number = 1.2)
+									  speedFactor : Number = 1.2*/)
 		{
 			// get mesh and wrap it to apply transform offsets
-			this.baseMesh = mesh;
+			/*this.baseMesh = mesh;
 			var middleMesh:Mesh = new Mesh();
 			middleMesh.scale(12);
 			middleMesh.rotationY = 180;
@@ -53,7 +53,7 @@ agt.utils{
 			controller.runAnimationName = runAnimation.name;
 			controller.animationCrossFadeTime = animationCrossFadeTime;
 			controller.runSpeedThreshold = runSpeedThreshold;
-			controller.speedFactor = speedFactor;
+			controller.speedFactor = speedFactor;*/
 		}
 	}
 }

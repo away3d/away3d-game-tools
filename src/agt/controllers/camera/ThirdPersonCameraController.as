@@ -122,16 +122,16 @@ package agt.controllers.camera
 			if( !underInput && _directionEnforcement != 0 && !_colliding)
 			{
 				var targetForward:Vector3D = Vector3D.X_AXIS;
-				targetForward = _targetController.entity.kinematicBody.transform.deltaTransformVector( targetForward );
+//				targetForward = _targetController.entity.kinematicBody.transform.deltaTransformVector( targetForward );
 				targetForward.normalize();
 				targetForward.y = 0;
 				var cameraRight:Vector3D = _camera.transform.deltaTransformVector( Vector3D.Z_AXIS );
 				cameraRight.normalize();
 				cameraRight.y = 0;
 				var proj:Number = targetForward.dotProduct( cameraRight );
-				var speed:Number = _targetController.entity.characterController.walkDirection.length;
-				var enforcement:Number = _collisionRelease * _directionEnforcement * proj * speed;
-				moveAzimuth( enforcement );
+//				var speed:Number = _targetController.entity.characterController.walkDirection.length;
+//				var enforcement:Number = _collisionRelease * _directionEnforcement * proj * speed;
+//				moveAzimuth( enforcement );
 			}
 
 			// respond to collision
@@ -169,7 +169,7 @@ package agt.controllers.camera
 			_currentSphericalCoordinates.y += dy * angularEase;
 			_currentSphericalCoordinates.z += dz * linearEase;
 			_camera.position = sphericalToCartesian(_currentSphericalCoordinates);
-			_camera.lookAt(_targetController.entity.position);
+//			_camera.lookAt(_targetController.entity.position);
 
 			if( _collider )
 				_collider.warp( _camera.position );
@@ -209,19 +209,19 @@ package agt.controllers.camera
 		{
 			var cartesianCoords:Vector3D = new Vector3D();
 			var r:Number = sphericalCoords.z;
-			cartesianCoords.y = _targetController.entity.position.y + r * Math.sin(-sphericalCoords.y);
+//			cartesianCoords.y = _targetController.entity.position.y + r * Math.sin(-sphericalCoords.y);
 			var cosE:Number = Math.cos(-sphericalCoords.y);
-			cartesianCoords.x = _targetController.entity.position.x + r * cosE * Math.sin(sphericalCoords.x);
-			cartesianCoords.z = _targetController.entity.position.z + r * cosE * Math.cos(sphericalCoords.x);
+//			cartesianCoords.x = _targetController.entity.position.x + r * cosE * Math.sin(sphericalCoords.x);
+//			cartesianCoords.z = _targetController.entity.position.z + r * cosE * Math.cos(sphericalCoords.x);
 			return cartesianCoords;
 		}
 
 		private function cartesianToSpherical(cartesianCoords:Vector3D):Vector3D
 		{
 			var cartesianFromCenter:Vector3D = new Vector3D();
-			cartesianFromCenter.x = cartesianCoords.x - _targetController.entity.position.x;
-			cartesianFromCenter.y = cartesianCoords.y - _targetController.entity.position.y;
-			cartesianFromCenter.z = cartesianCoords.z - _targetController.entity.position.z;
+//			cartesianFromCenter.x = cartesianCoords.x - _targetController.entity.position.x;
+//			cartesianFromCenter.y = cartesianCoords.y - _targetController.entity.position.y;
+//			cartesianFromCenter.z = cartesianCoords.z - _targetController.entity.position.z;
 			var sphericalCoords:Vector3D = new Vector3D();
 			sphericalCoords.z = cartesianFromCenter.length;
 			sphericalCoords.x = Math.atan2(cartesianFromCenter.x, cartesianFromCenter.z);

@@ -38,7 +38,7 @@ package agt.controllers.camera
 			}
 
 			// set camera position equal to entity, with offset
-			_camera.position = _targetController.entity.position.add(_cameraOffset);
+//			_camera.position = _targetController.entity.position.add(_cameraOffset);
 
 			// ease orientation
 			var dx:Number = _cameraDummy.rotationX - _camera.rotationX;
@@ -49,7 +49,7 @@ package agt.controllers.camera
 			_camera.rotationZ += dz * angularEase;
 
 			// fix target rotation to camera rotation
-			_targetController.rotationY = _camera.rotationY;
+//			_targetController.rotationY = _camera.rotationY;
 		}
 
 		public function rotateX(value:Number):void
@@ -76,7 +76,7 @@ package agt.controllers.camera
 		{
 			super.camera = value;
 
-			_camera.position = _targetController.entity.position; // TODO: also apply rotation
+//			_camera.position = _targetController.entity.position; // TODO: also apply rotation
 			_cameraDummy.position = _camera.position;
 
 			// TODO: Not sure why, but if this isn't done, Y rotation is inverted some times

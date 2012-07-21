@@ -6,9 +6,9 @@ package agt.controllers.entities.character
 	import agt.input.data.InputType;
 	import agt.physics.entities.CharacterEntity;
 
-	import away3d.animators.SmoothSkeletonAnimator;
-	import away3d.animators.data.SkeletonAnimationSequence;
-	import away3d.animators.data.SkeletonAnimationState;
+//	import away3d.animators.SmoothSkeletonAnimator;
+//	import away3d.animators.data.SkeletonAnimationSequence;
+//	import away3d.animators.data.SkeletonAnimationState;
 	import away3d.events.AnimatorEvent;
 
 	import flash.geom.Matrix3D;
@@ -17,7 +17,7 @@ package agt.controllers.entities.character
 
 	public class AnimatedCharacterEntityController extends ControllerBase implements IController
 	{
-		public var walkAnimationName:String = "walk";
+		/*public var walkAnimationName:String = "walk";
 		public var idleAnimationName:String = "idle";
 		public var runAnimationName:String = "run";
 		public var jumpAnimationName:String = "jump";
@@ -41,19 +41,19 @@ package agt.controllers.entities.character
 
 		public var runTimeScaleFactor:Number = 1; // time re-scaling is off with 1
 		public var walkBackTimeScaleFactor:Number = 1;
-		public var jumpTimeScaleFactor:Number = 1;
+		public var jumpTimeScaleFactor:Number = 1;*/
 
-		public function AnimatedCharacterEntityController(entity:CharacterEntity, animationState:SkeletonAnimationState)
+		public function AnimatedCharacterEntityController(/*entity:CharacterEntity, animationState:SkeletonAnimationState*/)
 		{
-			_animator = new SmoothSkeletonAnimator(SkeletonAnimationState(animationState));
+			/*_animator = new SmoothSkeletonAnimator(SkeletonAnimationState(animationState));
 			_animator.updateRootPosition = false;
 			_activeAnimationName = "";
 			_walkDirection = new Vector3D();
 			_entity = entity;
-			_rotationMatrix = new Matrix3D();
+			_rotationMatrix = new Matrix3D();*/
 		}
 
-		public function addAnimationSequence(sequence:SkeletonAnimationSequence):void
+		/*public function addAnimationSequence(sequence:SkeletonAnimationSequence):void
 		{
 			if(sequence != null)
 				_animator.addSequence(sequence);
@@ -267,6 +267,6 @@ package agt.controllers.entities.character
 		public function get entity():CharacterEntity
 		{
 			return _entity;
-		}
+		}*/
 	}
 }
