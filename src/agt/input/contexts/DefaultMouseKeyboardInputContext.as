@@ -27,8 +27,8 @@ package agt.input.contexts
 			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_X, -translationAmount, Keyboard.A );
 			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Z,  translationAmount, Keyboard.W );
 			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Z, -translationAmount, Keyboard.S );
-			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Y,  translationAmount, Keyboard.Z );
-			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Y, -translationAmount, Keyboard.X );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Y,  translationAmount, Keyboard.X );
+			keyboardInputContext.mapWithAmount( InputType.TRANSLATE_Y, -translationAmount, Keyboard.Z );
 
 			addContext( mouseInputContext );
 			addContext( keyboardInputContext );
